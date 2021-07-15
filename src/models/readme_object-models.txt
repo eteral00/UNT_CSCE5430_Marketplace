@@ -1,0 +1,1 @@
+This is directory for models of objects such as "user", "product", etc.
