@@ -58,7 +58,7 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- Table `marketplace`.`user`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `marketplace`.`user` (
-  `user_name` VARCHAR(50) NOT NULL,
+  `username` VARCHAR(50) NOT NULL,
   `user_password` BLOB NOT NULL,
   `is_admin` BIT(1) NOT NULL DEFAULT b'0',
   `is_locked` BIT(1) NOT NULL DEFAULT b'0',
@@ -69,8 +69,8 @@ CREATE TABLE IF NOT EXISTS `marketplace`.`user` (
   `last_name` VARCHAR(50) NOT NULL,
   `default_address_id` INT NULL DEFAULT NULL,
   `payment_reception_method_id` INT NULL DEFAULT NULL,
-  PRIMARY KEY (`user_name`),
-  UNIQUE INDEX `user_name_UNIQUE` (`user_name` ASC) VISIBLE,
+  PRIMARY KEY (`username`),
+  UNIQUE INDEX `user_name_UNIQUE` (`username` ASC) VISIBLE,
   INDEX `fk_address_id_idx` (`default_address_id` ASC) VISIBLE,
   INDEX `fk_payment_reception_method_id_idx` (`payment_reception_method_id` ASC) VISIBLE,
   CONSTRAINT `fk_address_id`
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS `marketplace`.`order` (
   INDEX `fk_shipping_info_id_idx` (`shipping_info_id` ASC) VISIBLE,
   CONSTRAINT `fk_buyer_user_name`
     FOREIGN KEY (`buyer_user_name`)
-    REFERENCES `marketplace`.`user` (`user_name`)
+    REFERENCES `marketplace`.`user` (`username`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE,
   CONSTRAINT `fk_payment_method_id`
@@ -152,6 +152,7 @@ CREATE TABLE IF NOT EXISTS `marketplace`.`product` (
   `product_id` INT NOT NULL AUTO_INCREMENT,
   `is_removed` BIT(1) NOT NULL DEFAULT b'0',
   `product_name` VARCHAR(255) NOT NULL,
+  `product_category` VARCHAR(50) NOT NULL,
   `product_description` TEXT NULL DEFAULT NULL,
   `product_image_link` TEXT NULL DEFAULT NULL,
   `unit_price` DECIMAL(65,2) NOT NULL,
@@ -163,7 +164,7 @@ CREATE TABLE IF NOT EXISTS `marketplace`.`product` (
   INDEX `fk_seller_user_name_idx` (`seller_user_name` ASC) VISIBLE,
   CONSTRAINT `fk_seller_user_name`
     FOREIGN KEY (`seller_user_name`)
-    REFERENCES `marketplace`.`user` (`user_name`)
+    REFERENCES `marketplace`.`user` (`username`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE)
 ENGINE = InnoDB

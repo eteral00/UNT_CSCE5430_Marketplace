@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SHOPPING CART</title>
+    <link rel ="stylesheet" type="text/css" href="product_style.css"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+        function change(){
+            
+            document.getElementByClassName("cart px-sm-5 px-2").classList.toggle(" cart px-sm-5 px-2 bg-dark");
+        }
+        document.getElementById("proceed btn-secondary").onclick = function () {
+        location.href = "";
+    };
+    </script>
+</head>
+<body onload="change()">
+    <div class ="container  py-4 my-3">
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+          <div class="container">
+            <div class="navbar-header px-5">
+              <a class="navbar-brand px-3" href="login.html">Home</a>
+              <a class="navbar-brand px-3" href="#"><b>Shopping Cart</b></a>
+              <a class="navbar-brand px-3 dis" >Shipping Details</a>
+              <a class="navbar-brand px-3 dis" >Payment Options</a>
+            </div>
+          </div>
+        </nav>
+        <div class="container pl-5 " >
+            <div class="progress align-middle " style="height:3px; width:50%">
+                <div class="progress-bar bg-success" role="progressbar" aria-valuemin="0" aria-valuenow="33" aria-valuemax="100" style="width: 33%">
+                </div>
+            </div>
+        </div>    
+    <div class ="container bg-light pt-5 pb-auto">
+
+        <div class="row align-items-center">
+            <div class= "prod col align-items-left">
+                <img src="product_shop_cart.jfif" class="rounded" alt="Rounded Image">
+            </div>
+            <div class="prod col align-items-center" >
+                <div class = "container-sm  px-3 my-3 border bg-secondary "> <h5>PRODUCT NAME</h5></div>
+                <h4 >price:</h4>
+                <h5 >$30.00</h5>
+                <button type="button" class="delete btn-danger px-3">Delete</button>
+            </div>
+            <div class="prod col align-items-right">
+                <div class = "container-sm bg-secondary">SUMMARY</div>
+                <h5>SUBTOTAL: $30.00 </h5>
+                <h5>SHIPPING : $10.00</h5>
+                <h5>TAXES : $2.00 </h5>
+                <div class = "container-sm bg-secondary">TOTAL:$42</div>
+            </div>    
+        </div>
+
+
+            
+        <div class="float-right pt-5">
+        <button onclick="location.href = 'login.html';" type="button" class="proceed btn-secondary ">Cancel</button>
+        <button onclick="location.href = 'shippingdetails.html';"type="button" class="Cancel btn-secondary ">proceed
+        </button></div>
+
+
+    </div>
+
+    <div class="d-flex justify-content-center">
+        <script>
+            var pages = Math.floor(100/3);
+            document.getElementByClassName('cart px-sm-5 px-2').className="container-sm bg-light";
+            document.getElementByClassName('progress-bar').setAttribute('aria-valuenow',pages);
+            document.getElementByClassName('progress-bar').setAttribute('style','width: '+Number(pages)+%);
+        </script> 
+
+    </div>
+
+    </div>    
+</body>
+</html> 

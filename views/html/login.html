@@ -1,0 +1,75 @@
+<html>
+<head>
+	<title> SE project USER Login and Registration </title>
+
+	<link rel ="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+	<link rel ="stylesheet" type="text/css" href="../css/style.css"/>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script>
+		
+		$(document).ready(function() {
+			var url = window.location.toString();
+			if (url.indexOf("?") > 0) {
+				var clean_url = url.substring(0, url.indexOf("?"));
+				window.history.replaceState({}, document.title, clean_url);
+			}
+		
+			$("#login_submit").click( function(event) {
+				$.ajax({
+					method : "POST",
+					url : "/login",
+					data : {
+						username: $("#username").val(),
+						password: $("#password").val()
+					},
+					dataType: "json",
+					success: function(result){
+						$(location).attr("href", "homepage.html");
+					},
+					error: function(){
+						$("#message_text").html("jquery ajax error");
+					}
+					
+				});
+			} );
+		});			
+	</script>
+</head>
+
+<body>
+	<div class="container">
+		<div class="login-box">
+			<div class ="row">
+				<div class ="col-md-6 login-left">
+					<h2> Login Here </h2>
+					<div id="login_info">
+						<div class="form-group">
+							<label for="username">Username</label>
+							<input type ="text" name ="username" id="username" class="form-control" required>
+						</div>
+						
+						<div class="form-group">
+							<label for="password">Password</label>
+							<input type ="Password" name ="password" id="password" class="form-control" required>
+						</div>
+						<button class="btn btn-primary " type="submit" id="login_submit">Login</button>
+					</div>	
+					<br/>
+					<br/>
+					<br/>
+					<div class="align">
+						<h3 id="message_text"></h3>
+					</div>
+					<br/>
+					<div class="align">
+						<h2> New User </h2>
+						<button onclick="location.href = 'register.html';" class="btn btn-primary align ">Register Here</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+</body>	
+</html>
