@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SHOPPING CART</title>
+    <link rel ="stylesheet" type="text/css" href="product_style.css"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+        function change(){
+            
+            document.getElementByClassName("cart px-sm-5 px-2").classList.toggle(" cart px-sm-5 px-2 bg-dark");
+        }
+        document.getElementById("proceed btn-secondary").onclick = function () {
+        location.href = "";
+    };
+    </script>
+</head>
+<body onload="change()">
+    <div class ="container  py-4 my-3">
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+          <div class="container">
+            <div class="navbar-header px-5">
+              <a class="navbar-brand px-3" href="login.html">Home</a>
+              <a class="navbar-brand px-3 " href="shoppingcart.html">Shopping Cart</a>
+              <a class="navbar-brand px-3 " href="#"><b>Shipping Details</b></a>
+              <a class="navbar-brand px-3 dis" >Payment Options</a>
+            </div>
+          </div>
+        </nav>
+        <div class="container pl-5 " >
+            <div class="progress align-middle " style="height:3px; width:50%">
+                <div class="progress-bar bg-success" role="progressbar" aria-valuemin="0" aria-valuenow="33" aria-valuemax="100" style="width: 66%">
+                </div>
+            </div>
+        </div>  
+            
+    <div class ="container bg-light py-5">
+
+        <h4>Shipping Details:</h4>
+        <form method ="post" action="paymentoption.html">
+            <div class="form-row">
+                <div class ="col-6" class="form-group">
+                    <input type="text" class="form-control" placeholder="First Name"  required="true">
+                </div>
+                <div class= "col" class="form-group" >
+                    <input type="text" class="form-control" placeholder="Last Name"  required="true">
+                </div>
+            </div>    
+            <div class="form-group pt-3">
+                <input type="text" class="form-control" placeholder="ADDRESS 1:" required="true">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="ADDRESS 2:"  required="true">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="phone"  required="true">
+            </div>
+            <div class="form-group pb-5">
+                <input type="text" class="form-control" placeholder="zip"  required="true">
+            </div>
+            <div class="float-right">
+                <button onclick="location.href = 'shoppingcart.html';" class="proceed btn-secondary ">PREVIOUS</button>
+                <button type="submit" class="Cancel btn-secondary ">NEXT</button>
+            </div>
+
+        </form>
+
+            
+        
+
+    </div>
+
+    <div class="d-flex justify-content-center">
+        <script>
+            var pages = Math.floor(100/3);
+            document.getElementByClassName('cart px-sm-5 px-2').className="container-sm bg-light";
+            document.getElementByClassName('progress-bar').setAttribute('aria-valuenow',pages);
+            document.getElementByClassName('progress-bar').setAttribute('style','width: '+Number(pages)+%);
+        </script> 
+
+    </div>
+
+    </div>    
+</body>
+</html> 

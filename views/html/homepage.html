@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title> Marketplace Home Page </title>
+  <link rel ="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+  <link rel ="stylesheet" type="text/css" href="../css/style.css"/>
+  <script>
+    function automobile() {
+      location.href="automobiles.html";
+    }
+  </script>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">Market Place</a>
+    <button class="navbar-toggler" type="button" 
+      data-toggle="collapse" data-target="#navbarNav" 
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Home 
+            <span class="sr-only">(current)</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="update_profile.html">Update profile</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="shoppingcart.html">Shopping cart</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link " href="sell_items.html">Selling items</a>
+        </li>
+      <li class="nav-item">
+          <a class="nav-link " href="logout">Logout</a>
+        </li>
+      </ul>
+    </div>
+
+    <form class="form-inline">
+      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+
+  </nav>
+  <br/>
+  <br/>
+
+  <div class="card-deck">
+    
+    <div class="card" >
+      <img class="card-img-top" id="automobile" 
+        src="../img/automobiles.png" href="#" alt="Card image cap" 
+        onclick="automobile()">
+      <div class="card-body">
+        <h5 class="card-title">Automoblies</h5>
+        <p class="card-text">Used cars, used bicycle find your all automobile needs over here.</p>
+      </div>
+    </div>
+    
+    <div class="card">
+      <img class="card-img-top" id="electronic" 
+        src="../img/electronics.png" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title">Electronics</h5>
+        <p class="card-text">Headphones,laptop,PC what not find all your electronic needs over here.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <img class="card-img-top" id="furniture"
+        src="../img/furniture.png" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title">Furniture</h5>
+        <p class="card-text">Sofa,cupboard,mugs, untensils find all your furniture needs here.</p>
+
+      </div>
+    </div>
+  
+  </div>
+  
+</body>
+</html>

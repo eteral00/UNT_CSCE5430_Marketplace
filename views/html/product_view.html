@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Automobiles</title>
+
+    <style>
+        table { width: 100%; }
+         td { border: solid 0px #DDD;
+            border-collapse: collapse; padding: 2px 3px,width:15%;
+        }
+    </style>
+</head>
+<body onload="createTable()">
+<div id="add">
+</div>
+</body>
+<script>
+function createTable()
+{
+var prod_img=document.createElement('table');
+var table_row= prod_img.insertRow(-1);
+var table_cell = document.createElement('td');
+table_cell=table_row.insertCell(0);
+var img=document.createElement('img');
+img.src=localStorage.getItem('image');
+table_cell.appendChild(img);
+var table_cell1 = document.createElement('td');
+table_cell1=table_row.insertCell(1);
+var price=document.createElement('p');
+var value= document.createTextNode(localStorage.getItem('txtvalue'));
+price.appendChild(value);
+
+table_cell1.appendChild(price);
+
+
+document.getElementById('add').appendChild(prod_img);
+//document.getElementById('add').appendChild();
+}
+
+</script>
+</html>
