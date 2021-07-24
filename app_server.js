@@ -28,7 +28,7 @@ app_server.get("/img/:img", (req, res) => {
   try {
     console.log("GET-Img hit.");
     var options = {
-      root : path.join(__dirname, "/views/img")
+      root : path.join(__dirname, "/src/views/img")
     };
     
     var fileName = req.params.img;
@@ -52,7 +52,7 @@ app_server.get("/css/:stylesheet", (req, res) => {
   try {
     console.log("GET-Css hit.");
     var options = {
-      root : path.join(__dirname, "/views/css")
+      root : path.join(__dirname, "/src/views/css")
     };
     
     var fileName = req.params.stylesheet;
@@ -76,7 +76,7 @@ app_server.get("/js/:scriptfile", (req, res) => {
   try {
     console.log("GET-Img hit.");
     var options = {
-      root : path.join(__dirname, "/views/js")
+      root : path.join(__dirname, "/src/views/js")
     };
     
     var fileName = req.params.scriptfile;
@@ -127,7 +127,7 @@ app_server.get("/:page", (req, res) => {
     sessionOb = req.session;
 
     var options = {
-      root : path.join(__dirname, "/views/html")
+      root : path.join(__dirname, "/src/views/html")
     };
     
     var targetPage = req.params.page.toLowerCase();
@@ -226,7 +226,7 @@ app_server.get("/", (req, res) => {
     sessionOb = req.session;
 
     var options = {
-      root : path.join(__dirname, "/views/html")
+      root : path.join(__dirname, "/src/views/html")
     };
     
     //var fileName = "homepage.html";
