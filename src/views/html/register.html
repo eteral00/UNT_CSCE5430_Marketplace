@@ -26,19 +26,19 @@
 				$("#message_text").empty();
 
 				// validate input
-				var username = $("#username").val();
-				var userPassword = $("#password").val();
-				var confirmPassword = $("#confirm_password").val();
-				var userPhone = $("#phone_num").val();
-				var userEmail = $("#email").val();
-				var firstName = $("#first_name").val();
-				var lastName = $("#last_name").val();
+				var username = $("#username").val().trim();
+				var userPassword = $("#password").val().trim();
+				var confirmPassword = $("#confirm_password").val().trim();
+				var userPhone = $("#phone_num").val().trim();
+				var userEmail = $("#email").val().trim();
+				var firstName = $("#first_name").val().trim();
+				var lastName = $("#last_name").val().trim();
 
 				const emailForm = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 				const digits = /^[0-9]+$/;
 				var anyErrors = false;
 
-				if (username === "" || userPassword === "" || confirmPassword === "" || userPhone === "" || userEmail === "" || firstName === "" || lastName === "" ) {
+				if ( username === "" || userPassword === "" || confirmPassword === "" || userPhone === "" || userEmail === "" || firstName === "" || lastName === "" ) {
 						$("#message_text").append("<p>Error: All fields are Required! Please retry!</p>" );
 						anyErrors = true;
 				} else {

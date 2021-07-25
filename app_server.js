@@ -280,16 +280,13 @@ app_server.post("/login", (req, res) => {
         
         if (result_rows.length < 1) {
           console.log("Sorry! This Username, '" + queryVar + "', does not exist!");
-          //res.json({ user : null, message : "Sorry! This Username, <" + queryVar + ">, does not exist!"});
+          res.status(404).json({ message : "Sorry! This Username, '" + queryVar + "', does not exist!"});
         } else if ( Boolean(result_rows[0].is_locked.toJSON().data[0]) ) {
-          console.log("result_rows: ", result_rows[0]);
-          console.log("is_locked: ", Boolean(result_rows[0].is_locked));
-          console.log("is_locked_data: ", Boolean(result_rows[0].is_locked.toJSON().data[0]));
           console.log("Sorry! This User, '" + queryVar + "', is being locked!");
-          //res.json({ user : null, message : "Sorry! This User, <" + queryVar + ">, is being locked!"});
+          res.status(403).json({ message : "Sorry! This User, '" + queryVar + "', is being locked!"});
         } else if (JSON.stringify(result_rows[0].user_password) != JSON.stringify(hashPassword)) {
           console.log("Sorry! Wrong password!");
-          //res.json({ user : null, message : "Sorry! Wrong password!"});
+          res.status(409).json({ message : "Sorry! Wrong password!"});
         } else {
           // finally successfully logged in
           console.log("Welcome, " + queryVar + "!");
@@ -298,8 +295,8 @@ app_server.post("/login", (req, res) => {
           sessionOb.user = { username : "", is_admin : false};
           sessionOb.user.username = result_rows[0].username;
           sessionOb.user.is_admin = ( Boolean(result_rows[0].is_admin.toJSON().data[0]) );
-          console.log("req session m: ", req.session);
           
+          //console.log("req session post-login: ", req.session);
           res.status(200).json({user : { username : sessionOb.user.username, is_admin : sessionOb.user.is_admin } }).end();
           //res.end();
         }
@@ -346,11 +343,7 @@ app_server.post("/register", (req, res) => {
         }
         
       } else {
-        //console.log("Hashed Password: ", hashPassword);
-        console.log("insert results: ", result_rows);
-        console.log("insert fields: ", fields);
         console.log("Welcome, " + inputUsername + "!");
-        
         sessionOb.user = { username : "", is_admin : false};
         sessionOb.user.username = inputUsername;
         console.log("req session post-reg: ", req.session);
@@ -372,14 +365,206 @@ app_server.post("/register", (req, res) => {
 
 
 
+// PUT-update_profile
+app_server.put("/update_profile", (req, res) => {
+  try {
+    console.log("PUT-update_profile hit");
+    
+    sessionOb = req.session;
+
+    var inputFName = req.body.firstName;
+    var inputLName = req.body.lastName;
+    var inputEmail = req.body.email;
+    var inputPhone = req.body.phone;
+    
+    var queryStr = "UPDATE user SET "; 
+
+    var queryVar = [];
+    var prior_term = false;
+
+    if (inputEmail !== "") {
+      queryStr += "`email_address`= ? ";
+      queryVar.push(inputEmail);
+      prior_term = true;
+    }
+
+
+    if (inputPhone !== "") {
+      if (prior_term) {
+        queryStr += ", ";  
+      } else {
+        prior_term = true;
+      }
+      queryStr += "`phone_number`= ? ";
+      queryVar.push(inputPhone);
+    }
+
+    if (inputFName !== "") {
+      if (prior_term) {
+        queryStr += ", ";  
+      } else {
+        prior_term = true;
+      }
+      queryStr += "`first_name`= ? ";
+      queryVar.push(inputFName);
+    }
+
+    if (inputLName !== "") {
+      if (prior_term) {
+        queryStr += ", ";  
+      } else {
+        prior_term = true;
+      }
+      queryStr += "`last_name`= ? ";
+      queryVar.push(inputLName);
+    }
+
+    if (prior_term)
+    {
+      queryStr += " WHERE (`username` = ? );"
+      queryVar.push(sessionOb.user.username);
+    }
+    
+    // send query
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+      if(err) {
+        console.log("Error: ", err);
+        res.status(409).json({ message : "Sorry! There were errors updating your profile!" }).end();
+
+      } else {
+        console.log("Successfully updated the profile of user '" + sessionOb.user.username + "'!");
+        res.status(200).json({ message : "Successfully updated the profile!" }).end();
+
+      }
+    });
+
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+// PUT-change_password
+app_server.put("/change_pass", (req, res) => {
+  try {
+    console.log("PUT-change_password hit");
+    
+    sessionOb = req.session;
+
+    var currentPassword = req.body.currentPassword;
+    var newPassword = req.body.newPassword;
+    var hashCurrentPassword = SHA2.sha_256(currentPassword);
+    var hashNewPassword = SHA2.sha_256(newPassword);
+    
+    var queryStr = "SELECT username, user_password, is_admin, is_locked " + 
+      "FROM user " + 
+      "WHERE username = ? ;";
+
+    var queryVar = [sessionOb.user.username];
+    
+    // SUGGESTION: better if create a procedure in mysql for updating password so that app server only needs to query once by submitting the required variables
+    // first query, verify user enter correct current password
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+      if(err) {
+          console.log("Error: ", err);
+          //res.status();
+      } else {
+        //console.log("db pw: ", result_rows[0].user_password.toJSON().data.toString());
+        //console.log("input pw: ", hashCurrentPassword.toJSON().data.toString());
+        if ( JSON.stringify(result_rows[0].user_password) !== JSON.stringify(hashCurrentPassword) ) {
+          console.log("Sorry! Wrong password!");
+          res.status(409).json({ message : "Sorry! Wrong password!"});
+
+        } else {
+          console.log("Changing password for user '" + sessionOb.user.username + "'!");
+          queryVar.unshift(hashNewPassword);
+
+          queryStr = "UPDATE user " + 
+            " SET `user_password`= ? " +
+            " WHERE (`username` = ? );";
+
+          // send 2nd query to change password
+          mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {
+            if(err) {
+              console.log("Error: ", err);
+              //res.status();
+            } else {
+              console.log("Successfully changed password for user '" + sessionOb.user.username + "'!");
+              res.status(200).json({ message : "Successfully changed password!" }).end();
+            }
+          });
+        }
+          
+      }
+    });
+
+    if (inputEmail !== "") {
+      queryStr += "`email_address`= ? ";
+      queryVar.push(inputEmail);
+      prior_term = true;
+    }
+
+
+    if (inputPhone !== "") {
+      if (prior_term) {
+        queryStr += ", ";  
+      } else {
+        prior_term = true;
+      }
+      queryStr += "`phone_number`= ? ";
+      queryVar.push(inputPhone);
+    }
+
+    if (inputFName !== "") {
+      if (prior_term) {
+        queryStr += ", ";  
+      } else {
+        prior_term = true;
+      }
+      queryStr += "`first_name`= ? ";
+      queryVar.push(inputFName);
+    }
+
+    if (inputLName !== "") {
+      if (prior_term) {
+        queryStr += ", ";  
+      } else {
+        prior_term = true;
+      }
+      queryStr += "`last_name`= ? ";
+      queryVar.push(inputLName);
+    }
+
+    if (prior_term)
+    {
+      queryStr += " WHERE (`username` = ? );"
+      queryVar.push(sessionOb.user.username);
+    }
+    
+    // send query
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+      if(err) {
+        console.log("Error: ", err);
+        res.status(409).json({ message : "Sorry! There were errors updating your profile!" }).end();
+
+      } else {
+        console.log("Successfully updated the profile of user '" + sessionOb.user.username + "'!");
+        res.status(200).json({ message : "Successfully updated the profile!" }).end();
+
+      }
+    });
+
+  } catch (err) {
+    console.error(err.message);
+  }
+});
 
 // Basic PUT-route
 app_server.put("/", (req, res) => {
   try {
     console.log("Base PUT-route hit");
     res.status(200).json({ message: "PUT tested!" });
-  } catch (e) {
-    console.error(e.message);
+  } catch (err) {
+    console.error(err.message);
   }
 });
 

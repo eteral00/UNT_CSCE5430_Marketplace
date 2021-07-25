@@ -1,8 +1,104 @@
 <html>
 <head>
-	<title> User Update profile </title>
+	<title> User Update Profile </title>
 	<link rel ="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
 	<link rel ="stylesheet" type="text/css" href="../css/style.css"/>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script>
+		//
+		$(document).ready(function() {
+			
+			// clean URL
+			var url = window.location.toString();
+			if (url.indexOf("?") > 0) {
+				var clean_url = url.substring(0, url.indexOf("?"));
+				window.history.replaceState({}, document.title, clean_url);
+			}
+			
+			// clean input validate msg
+			$("#message_text").empty();
+
+			// validate input before submitting POST-request
+			$("#edit_save").click( function(event) {
+
+				// clean input validate msg
+				$("#message_text").empty();
+
+				// validate input
+				var firstName = $("#first_name").val().trim();
+				var lastName = $("#last_name").val().trim();
+				var userPhone = $("#phone_num").val().trim();
+				var userEmail = $("#email").val().trim();
+
+				const emailForm = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+				const digits = /^[0-9]+$/;
+				var anyErrors = false;
+				
+				// all fields are empty, nothing to edit
+				if ( firstName === "" && lastName === "" && userPhone === "" && userEmail === "" ) {
+					$("#message_text").append("<p>Error: All fields are empty. Nothing to update!</p>" );
+					anyErrors = true;
+				} else {
+					// validate length of first & last names
+					if (firstName.length > 50 || lastName.length > 50) {
+						$("#message_text").append("<p>Error: First & Last Name cannot be more than 50 characters!</p>" );
+						anyErrors = true;
+					}
+
+					// validate phone number contains only numbers
+					if (userPhone !== "" && !digits.test(userPhone)) {
+						$("#message_text").append("<p>Error: Phone Number must contain only digits!</p>" );
+						anyErrors = true;
+					}
+					// validate length of phone number
+					if ( userPhone.length > 10){
+						$("#message_text").append("<p>Error: Phone Number cannot be longer than 10 digits!</p>" );
+						anyErrors = true;
+					}
+
+					// validate email in valid format
+					if (userEmail !== "" && !emailForm.test(userEmail)) {
+						$("#message_text").append("<p>Error: Invalid Email format! Please enter a valid email in the form 'abc@abc.xyz'!</p>" );
+						anyErrors = true;
+					}
+					// validate length of email address
+					if (userEmail.length > 255){
+						$("#message_text").append("<p>Error: Email Address cannot be more than 255 characters!</p>" );
+						anyErrors = true;
+					}
+				}
+
+				// if error, prevent submit
+				if (anyErrors){
+					event.preventDefault();
+				} else {
+					// no error, submit POST-request
+					$.ajax({
+						method : "PUT",
+						url : "/update_profile",
+						data : {
+							firstName: firstName,
+							lastName: lastName,
+							phone: userPhone,
+							email: userEmail
+						},
+						dataType: "json",
+						success: function(result){
+							//alert(result.message);
+							$("#message_text").html(result.message);
+						},
+						error: function(xhr, status, err){
+							$("#message_text").empty();
+							var errorMsg = xhr.responseJSON.message;
+							$("#message_text").html(errorMsg);
+						}
+					});
+				}				
+			} );
+		});			
+	</script>
+
 </head>
 
 <body>
@@ -12,26 +108,29 @@
 				<div class ="col-md-6 ">
 					<h2> Edit Profile </h2>
 
-					<button onclick="location.href = 'change_password.html';" class="btn btn-primary right-side" > change password </button>
+					<button name="change_password" id="change_password" onclick="location.href = 'change_password.html';" class="btn btn-primary right-side" > Change Password </button>
 
-					<form>
-						<div class="form-group ">
-	
-							<label>Firstname</label>
-							<input type ="text" name ="user" class="form-control" required>
-							<label>Lastname</label>
-							<input type ="text" name ="password" class="form-control" required>
-							<label>Phonenumber</label>
-							<input type ="text" name ="password" class="form-control" required>
-							<label>Email address</label>
-							<input type ="text" name ="password" class="form-control" required>
-						</div>
-						
-						<div>
-							<button type="submit" class="btn btn-primary" > Save </button>
-						</div>
+					<div class="form-group ">
+						<label>First Name</label>
+						<input type="text" name="first_name" id="first_name" class="form-control">
+						<label>Last Name</label>
+						<input type ="text" name="last_name" id="last_name" class="form-control">
+						<label>Phone Number</label>
+						<input type ="text" name="phone_num" id="phone_num" class="form-control">
+						<label>Email Address</label>
+						<input type ="text" name="email" id="email" class="form-control">
 
-					</form>
+					</div>
+					
+					<div class="align">
+						<h3 id="message_text"></h3>
+					</div>
+
+					<div>
+						<button type="submit" name="edit_save" id="edit_save" class="btn btn-primary" > Save </button>
+						<button type="button" id="back" class="btn btn-primary" onclick="location.href = 'homepage';"> Back to Homepage </button>
+					</div>
+
 				</div>
 			</div>
 		</div>

@@ -21,29 +21,52 @@
 			$("#message_text").empty();
 			
 
-			// submit POST-request
+			// validate input before submitting POST-request
 			$("#login_submit").click( function(event) {
-				$.ajax({
-					method : "POST",
-					url : "/login",
-					data : {
-						username: $("#username").val(),
-						password: $("#password").val()
-					},
-					dataType: "json",
-					success: function(result){
-						if (result.user.is_admin) {
-							$(location).attr("href", "admindashboard.html");
-						}
-						else {
-							$(location).attr("href", "homepage.html");
-						}
-					},
-					error: function(){
-						$("#message_text").html("jquery ajax error");
-					}
-					
-				});
+
+				// clean input validate msg
+				$("#message_text").empty();
+
+				// validate input
+				var username = $("#username").val().trim();
+				var userPassword = $("#password").val().trim();
+
+				var anyErrors = false;
+
+				if ( username === "" || userPassword === "" ) {
+						$("#message_text").append("<p>Error: Username & Password cannot be empty</p>" );
+						anyErrors = true;
+				}
+
+				// if any error, prevent submit
+				if (anyErrors) {
+					event.preventDefault();
+				} else {
+					// submit POST-request
+					$.ajax({
+						method : "POST",
+						url : "/login",
+						data : {
+							username: username,
+							password: userPassword
+						},
+						dataType: "json",
+						success: function(result){
+							if (result.user.is_admin) {
+								$(location).attr("href", "admindashboard.html");
+							}
+							else {
+								$(location).attr("href", "homepage.html");
+							}
+						},
+						error: function(xhr, status, err){
+							$("#message_text").empty();
+							var errorMsg = xhr.responseJSON.message;
+							$("#message_text").html(errorMsg);
+						}	
+					});
+				}
+						
 			} );
 		});			
 	</script>
