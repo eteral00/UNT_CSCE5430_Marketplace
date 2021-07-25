@@ -53,10 +53,10 @@
 						dataType: "json",
 						success: function(result){
 							if (result.user.is_admin) {
-								$(location).attr("href", "admindashboard.html");
+								$(location).attr("href", "admin/admindashboard");
 							}
 							else {
-								$(location).attr("href", "homepage.html");
+								$(location).attr("href", "homepage");
 							}
 						},
 						error: function(xhr, status, err){

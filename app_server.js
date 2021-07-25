@@ -21,7 +21,9 @@ app_server.use(express.urlencoded({ extended: true }));
 app_server.use(express.json());
 app_server.use( session({ secret : "uNkNoWn", resave : true, saveUninitialized : true }) );
 
-var sessionOb;
+//session object
+var sessionOb; 
+
 
 // get-img
 app_server.get("/img/:img", (req, res) => {
@@ -96,6 +98,71 @@ app_server.get("/js/:scriptfile", (req, res) => {
 });
 
 
+
+//get-admin-page-dot
+app_server.get("/admin/:page.*", (req, res) => {
+  try {
+    console.log("GET-Admin-Page-dot hit. Redirected to get-admin-page");
+    res.redirect("/admin/" + req.params.page);
+        
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+//get-admin-page-slash
+app_server.get("/admin/:page/*", (req, res) => {
+  try {
+    console.log("GET-Admin-Page-slash hit. Redirected to get-admin-page");
+    res.redirect("/admin/" + req.params.page);
+
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+// get-admin_page
+app_server.get("/admin/:page", (req, res) => {
+  try {
+    console.log("GET-Admin_Page hit.");
+    console.log("Admin URL: ", req.params.page);
+    console.log("Admin session: ", req.session);
+
+    sessionOb = req.session;
+
+    var options = {
+      root : path.join(__dirname, "/src/views/html/admin")
+    };
+    
+    var targetPage = req.params.page.toLowerCase();
+    var fileName =  targetPage + ".html";    
+
+    // verify if user is logged-in
+    if (sessionOb.user == null || sessionOb.user.username == "") {
+        // user is not logged in, redirect to login page
+        console.log("user not logged-in -> redirected to login page");
+        res.redirect("/login");
+    } else if (!sessionOb.user.is_admin) {
+        console.log("non-admin user -> redirected to homepage");
+        res.redirect("/homepage");
+    } else {
+        // user is logged-in, send the respective view, i.e. html file
+      res.sendFile(fileName, options, function(err) {
+        if (err) {
+          console.error(err.message);
+          if (err.status == 404) {
+            res.status(404).send( "404! Sorry! The Requested Page cannot be found!" );
+          }
+          //next(err);
+        } else {
+          console.log("File sent: ", fileName);
+        }
+      });      
+    }
+    
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
 //get-page-dot
 app_server.get("/:page.*", (req, res) => {
   try {
@@ -106,7 +173,6 @@ app_server.get("/:page.*", (req, res) => {
     console.error(err.message);
   }
 });
-
 //get-page-slash
 app_server.get("/:page/*", (req, res) => {
   try {
@@ -143,14 +209,11 @@ app_server.get("/:page", (req, res) => {
         }
       });
     }
-
     // verify if user is logged-in
     if (sessionOb.user == null || sessionOb.user.username == "") {
-
       // verify target page
       // if it is login or register page, no need to be logged-in
       if ( targetPage === "login" || targetPage === "register" ) {
-        
         // send the respective view, i.e. html file
         res.sendFile(fileName, options, function(err) {
           if (err) {
@@ -167,8 +230,7 @@ app_server.get("/:page", (req, res) => {
         // user is not logged in and target page is neither login nor register, redirect to login page
         console.log("user not logged-in -> redirected to login page");
         res.redirect("/login");
-      }
-      
+      }      
     } else {
       // user is already logged-in
 
@@ -193,7 +255,6 @@ app_server.get("/:page", (req, res) => {
           }
         });
       } else {
-
         // user is logged-in and target page is neither login nor register, send the respective view, i.e. html file
         res.sendFile(fileName, options, function(err) {
           if (err) {
@@ -209,14 +270,10 @@ app_server.get("/:page", (req, res) => {
       }
     }
     
-
   } catch (err) {
     console.error(err.message);
   }
 });
-
-
-
 
 // Basic GET-route, homepage
 app_server.get("/", (req, res) => {
@@ -227,17 +284,17 @@ app_server.get("/", (req, res) => {
 
     var options = {
       root : path.join(__dirname, "/src/views/html")
-    };
-    
-    //var fileName = "homepage.html";
-    
+    };    
+
+    //var fileName = "homepage.html"
+    ;    
     if (sessionOb.user == null || sessionOb.user.username == "") {
       res.redirect("/login");
     } else {
       res.redirect("/homepage");
     }
     
-    //res.status(200).json({ message: "GET tested!" + JSON.stringify(sessionOb) });
+    //res.status(200).json({ message: "GET tested!" + JSON.stringify(sessionOb) }).end();
 
   } catch (err) {
     console.error(err.message);
@@ -280,13 +337,13 @@ app_server.post("/login", (req, res) => {
         
         if (result_rows.length < 1) {
           console.log("Sorry! This Username, '" + queryVar + "', does not exist!");
-          res.status(404).json({ message : "Sorry! This Username, '" + queryVar + "', does not exist!"});
+          res.status(404).json({ message : "Sorry! This Username, '" + queryVar + "', does not exist!"}).end();
         } else if ( Boolean(result_rows[0].is_locked.toJSON().data[0]) ) {
           console.log("Sorry! This User, '" + queryVar + "', is being locked!");
-          res.status(403).json({ message : "Sorry! This User, '" + queryVar + "', is being locked!"});
+          res.status(403).json({ message : "Sorry! This User, '" + queryVar + "', is being locked!"}).end();
         } else if (JSON.stringify(result_rows[0].user_password) != JSON.stringify(hashPassword)) {
           console.log("Sorry! Wrong password!");
-          res.status(409).json({ message : "Sorry! Wrong password!"});
+          res.status(409).json({ message : "Sorry! Wrong password!"}).end();
         } else {
           // finally successfully logged in
           console.log("Welcome, " + queryVar + "!");
@@ -299,13 +356,10 @@ app_server.post("/login", (req, res) => {
           //console.log("req session post-login: ", req.session);
           res.status(200).json({user : { username : sessionOb.user.username, is_admin : sessionOb.user.is_admin } }).end();
           //res.end();
-        }
-          
+        }          
       }
     });
-
     //res.end();
-
   } catch (err) {
     console.error(err.message);
   }
@@ -348,7 +402,7 @@ app_server.post("/register", (req, res) => {
         sessionOb.user.username = inputUsername;
         console.log("req session post-reg: ", req.session);
         /*
-        //res.json({ user : {username : result_rows[0].username, is_admin : result_rows[0].is_admin }, message : "Welcome, " + queryVar + "!"});
+        //res.json({ user : {username : result_rows[0].username, is_admin : result_rows[0].is_admin }, message : "Welcome, " + queryVar + "!"}).end();
         res.status(200).json({user : { username : sessionOb.user.username, is_admin : sessionOb.user.is_admin } }).end();
         */
         res.status(200).json({user : { username : inputUsername, password: hashPassword, is_admin : false } }).end();
@@ -455,7 +509,7 @@ app_server.put("/change_pass", (req, res) => {
     var hashCurrentPassword = SHA2.sha_256(currentPassword);
     var hashNewPassword = SHA2.sha_256(newPassword);
     
-    var queryStr = "SELECT username, user_password, is_admin, is_locked " + 
+    var queryStr = "SELECT username, user_password " + 
       "FROM user " + 
       "WHERE username = ? ;";
 
@@ -472,7 +526,7 @@ app_server.put("/change_pass", (req, res) => {
         //console.log("input pw: ", hashCurrentPassword.toJSON().data.toString());
         if ( JSON.stringify(result_rows[0].user_password) !== JSON.stringify(hashCurrentPassword) ) {
           console.log("Sorry! Wrong password!");
-          res.status(409).json({ message : "Sorry! Wrong password!"});
+          res.status(409).json({ message : "Sorry! Wrong password!"}).end();
 
         } else {
           console.log("Changing password for user '" + sessionOb.user.username + "'!");
@@ -492,64 +546,7 @@ app_server.put("/change_pass", (req, res) => {
               res.status(200).json({ message : "Successfully changed password!" }).end();
             }
           });
-        }
-          
-      }
-    });
-
-    if (inputEmail !== "") {
-      queryStr += "`email_address`= ? ";
-      queryVar.push(inputEmail);
-      prior_term = true;
-    }
-
-
-    if (inputPhone !== "") {
-      if (prior_term) {
-        queryStr += ", ";  
-      } else {
-        prior_term = true;
-      }
-      queryStr += "`phone_number`= ? ";
-      queryVar.push(inputPhone);
-    }
-
-    if (inputFName !== "") {
-      if (prior_term) {
-        queryStr += ", ";  
-      } else {
-        prior_term = true;
-      }
-      queryStr += "`first_name`= ? ";
-      queryVar.push(inputFName);
-    }
-
-    if (inputLName !== "") {
-      if (prior_term) {
-        queryStr += ", ";  
-      } else {
-        prior_term = true;
-      }
-      queryStr += "`last_name`= ? ";
-      queryVar.push(inputLName);
-    }
-
-    if (prior_term)
-    {
-      queryStr += " WHERE (`username` = ? );"
-      queryVar.push(sessionOb.user.username);
-    }
-    
-    // send query
-    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
-      if(err) {
-        console.log("Error: ", err);
-        res.status(409).json({ message : "Sorry! There were errors updating your profile!" }).end();
-
-      } else {
-        console.log("Successfully updated the profile of user '" + sessionOb.user.username + "'!");
-        res.status(200).json({ message : "Successfully updated the profile!" }).end();
-
+        }          
       }
     });
 
@@ -568,10 +565,14 @@ app_server.put("/", (req, res) => {
   }
 });
 
+
+
 // Set default route, i.e. 404-page-not-found
 app_server.use((req, res) => {
   res.status(404).send( "404! Sorry! The Requested Page cannot be found!" );
 });
+
+
 
 // Listen for request on port 3000, and as a callback function have the port listened on logged
 app_server.listen(port, hostname, () => {
