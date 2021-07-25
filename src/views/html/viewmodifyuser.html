@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>view and modify user</title>
+    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel ="stylesheet" type="text/css" href="../css/product_style.css"/>
+
+</head>
+
+<body>
+    <div class="container-sm bg-light w-50 align-items-center pt-5 mx-auto">
+        <div style="float:right">
+            <form align="right" name="form" method="post" action="login.html">
+                <label class="logout">
+                <input name="submitt" type="submit" id="submitt" value="log out">
+                </label>
+            </form>
+        </div>
+
+        <h4 class="container-sm mx-auto"><b>VIEW AND MODIFY Users </b></h4>
+        
+        <form method ="GET" >
+            <div class="form-group pt-3">
+                <label class="form-label">ENTER USER NAME</label>
+                <input type="text" class="form-control" style="width:50%" required="true">
+            </div>
+
+            <div class="container-sm pl-5 pt-5 mx-auto">
+                <button type="submit" onclick="location.href = 'adminmodifyuser.html';" formaction="adminmodifyuser.html" name="action" value="update"class="modify btn-secondary ">Modify User</button>
+                <button type="submit" onclick="location.href = 'admindeleteuser.html';" formaction="admindeleteuser.html" name ="action" value="delete" class="delete btn-secondary ">Delete User</button>
+            </div> 
+
+        </form>
+    </div>
+    
+</bosdy>
+</html>

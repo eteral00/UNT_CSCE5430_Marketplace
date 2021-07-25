@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title> SE project USER Login and Registration </title>
+	<title> User Login </title>
 
 	<link rel ="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
 	<link rel ="stylesheet" type="text/css" href="../css/style.css"/>
@@ -9,12 +9,19 @@
 	<script>
 		
 		$(document).ready(function() {
+			
+			// clean URL
 			var url = window.location.toString();
 			if (url.indexOf("?") > 0) {
 				var clean_url = url.substring(0, url.indexOf("?"));
 				window.history.replaceState({}, document.title, clean_url);
 			}
-		
+
+			// clean input validate msg
+			$("#message_text").empty();
+			
+
+			// submit POST-request
 			$("#login_submit").click( function(event) {
 				$.ajax({
 					method : "POST",
@@ -25,7 +32,12 @@
 					},
 					dataType: "json",
 					success: function(result){
-						$(location).attr("href", "homepage.html");
+						if (result.user.is_admin) {
+							$(location).attr("href", "admindashboard.html");
+						}
+						else {
+							$(location).attr("href", "homepage.html");
+						}
 					},
 					error: function(){
 						$("#message_text").html("jquery ajax error");
@@ -35,6 +47,7 @@
 			} );
 		});			
 	</script>
+
 </head>
 
 <body>

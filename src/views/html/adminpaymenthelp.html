@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Paymenthelp</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel ="stylesheet" type="text/css" href="../css/product_style.css"/>
+    
+    <script>
+        function myfunction(){
+            var x = document.getElementById("userid").value;
+            var y = document.getElementById("transactionid").value;
+            localStorage.setItem('userid1', x);
+            localStorage.setItem("transactionid1",y);   
+        }
+    </script>       
+
+</head>
+
+<body>
+    <div class="container-sm pt-5">
+        <div style="float:right">
+            <form align="right" name="form" method="post" action="login.html">
+                <label class="logout">
+                <input name="submit" type="submit" id="submit" value="log out">
+                </label>
+            </form>
+        </div>  
+
+        <h3>Payment Help</h3>
+
+        <form method ="GET" action="adminpaymentsuccess.html">    
+            <div class="form-group pt-3">
+                <label class="form-label ">ENTER USER ID: </label>
+                <input type="text"  class="form-control" id="userid" style="width:50%" required="true">
+            </div>
+            
+            <div class="form-group pt-3">
+                <label class="form-label">ENTER TRANSACTION ID:</label>
+                <input type="text" class="form-control" id="transactionid" style="width:50%" required="true">
+            </div>
+            
+            <div class="form-group pt-5 pr-5">
+                <button onclick="myfunction()" type="submit"  class="Cancel btn-secondary float-right">VIEW TRANSACTION</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+
+</html>

@@ -263,7 +263,7 @@ app_server.post("/login", (req, res) => {
     sessionOb = req.session;
 
     var queryVar = req.body.username;
-    var input_password = req.body.password;
+    var inputPassword = req.body.password;
     
     var queryStr = "SELECT username, user_password, is_admin, is_locked " + 
       "FROM user " + 
@@ -273,38 +273,36 @@ app_server.post("/login", (req, res) => {
       if(err) {
           console.log("Error: ", err);
           //console.error(err.message);
-          result(err, null);
-      }
-      else{
-          //console.log("Result row: ", result_rows);
-          var hash_password = SHA2.sha_256(input_password);
-          //console.log("Hashed Password: ", hash_password);
+      } else{
+        //console.log("Result row: ", result_rows);
+        var hashPassword = SHA2.sha_256(inputPassword);
+        //console.log("Hashed Password: ", hashPassword);
+        
+        if (result_rows.length < 1) {
+          console.log("Sorry! This Username, '" + queryVar + "', does not exist!");
+          //res.json({ user : null, message : "Sorry! This Username, <" + queryVar + ">, does not exist!"});
+        } else if ( Boolean(result_rows[0].is_locked.toJSON().data[0]) ) {
+          console.log("result_rows: ", result_rows[0]);
+          console.log("is_locked: ", Boolean(result_rows[0].is_locked));
+          console.log("is_locked_data: ", Boolean(result_rows[0].is_locked.toJSON().data[0]));
+          console.log("Sorry! This User, '" + queryVar + "', is being locked!");
+          //res.json({ user : null, message : "Sorry! This User, <" + queryVar + ">, is being locked!"});
+        } else if (JSON.stringify(result_rows[0].user_password) != JSON.stringify(hashPassword)) {
+          console.log("Sorry! Wrong password!");
+          //res.json({ user : null, message : "Sorry! Wrong password!"});
+        } else {
+          // finally successfully logged in
+          console.log("Welcome, " + queryVar + "!");
+          //console.log("is_locked: ", JSON.stringify(result_rows[0].is_locked));
+          //res.json({ user : {username : result_rows[0].username, is_admin : result_rows[0].is_admin }, message : "Welcome, " + queryVar + "!"});
+          sessionOb.user = { username : "", is_admin : false};
+          sessionOb.user.username = result_rows[0].username;
+          sessionOb.user.is_admin = ( Boolean(result_rows[0].is_admin.toJSON().data[0]) );
+          console.log("req session m: ", req.session);
           
-          if (result_rows.length < 1) {
-            console.log("Sorry! This Username, <" + queryVar + ">, does not exist!");
-            //res.json({ user : null, message : "Sorry! This Username, <" + queryVar + ">, does not exist!"});
-          } else if ( Boolean(result_rows[0].is_locked.toJSON().data[0]) ) {
-            console.log("result_rows: ", result_rows[0]);
-            console.log("is_locked: ", Boolean(result_rows[0].is_locked));
-            console.log("is_locked_data: ", Boolean(result_rows[0].is_locked.toJSON().data[0]));
-            console.log("Sorry! This User, <" + queryVar + ">, is being locked!");
-            //res.json({ user : null, message : "Sorry! This User, <" + queryVar + ">, is being locked!"});
-          } else if (JSON.stringify(result_rows[0].user_password) != JSON.stringify(hash_password)) {
-            console.log("Sorry! Wrong password!");
-            //res.json({ user : null, message : "Sorry! Wrong password!"});
-          } else {
-            // finally successfully logged in
-            console.log("Welcome, " + queryVar + "!");
-            //console.log("is_locked: ", JSON.stringify(result_rows[0].is_locked));
-            //res.json({ user : {username : result_rows[0].username, is_admin : result_rows[0].is_admin }, message : "Welcome, " + queryVar + "!"});
-            sessionOb.user = { username : "", is_admin : false};
-            sessionOb.user.username = result_rows[0].username;
-            sessionOb.user.is_admin = ( Boolean(result_rows[0].is_admin.toJSON().data[0]) );
-            console.log("req session m: ", req.session);
-            
-            res.status(200).json({username : sessionOb.user.username, is_admin : sessionOb.user.is_admin }).end();
-            //res.end();
-          }
+          res.status(200).json({user : { username : sessionOb.user.username, is_admin : sessionOb.user.is_admin } }).end();
+          //res.end();
+        }
           
       }
     });
@@ -315,6 +313,65 @@ app_server.post("/login", (req, res) => {
     console.error(err.message);
   }
 });
+
+// register post
+app_server.post("/register", (req, res) => {
+  try {
+    console.log("POST-register hit");
+     
+    sessionOb = req.session;
+
+    var inputUsername = req.body.username;
+    var inputPassword = req.body.password;
+    var hashPassword = SHA2.sha_256(inputPassword);
+    var inputEmail = req.body.email;
+    var inputPhone =req.body.phone;
+    var inputFName = req.body.firstName;
+    var inputLName = req.body.lastName;
+
+    var queryVar = [ inputUsername, hashPassword, inputEmail, inputPhone, inputFName, inputLName ];
+
+    // user-table's fields by order:
+    // username, hashed user_password, is_admin, is_locked, locked_until_date, email_address, phone_number, first_name, last_name, default_address_id, payment_reception_method
+    var queryStr = "INSERT INTO user " + 
+      " VALUES ( ?, ?, 0, 0, null, ?, ?, ?, ? ,null, null );";
+    
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+      if(err) {
+        console.log("Error: ", err);  
+        //console.error(err.message);
+        if (err.errno == 1062) {
+          console.log("Duplicated User!");
+          res.status(409).json({message : "Sorry! This Username, '" +  inputUsername + "', already existed. Please choose another Username and retry! If that was your Username and you forgot your password, please contact the techical support!" }).end();
+        }
+        
+      } else {
+        //console.log("Hashed Password: ", hashPassword);
+        console.log("insert results: ", result_rows);
+        console.log("insert fields: ", fields);
+        console.log("Welcome, " + inputUsername + "!");
+        
+        sessionOb.user = { username : "", is_admin : false};
+        sessionOb.user.username = inputUsername;
+        console.log("req session post-reg: ", req.session);
+        /*
+        //res.json({ user : {username : result_rows[0].username, is_admin : result_rows[0].is_admin }, message : "Welcome, " + queryVar + "!"});
+        res.status(200).json({user : { username : sessionOb.user.username, is_admin : sessionOb.user.is_admin } }).end();
+        */
+        res.status(200).json({user : { username : inputUsername, password: hashPassword, is_admin : false } }).end();
+          
+      }
+    });
+
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+
+
+
+
 
 // Basic PUT-route
 app_server.put("/", (req, res) => {

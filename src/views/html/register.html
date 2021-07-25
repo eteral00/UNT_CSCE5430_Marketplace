@@ -1,8 +1,125 @@
 <html>
 <head>
-	<title> REGISTER </title>
+	<title> New User Registration </title>
 	<link rel ="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
 	<link rel ="stylesheet" type="text/css" href="../css/style.css"/>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script>
+		//
+		$(document).ready(function() {
+			
+			// clean URL
+			var url = window.location.toString();
+			if (url.indexOf("?") > 0) {
+				var clean_url = url.substring(0, url.indexOf("?"));
+				window.history.replaceState({}, document.title, clean_url);
+			}
+			
+			// clean input validate msg
+			$("#message_text").empty();
+
+			// validate input before submitting POST-request
+			$("#register_submit").click( function(event) {
+
+				// clean input validate msg
+				$("#message_text").empty();
+
+				// validate input
+				var username = $("#username").val();
+				var userPassword = $("#password").val();
+				var confirmPassword = $("#confirm_password").val();
+				var userPhone = $("#phone_num").val();
+				var userEmail = $("#email").val();
+				var firstName = $("#first_name").val();
+				var lastName = $("#last_name").val();
+
+				const emailForm = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+				const digits = /^[0-9]+$/;
+				var anyErrors = false;
+
+				if (username === "" || userPassword === "" || confirmPassword === "" || userPhone === "" || userEmail === "" || firstName === "" || lastName === "" ) {
+						$("#message_text").append("<p>Error: All fields are Required! Please retry!</p>" );
+						anyErrors = true;
+				} else {
+
+					// validate length of username field
+					if (username.length < 4 || username.length > 50){
+						$("#message_text").append("<p>Error: Username must be between 4 and 50 characters!</p>" );
+						anyErrors = true;
+					}
+
+					// validate length of first & last names
+					if (firstName.length > 50 || lastName.length > 50){
+						$("#message_text").append("<p>Error: First & Last Name cannot be more than 50 characters!</p>" );
+						anyErrors = true;
+					}
+
+					// validate length of password field
+					if (userPassword.length < 6){
+						$("#message_text").append("<p>Error: Password must be at least 6 characters!</p>" );
+						anyErrors = true;
+					}
+					// validate password match
+					if (userPassword !== confirmPassword){
+						$("#message_text").append("<p>Error: Password & Confirm Password do not match!</p>" );
+						anyErrors = true;
+					}
+
+					// validate phone number contains only numbers
+					if (!digits.test(userPhone)){
+						$("#message_text").append("<p>Error: Phone Number must contain only digits!</p>" );
+						anyErrors = true;
+					}
+					// validate length of phone number
+					if (userPhone.length > 10){
+						$("#message_text").append("<p>Error: Phone Number cannot be longer than 10 digits!</p>" );
+						anyErrors = true;
+					}
+
+					// validate email in valid format
+					if (!emailForm.test(userEmail)){
+						$("#message_text").append("<p>Error: Invalid Email format! Please enter a valid email in the form 'abc@abc.xyz'!</p>" );
+						anyErrors = true;
+					}
+					// validate length of email address
+					if (userEmail.length > 255){
+						$("#message_text").append("<p>Error: Email Address cannot be more than 255 characters!</p>" );
+						anyErrors = true;
+					}
+
+				}
+
+				// if error, prevent submit
+				if (anyErrors){
+					event.preventDefault();
+				} else {
+					// no error, submit POST-request
+					$.ajax({
+						method : "POST",
+						url : "/register",
+						data : {
+							username: username,
+							password: userPassword,
+							phone: userPhone,
+							email: userEmail,
+							firstName: firstName,
+							lastName: lastName
+						},
+						dataType: "json",
+						success: function(result){
+							$(location).attr("href", "homepage.html");
+						},
+						error: function(xhr, status, err){
+							$("#message_text").empty();
+							var errorMsg = xhr.responseJSON.message;
+							$("#message_text").html(errorMsg);
+						}
+					});
+				}				
+			} );
+		});			
+	</script>
 
 </head>
 
@@ -48,10 +165,19 @@
 							<input type ="password" name ="confirm_password" id="confirm_password" class="form-control" required>
 						</div>
 						
-						<button type="submit" id="register_submit" class="btn btn-primary"> Register </button>
-						<button type="button" id="back" class="btn btn-primary" onclick="location.href = 'login';"> Back to login </button>
+						<div class="align">
+							<h3 id="message_text"></h3>
+						</div>
+
+						<div>
+							<button type="submit" id="register_submit" class="btn btn-primary"> Register </button>
+							<button type="button" id="back" class="btn btn-primary" onclick="location.href = 'login';"> Back to Login </button>
+						</div>
+						
 	
 					</div>
+
+					
 				</div>
 			</div>
 		</div>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User account access help</title>
+
+    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel ="stylesheet" type="text/css" href="../css/product_style.css"/>
+
+    <script>
+        function checkpwd(form1){
+            if (form1.pwd1.value!= form1.pwd2.value){
+                alert('password mismatch');
+                return false;s
+            }
+            else{
+                return true;
+            }
+        }
+    </script>
+
+</head>
+
+<body>
+    <div class="container-sm bg-light w-50 align-items-center pt-5 mx-auto">
+        <div style="float:right">
+            <form align="right" name="form" method="post" action="login.html">
+                <label class="logout">
+                <input name="submitt" type="submit" id="submitt" value="log out">
+                </label>
+            </form>
+        </div>  
+
+        <h4 class="container-sm mx-auto"><b>Account Access Help </b></h4>
+        
+        <form method ="GET" action="adminpasswordsuccess.html" onsubmit="return checkpwd(this);">     
+            <div class="form-row pt-3">
+                <label class="form-label pr-5"> ENTER USERNAME &nbsp;</label>
+                <input type="text" class="form-control" style="width:40%" required="true">
+            </div> 
+            
+            <div class="form-row pt-3">
+                <label class="form-label pr-5"> ENTER PASSWORD &nbsp;</label>
+                <input type="password" class="form-control" name="pwd1" style="width:40%" required="true">
+            </div> 
+
+            <div class="form-row pt-3">
+                <label class="form-label pr-3"> CONFIRM PASSOWORD &nbsp;</label>
+                <input type="password" class="form-control" name="pwd2" style="width:40%" required="true">
+            </div>
+            
+            <div class="container-sm pl-5 pt-5 mx-auto">
+                <button onclick="location.href = 'admindashboard.html';" class="cancel btn-secondary ">CANCEL</button>
+                <button type="submit" class="Next btn-secondary ">NEXT</button>
+            </div> 
+                
+        </form>
+    </div>
+
+</body>
+</html>
