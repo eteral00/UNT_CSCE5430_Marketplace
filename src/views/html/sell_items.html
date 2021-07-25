@@ -1,37 +1,70 @@
 <html>
 <head>
-	<title> Sell Items </title>
+	<title> Selling Items - Product Details </title>
+
 	<link rel ="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
 	<link rel ="stylesheet" type="text/css" href="../css/style.css"/>
+
+
 </head>
 
 <body>
 	<div class="container">
-		<div>
+		<div >
 			<div class ="row center-screen" >
 				<div class ="col-md-6 ">
-					<h2> SELECT THE CATEGORY </h2>
-					<br/>
-					<br/>
-					<form>
-						<div class="form-group  fonts">
-	
-						 	<input type="radio" id="furniture" name="category" value="Furniture" style="height:25px; width:25px; vertical-align: middle;">
-						 	<label for="css">Furniture</label>
-							<br/>
-						 	<input type="radio" id="electronics" name="category" value="Electronics" style="height:25px; width:25px; vertical-align: middle;">
-						 	<label for="javascript">Electronics</label>
-							<br/>
-							<input type="radio" id="automobile" name="category" value="Automobile" style="height:25px; width:25px; vertical-align: middle;">
-						 	<label for="css">Automobile</label>
-							<br/>
-						</div>
+					<h2> Product Details </h2>
+					<div>
+						<button type="button" class="btn btn-primary right-side" name="product_back" id="product_back" 
+							onclick="location.href = 'homepage';"> Back to Homepage </button>
+					</div>
+					
+					<div class="form-group ">
+						<label for="product_name">Product Name</label>
+						<input type="text" class="form-control" name="product_name" id="product_name" required>
+					</div>
+					
+					<div class="form-group ">
+						<label for="product_category">Product Category</label>
+						<select name="product_category" id="product_category">
+							<option value="Furniture" selected>Furniture</option>
+							<option value="Electronics">Electronics</option>
+							<option value="Automobile">Automobile</option>
+						</select>
+					</div>
 
-						<div>
-							<button onclick="location.href = 'product_sell_details.html';" class="btn btn-primary " > NEXT</button>
-						</div>
+					<div class="form-group ">
+						<label for="product_price">Product Price (US$)</label>
+						<input type="number" class="form-control" name="product_price" id="product_price" required>
+						<label for="product_quantity">Available Quantity</label>
+						<input type="number" class="form-control" name="product_quantity" id="product_quantity" required>
 						
-					</form>
+					</div>
+
+					<div class="form-group">
+						<label for="product_model">Model Name</label>
+						<input type="text" class="form-control" name="product_model" id="product_model">
+						<label for="product_model_num">Model Number</label>
+						<input type="text" class="form-control" name="product_model_num" id="product_model_num">
+						<label for="product_description">Description</label>
+						<textarea class="form-control" rows="4" name="product_description" id="product_description"></textarea>
+					</div>
+
+					<div class="align">
+						<h3 id="message_text"></h3>
+					</div>
+
+					<div class="form-group">
+						<label for="product_img">Product Image</label>
+						<input type="file" name="product_img" id="product_img" accept="image/png, image/jpeg">
+					</div>
+
+					<div>
+						<button type="submit" class="btn btn-primary" name="product_submit" id="product_submit"> Submit </button>
+						<button type="reset" class="btn btn-primary" name="product_clear" id="product_clear"> Clear </button>
+					</div>
+						
+					
 				</div>
 			</div>
 		</div>
