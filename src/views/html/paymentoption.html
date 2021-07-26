@@ -31,7 +31,100 @@
             var sessionUser = JSON.parse( sessionStorage.getItem("sessionUser") );
             console.log(sessionUser);
             console.log ( JSON.stringify(sessionUser) );
+			
+			// clean input validate msg
+			$("#message_text").empty();
+            
+            // prefill if previously stored
+            prefillInfo();
+
+            $("#payment_type").change( function() {
+                var paymentType = $(this).val().toLowerCase();
+                if (paymentType === "card") {
+                    $("#payment_ccv_label").show();
+                    $("#payment_ccv").show();
+                    $("#payment_expire_label").show();
+                    $("#payment_expire").show();
+                } else {
+                    $("#payment_ccv_label").hide();
+                    $("#payment_ccv").hide();
+                    $("#payment_expire_label").hide();
+                    $("#payment_expire").hide();
+                }
+            });
+            
+            
+			
+            // validate input before submitting POST-request
+			$("#pay_now").click( function(event) {
+
+				// clean input validate msg
+				$("#message_text").empty();
+
+				// validate input
+                var paymentType = $("#payment_type").val().toLowerCase();
+				var ownerName = $("#payment_name").val().trim();
+				var paymentNumber = $("#payment_number").val().trim();
+				var paymentExpire;
+				var paymentSecureCode;
+
+				const digits = /^[0-9]+$/;
+				var anyErrors = false;
+                
+                // validate required field
+				if ( ownerName === "" || paymentNumber === "" ) {
+						$("#message_text").append("<p>Error: Owner Name & Account/Card Number! Please retry!</p>" );
+						anyErrors = true;
+				} else {
+
+					// validate length of owner name field
+					if (ownerName.length > 255){
+						$("#message_text").append("<p>Error: Owner Name is too long! Max length is 255 characters!</p>" );
+						anyErrors = true;
+					}
+
+                    // validate length of account/card number field
+					if (paymentNumber.length > 255){
+						$("#message_text").append("<p>Error: Account/Card Number is too long! Max length is 255 characters!</p>" );
+						anyErrors = true;
+					}
+
+                    if (paymentType === "card") {
+                        paymentExpire = $("#payment_expire").val();
+                        paymentSecureCode = $("#payment_ccv").val().trim()
+                        if (paymentExpire === "" || paymentSecureCode === "") {
+                            $("#message_text").append("<p>Error: Card Expiration Date or CCV is empty! Please retry!</p>" );
+						    anyErrors = true;
+                        } else {
+                            var expireDate = new Date(paymentExpire);
+                            var todayDate = new Date();
+                            if ( expireDate < todayDate ) {
+                                $("#message_text").append("<p>Error: The Card you entered is already expired! Please enter an expire date that is after today!</p>" );
+						        anyErrors = true;
+                            }
+                        }
+                    } else {
+                        paymentExpire = null;
+                        paymentSecureCode = null;
+                    }
+                    
+
+                    if (anyErrors) {
+                        //event.preventDefault(); //unneeded, no event here
+                    } else {
+                        var sessionUser = JSON.parse( sessionStorage.getItem("sessionUser") );
+                        var paymentInfo = { receiverName : receiverName, addressStreet : addressStreet, addressCity : addressCity, addressState : addressState, addressZip : addressZip, contactPhone : contactPhone };
+                        sessionUser.paymentInfo = paymentInfo;
+                        sessionStorage.setItem ("sessionUser", JSON.stringify(sessionUser) );
+                        //$.ajax()
+                    }
+				
+                
+                }
+		    });
+            
         });
+
     </script>
 
 </head>
@@ -60,39 +153,56 @@
             
         <div class ="container bg-light py-5">
             <h3>Payment:</h3>
-            <form method ="post" action="paymentsuccess">
-                <div class="form-check">    
-                    <form>    
-                        <div class="form-group pt-3">
-                            <label class="form-label">Card Number</label>
-                            <input type="text" class="form-control" placeholder="CardNumber" style="width:50%" required="true">
-                        </div>
-                        <div class="form-row pt-3">
-                            <div class="col-sm" class="form-group">
-                                <label class="form-label">Expiry</label>
-                                <input type="text" width="50" class="form-control" placeholder="MM/YY"  style="width:25%" required="true">
-                            </div>
-                            
-                            <div class="col-sm pb-3" class="form-group">
-                                <label class="form-label">CCV</label>
-                                <input type="text" width="50" class="form-control" style="width:25%"  required="true">
-                            </div>
-                        </div>
+                <div class="form-check">
+                    <div class="form-group pt-3 pb-3">
+                        <label class="form-label" for="payment_type">Payment Type</label>
+                        <select type="text" class="form-control" name="payment_type" id="payment_type"
+                            style="width:50%" required="true">
+                            <option value="card" selected>Debit/Credit Card</option>
+                            <option value="account">Checking/Payment Account</option>
+                        </select>
+                    </div>
 
-                        <div class="form-group pb-5">
-                            <input type="text" class="form-control" placeholder="Card Holder Name" style="width:50%"  required="true">
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label" for="payment_name">Owner Name</label>
+                        <input type="text" class="form-control" name="payment_name" id="payment_name" style="width:50%" 
+                            placeholder="Card or Account Owner Name" required="true">
+                    </div>
 
-                        <div class="float-right">
-                            <button onclick="location.href = 'shippingdetails';" class="proceed btn-secondary ">PREVIOUS</button>
-                            <button type="submit" class="paynow btn-secondary ">PAY NOW</button>
+                    <div class="form-group">
+                        <label class="form-label" for="payment_number">Card or Account Number</label>
+                        <input type="text" class="form-control" name="payment_number" id="payment_number"
+                            placeholder="Card or Account Number" style="width:50%" required="true">
+                    </div>
+
+                    <div class="form-row pt-3 pb-5">
+                        <div class="col-sm" class="form-group">
+                            <label class="form-label" for="payment_expire" name="payment_expire_label" id="payment_expire_label">Expire</label>
+                            <input type="month" class="form-control" name="payment_expire" id="payment_expire"
+                                style="width:35%" required="true">
                         </div>
-                    </form>
+                        
+                        <div class="col-sm" class="form-group">
+                            <label class="form-label" for="payment_ccv" ame="payment_cvv_label" id="payment_ccv_label">CCV</label>
+                            <input type="text" class="form-control" name="payment_cvv" id="payment_ccv"
+                                width="50" style="width:25%"  required="true">
+                        </div>
+                    </div>             
+
+                    <div class="align">
+                        <h3 id="message_text"></h3>
+                    </div>
+
+                    <div class="float-right">
+                        <button type="button" class="cancel btn-secondary" name="payment_home" id="payment_home" 
+                            onclick="location.href='homepage';">HOMEPAGE</button>
+                        <button type="button" class="cancel btn-secondary" name="payment_back" id="payment_back"
+                            onclick="location.href = 'shippingdetails';" class="proceed btn-secondary ">PREVIOUS</button>
+                        <button type="submit" class="paynow btn-primary" name="pay_now" id="pay_now">PAY NOW</button>
+                    </div>
+                    
                 </div>
-
-            </form>
         </div>
-
 
     </div>    
     

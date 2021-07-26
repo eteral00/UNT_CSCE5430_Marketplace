@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `marketplace` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `marketplace`;
 -- MySQL dump 10.13  Distrib 8.0.25, for Win64 (x86_64)
 --
 -- Host: localhost    Database: marketplace
@@ -39,7 +37,7 @@ CREATE TABLE `product` (
   UNIQUE KEY `product_id_UNIQUE` (`product_id`),
   KEY `fk_seller_user_name_idx` (`seller_username`),
   CONSTRAINT `fk_seller_username` FOREIGN KEY (`seller_username`) REFERENCES `user` (`username`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,7 +46,7 @@ CREATE TABLE `product` (
 
 LOCK TABLES `product` WRITE;
 /*!40000 ALTER TABLE `product` DISABLE KEYS */;
-INSERT INTO `product` VALUES (1,_binary '\0','x','automobile','asadsa',NULL,1.00,1,1,NULL),(2,_binary '\0','x','automobile','asadsa',NULL,1.00,2,3,NULL),(3,_binary '\0','furniture1','Furniture','asa','uploads\\img\\1627253600167flash.jpg',1.00,1,1,NULL),(4,_binary '\0','furniture2','Furniture','adxzcx','uploads\\img\\1627253694784StaticElectricity.png',2.00,2,2,NULL),(5,_binary '\0','furniture3','Furniture','f3','uploads\\img\\1627254260666magicarp.jpg',3.00,3,3,NULL),(6,_binary '\0','furniture4','Furniture','f4','',4.00,4,4,NULL),(7,_binary '\0','electronics1','electronics','E1','uploads\\img\\1627281088326StaticElectricity.png',1.00,1,1,'user2');
+INSERT INTO `product` VALUES (1,_binary '\0','x','automobile','asadsa',NULL,1.00,1,1,NULL),(2,_binary '\0','x','automobile','asadsa',NULL,1.00,2,3,NULL),(3,_binary '\0','furniture1','Furniture','asa','uploads\\img\\1627253600167flash.jpg',1.00,1,1,NULL),(4,_binary '\0','furniture2','Furniture','adxzcx','uploads\\img\\1627253694784StaticElectricity.png',2.00,2,2,NULL),(5,_binary '\0','furniture3','Furniture','f3','uploads\\img\\1627254260666magicarp.jpg',3.00,3,3,NULL),(6,_binary '\0','furniture4','Furniture','f4','',4.00,4,4,NULL),(7,_binary '\0','electronics1','electronics','E1','uploads\\img\\1627281088326StaticElectricity.png',1.00,1,1,'user2'),(8,_binary '\0','electronics2','furniture','affsadff electronics','uploads\\img\\1627332362234StaticElectricity.png',20.00,1,1,'user3');
 /*!40000 ALTER TABLE `product` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -61,4 +59,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-07-26 16:33:55
+-- Dump completed on 2021-07-26 17:46:33

@@ -20,6 +20,7 @@
 
         function prefillInfo() {
             var sessionUser = JSON.parse( sessionStorage.getItem("sessionUser") );
+                console.log(sessionUser);
                 if (sessionUser.shippingInfo && !($.isEmptyObject(sessionUser.shippingInfo)) ) {
                     var shippingInfo = sessionUser.shippingInfo;
                     $("#receiver_name").val(shippingInfo.receiverName);
@@ -104,8 +105,8 @@
                         //event.preventDefault(); //unneeded, no event here
                     } else {
                         var sessionUser = JSON.parse( sessionStorage.getItem("sessionUser") );
-                        var shippingDetails = { receiverName : receiverName, addressStreet : addressStreet, addressCity : addressCity, addressState : addressState, addressZip : addressZip, contactPhone : contactPhone };
-                        sessionUser.shippingDetails = shippingDetails;
+                        var shippingInfo = { receiverName : receiverName, addressStreet : addressStreet, addressCity : addressCity, addressState : addressState, addressZip : addressZip, contactPhone : contactPhone };
+                        sessionUser.shippingInfo = shippingInfo;
                         sessionStorage.setItem ("sessionUser", JSON.stringify(sessionUser) );
                         location.href = "paymentoption";
                     }
@@ -179,9 +180,11 @@
             </div>
 
             <div class="float-right">
-                <button type="button" class="proceed btn-secondary" name="shipping_back" id="shipping_back"
+                <button type="button" class="btn-secondary" id="shipping_home" 
+                    onclick="location.href='homepage';">HOMEPAGE</button>
+                <button type="button" class="cancel btn-secondary" name="shipping_back" id="shipping_back"
                     onclick="location.href = 'shoppingcart';">PREVIOUS</button>
-                <button type="submit" class="Cancel btn-secondary" name="shipping_next" id="shipping_next">NEXT</button>
+                <button type="submit" class="next btn-primary" name="shipping_next" id="shipping_next">NEXT</button>
             </div>
         </div>
 
