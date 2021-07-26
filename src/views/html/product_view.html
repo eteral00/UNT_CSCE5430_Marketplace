@@ -109,8 +109,11 @@
                 }
                 if (quantityInCart > 0) {
                     removeButton.disabled = false;
+                    shoppingCart[product.productID] = { productName: product.productName, productImage: product.productImage, price: product.price, quantity: quantityInCart};
+                } else {
+                    delete shoppingCart[product.productID];
                 }
-                shoppingCart[product.productID] = { price: product.price, quantity: quantityInCart};
+                
                 sessionUser.shoppingCart = shoppingCart;
                 localStorage.setItem( "sessionUser" , JSON.stringify(sessionUser) );
                 labelQuantityInCart.innerHTML= quantityInCart;
@@ -120,15 +123,17 @@
                 quantityInCart -= parseInt(addQuantity.value);
                 if (quantityInCart < 1) {
                     quantityInCart = 0;
+                    delete shoppingCart[product.productID];    
                     removeButton.disabled = true;
-                } 
+                } else {    
+                    shoppingCart[product.productID] = { productName: product.productName, productImage: product.productImage, price: product.price, quantity: quantityInCart};    
+                }
                 if (quantityInCart < product.remainingQuantity) {
                     addButton.disabled = false;
                 }
-                shoppingCart[product.productID] = { price: product.price, quantity: quantityInCart};
+
                 sessionUser.shoppingCart = shoppingCart;
                 localStorage.setItem( "sessionUser" , JSON.stringify(sessionUser) );
-                
                 labelQuantityInCart.innerHTML= quantityInCart;
             }
             

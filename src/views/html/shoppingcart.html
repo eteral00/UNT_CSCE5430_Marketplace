@@ -10,6 +10,7 @@
         <link rel ="stylesheet" type="text/css" href="../css/product_style.css"/>
     -->
     
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
     <script type="text/javascript">
@@ -18,25 +19,143 @@
             document.getElementByClassName("cart px-sm-5 px-2").classList.toggle(" cart px-sm-5 px-2 bg-dark");
         };
         
-        document.getElementById("proceed btn-secondary").onclick = function () {
-        location.href = "";
-        };
+        //document.getElementById("proceed btn-secondary").onclick = function () {
+        //    location.href = "";
+        //};
+
+        function clearCart() {
+            var sessionUser = JSON.parse(localStorage.getItem("sessionUser"));
+            if (sessionUser.shoppingCart) {
+                sessionUser.shoppingCart = {};
+                localStorage.setItem("sessionUser", JSON.stringify(sessionUser));
+                $("#cart_clear").hide();
+                $("#cart_proceed").hide();
+            }
+        }
+
+        function computeTotal(subTotal) {
+            shippingCost = subTotal * 0.2;
+            taxes = subTotal * 0.07;
+            orderTotal = subTotal + shippingCost + taxes;
+
+            return { shippingCost: shippingCost.toFixed(2), taxes: taxes.toFixed(2), orderTotal: orderTotal.toFixed(2) };
+        }
+
+        $(document).ready(function() {
+
+            var sessionUser = JSON.parse(localStorage.getItem("sessionUser"));
+            var shoppingCart = sessionUser.shoppingCart;
+            var orderTotal = 0;
+            var subTotal = 0;
+            var taxes = 0;
+            var shippingCost = 0;
+            
+            if (!shoppingCart || $.isEmptyObject(shoppingCart)) {    
+                // cart is undefined or empty
+                $("#cartViewContainer").empty().append("<h1>Your Shopping Cart is empty!</h1>");
+                $("#summaryViewContainer").empty();
+                $("#cart_clear").hide();
+                $("#cart_proceed").hide();
+            }
+            else {
+                $("#cart_clear").show();
+                $("#cart_proceed").show();
+                $.each(shoppingCart, function(productID, productDetails) {
+                    
+                    var productContainer = document.createElement("div");
+                    productContainer.id= "item_" + productID;
+                    
+                    var productImageContainer = document.createElement("img");
+                    productImageContainer.className= "rounded";
+                    productImageContainer.alt= "Rounded Image";
+                    productImageContainer.height= 100;
+                    productImageContainer.src= productDetails.productImage;
+                    productContainer.append(productImageContainer);
+
+                    var productNameContainer = document.createElement("div");
+                    productNameContainer.className= "container-sm  px-3 my-3 border bg-secondary";
+                    productNameContainer.innerHTML= "<h4>" + productDetails.productName + "</h4>";
+                    productContainer.append(productNameContainer);
+
+                    var productPriceContainer = document.createElement("h5");
+                    productPriceContainer.innerHTML= "PRICE: " + "<b>$" + productDetails.price + "</b>";
+                    productContainer.append(productPriceContainer);
+
+                    var productQuantityContainer = document.createElement("h5");
+                    productQuantityContainer.innerHTML= "QUANTITY: " + "<b>" + productDetails.quantity + "</b>";
+                    productContainer.append(productQuantityContainer);
+                    
+                    //
+                    subTotal += (productDetails.price * productDetails.quantity);
+
+                    var productRemoveButton = document.createElement("button");
+                    productRemoveButton.class= "delete btn-danger px-3";
+                    productRemoveButton.innerHTML= "Remove";
+
+                    productRemoveButton.onclick= function() {
+                        subTotal -= parseInt(productDetails.price);
+                        delete shoppingCart[productID];
+                        sessionUser.shoppingCart = shoppingCart;
+                        localStorage.setItem("sessionUser", JSON.stringify(sessionUser) );
+
+                        $("#item_" + productID).remove();
+                    }
+                    productContainer.append(productRemoveButton);
+
+                    $("#cartViewContainer").append(productContainer);
+                }); // end $.each()
+
+                var orderSummary = computeTotal(subTotal);
+                shippingCost = orderSummary.shippingCost;
+                taxes = orderSummary.taxes;
+                orderTotal = orderSummary.orderTotal;
+
+                var summaryLabelContainer = document.createElement("div");
+                summaryLabelContainer.className= "container-sm bg-secondary";
+                summaryLabelContainer.innerHTML= "<h4>SUMMARY</h4>";
+                
+
+                var valsContainer = document.createElement("div");
+                
+                var subTotalContainer = document.createElement("h5");
+                subTotalContainer.innerHTML= "SUBTOTAL: " + "<b>$" + subTotal + "</b>";
+                valsContainer.append(subTotalContainer);
+
+                var shippingCostContainer = document.createElement("h5");
+                shippingCostContainer.innerHTML= "SHIPPING: " + "<b>$" + shippingCost + "</b>";
+                valsContainer.append(shippingCostContainer);
+
+                var taxesContainer = document.createElement("h5");
+                taxesContainer.innerHTML= "TAXES: " + "<b>$" + taxes + "</b>";
+                valsContainer.append(taxesContainer);
+
+                var orderTotalContainer = document.createElement("div");
+                orderTotalContainer.className= "container-sm bg-secondary";
+                orderTotalContainer.innerHTML= "<h4>TOTAL: " + "<b>$" + orderTotal + "</b></h4>";
+                
+                $("#summaryViewContainer").prepend(orderTotalContainer);
+                $("#summaryViewContainer").prepend(valsContainer);
+                $("#summaryViewContainer").prepend(summaryLabelContainer);
+            }
+        });
     </script>
 </head>
 
-<body onload="change()">
+<body>
     <div class ="container  py-4 my-3">
-        <nav class="navbar navbar-inverse navbar-fixed-top">
-          <div class="container">
-            <div class="navbar-header px-5">
-              <a class="navbar-brand px-3" href="homepage">Home</a>
-              <a class="navbar-brand px-3" href="#"><b>Shopping Cart</b></a>
-              <a class="navbar-brand px-3 dis">Shipping Details</a>
-              <a class="navbar-brand px-3 dis">Payment Options</a>
-            </div>
-          </div>
-        </nav>
-
+        <div>
+            <nav class="navbar navbar-inverse navbar-fixed-top">
+                <div class="container">
+                  <div class="navbar-header px-5">
+                    <a class="navbar-brand px-3" href="homepage">Home</a>
+                    <a class="navbar-brand px-3" href="#"><b>Shopping Cart</b></a>
+                    <a class="navbar-brand px-3 dis">Shipping Details</a>
+                    <a class="navbar-brand px-3 dis">Payment Options</a>
+                  </div>
+                </div>
+              </nav>
+        </div>
+        
         <div class="container pl-5 " >
             <div class="progress align-middle " style="height:3px; width:50%">
                 <div class="progress-bar bg-success" role="progressbar" aria-valuemin="0" aria-valuenow="33" aria-valuemax="100" style="width: 33%">
@@ -45,44 +164,35 @@
         </div>    
         <div class ="container bg-light pt-5 pb-auto">
             <div class="row align-items-center">
-                <div class= "prod col align-items-left">
-                    <img src="../img/product_shop_cart.jfif" class="rounded" alt="Rounded Image" height="100">
+                <div class= "prod col align-items-left" id="cartViewContainer">
+                    
+                        
+                        
+
+                    
                 </div>
                 
-                <div class="prod col align-items-center" >
-                    <div class = "container-sm  px-3 my-3 border bg-secondary "> <h5>PRODUCT NAME</h5></div>
-                    <h4 >price:</h4>
-                    <h5 >$30.00</h5>
-                    <button type="button" class="delete btn-danger px-3">Delete</button>
-                </div>
 
                 <div class="prod col align-items-right">
-                    <div class = "container-sm bg-secondary">SUMMARY</div>
-                        <h5>SUBTOTAL: $30.00 </h5>
-                        <h5>SHIPPING : $10.00</h5>
-                        <h5>TAXES : $2.00 </h5>
-                        <div class = "container-sm bg-secondary">TOTAL:$42
-
+                    <div id="summaryViewContainer">
+                        
+                    </div>
+                        <div class="float-right pt-5">
+                            <button type="button" class="cancel btn-secondary" id="cart_home" 
+                                onclick="location.href='homepage';" >Back to Homepage</button>
+                            <button type="button" class="cancel btn-secondary" id="cart_clear" 
+                                onclick="clearCart()" >Clear Cart</button>
+                            <button type="button" class="proceed btn-secondary" id="cart_proceed"
+                                onclick="location.href = 'shippingdetails';">Proceed</button>
                         </div>
                     </div>    
+                    
                 </div>
             
-                <div class="float-right pt-5">
-                    <button onclick="location.href = 'login';" type="button" class="proceed btn-secondary ">Cancel</button>
-                    <button onclick="location.href = 'shippingdetails';"type="button" class="Cancel btn-secondary ">Proceed</button>
-                </div>
+                
 
             </div>
 
-             <div class="d-flex justify-content-center">
-                <script>
-                    var pages = Math.floor(100/3);
-                    document.getElementByClassName('cart px-sm-5 px-2').className="container-sm bg-light";
-                    document.getElementByClassName('progress-bar').setAttribute('aria-valuenow',pages);
-                    document.getElementByClassName('progress-bar').setAttribute('style','width: '+Number(pages)+%);
-                </script> 
-
-            </div>
 
         </div>
     </div>    

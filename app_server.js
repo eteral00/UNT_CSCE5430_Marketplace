@@ -245,11 +245,17 @@ app_server.get("/product/category/:category", (req, res) => {
         var productListing = [];
         for ( var idx = 0; idx < result_rows.length; idx++ )
         {
+          var productImageLink;
+          if ( result_rows[idx].product_image_link ) {
+            productImageLink = result_rows[idx].product_image_link;
+          } else {
+            productImageLink = "uploads/img/imagenotavailable.png";
+          }
           var product = { 
             productID : result_rows[idx].product_id,
             productName : result_rows[idx].product_name,
             productDescription : result_rows[idx].product_description,
-            productImage : result_rows[idx].product_image_link,
+            productImage : productImageLink,
             price : result_rows[idx].unit_price,
           };
           productListing.push(product);
@@ -291,13 +297,20 @@ app_server.get("/product/id/:id", (req, res) => {
         if (result_rows.length > 0) {
           console.log("product id result: ", result_rows[0]);
         var is_removed = Boolean(result_rows[0].is_removed.toJSON().data[0]);
+        var productImageLink;
+          if ( !result_rows[0].product_image_link ) {
+            productImageLink = "uploads/img/imagenotavailable.png";
+          } else {
+            productImageLink = result_rows[0].product_image_link;
+          }
+
         var product = { 
           productID : result_rows[0].product_id,
           isRemoved : is_removed,
           productName : result_rows[0].product_name,
           productCategory : result_rows[0].product_category,
           productDescription : result_rows[0].product_description,
-          productImage : result_rows[0].product_image_link,
+          productImage : productImageLink,
           price : result_rows[0].unit_price,
           remainingQuantity : result_rows[0].remaining_quantity
         };
