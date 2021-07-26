@@ -3,6 +3,8 @@
 <head>
     <title>Automobiles</title>
 
+    <link rel ="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+
     <style>
         table { width: 100%; }
         td { 
@@ -16,40 +18,77 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
+    <script>
+        $(document).ready(function() {
+            var productID = localStorage.getItem("productID");
+        
+            $.ajax({
+                method : "GET",
+                url: "/product/id/" + productID,
+                dataType: "json",
+                success: function(result){
+                    var storedCartID = result.user.username + "__ShoppingCart";
+                    var shoppingCart = JSON.parse(localStorage.getItem(storedCartID));
+                    displayProduct( result.product, shoppingCart )
+                },
+                error: function(xhr, status, err){
+                    $("#message_text").empty();
+                    var errorMsg = xhr.responseJSON.message;
+                    $("#message_text").html(errorMsg);
+                    console.log(errorMsg);
+                }
+            });
+        });
+    </script>
+
 </head>
 
 <body>
+    <div>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="homepage">Market Place</a>
+            <button class="navbar-toggler" type="button" 
+            data-toggle="collapse" data-target="#navbarNav" 
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                <a class="nav-link" href="homepage">Home 
+                    <span class="sr-only">(current)</span>
+                </a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="update_profile">Update profile</a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="shoppingcart">Shopping cart</a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link " href="sell_items">Selling items</a>
+                </li>
+            <li class="nav-item">
+                <a class="nav-link " href="logout">Logout</a>
+                </li>
+            </ul>
+            </div>    
+        
+        </nav>
+        <br/>
+        
+    </div>
+
     <div id="viewContainer">
     </div>
+
     <div class="align">
         <h3 id="message_text"></h3>
     </div>
+
 </body>
 
 <script>
-
-
-    $(document).ready(function() {
-        var productID = localStorage.getItem(productID);
-        
-        $.ajax({
-            method : "GET",
-            url: "/product/id/" + productID,
-            dataType: "json",
-            success: function(result){
-                alert("GET success!");
-                var storedCartID = result.user.username + "__ShoppingCart";
-                var shoppingCart = JSON.parse(localStorage.getItem(storedCartID));
-                displayProduct( result.product, shoppingCart )
-            },
-            error: function(xhr, status, err){
-                $("#message_text").empty();
-                var errorMsg = xhr.responseJSON.message;
-                $("#message_text").html(errorMsg);
-                console.log(errorMsg);
-            }
-        });
-    });
 
     function displayProduct( product, cart ) {
         var prod_img= document.createElement('table');
@@ -59,8 +98,13 @@
         table_cell= table_row.insertCell(0);
         
         var img= document.createElement('img');
-        img.src= "../../" + product.productImage;
-        img.height = 400;
+        if (product.productImage) {
+            img.src= "../../" + product.productImage;
+        } else {
+            img.src= "../img/imagenotavailable.png";
+        }
+        
+        img.height = 300;
         table_cell.appendChild(img);
         
         var table_cell1 = document.createElement('td');
@@ -92,9 +136,12 @@
         table_cell1.appendChild(labelNote);
 
         var addButton= document.createElement('button');
+        //addButton.className= "btn btn-primary";
         addButton.innerHTML= "Add to Cart";
         table_cell1.appendChild(addButton);
+
         var removeButton= document.createElement('button');
+        //removeButton.className= "btn btn-primary";
         removeButton.innerHTML= "Remove from Cart";
         table_cell1.appendChild(removeButton);
         
@@ -102,26 +149,28 @@
         if (product.isRemoved) {
             addButton.disabled = true;
             labelNote.innerHTML= "This product has been removed due to some regulation! Add to Cart has been disabled!";
-            quantityInCart = 0;
+            quantityInCart= 0;
         } else if (product.remainingQuantity < 1) {
             addButton.disabled = true;
             labelNote.innerHTML= "This product is not available/out of stock!";
-            quantityInCart = 0;
+            quantityInCart= 0;
         } else if (cart[product.productID]) {
-            quantityInCart = cart[product.productID];
+            //alert("product in cart");
+            quantityInCart= cart[product.productID];
         } else {
-            quantityInCart = 0;
+            quantityInCart= 0;
         }
         
-        var labelQuantityInCartLabel= document.createElement('label');
-        labelQuantityInCartLabel.innerHTML = "<p><b>Quantity in Cart: </b></p>";
+        
+        var labelQuantityInCartLabel= document.createElement('p');
+        labelQuantityInCartLabel.innerHTML= "<b>Quantity in Cart: </b>";
         table_cell1.appendChild(labelQuantityInCartLabel);
-        var labelQuantityInCart= document.createElement('label');
+        var labelQuantityInCart= document.createElement('p');
         labelQuantityInCart.innerHTML= quantityInCart;
         table_cell1.appendChild(labelQuantityInCart);
 
         addButton.onclick= function() {            
-            quantityInCart += addQuantity.value;
+            quantityInCart += parseInt(addQuantity.value);
             if (quantityInCart >= product.remainingQuantity) {
                 quantityInCart = product.remainingQuantity;
                 addButton.disabled = true;
@@ -133,7 +182,7 @@
         }
 
         removeButton.onclick= function() {            
-            quantityInCart -= addQuantity.value;
+            quantityInCart -= parseInt(addQuantity.value);
             if (quantityInCart < 1) {
                 quantityInCart = 0;
                 removeButton.disabled = true;
@@ -161,6 +210,26 @@
         var desc=document.createElement('p');
         desc.innerHTML="Item Description: " + product.productDescription;
         table_cellr1.appendChild(desc);
+
+        var table_cellr2= table_row1.insertCell(1);
+        var backButton= document.createElement("button");
+        backButton.className= "btn btn-primary";
+        backButton.innerHTML= "Back to Product Listing";
+        backButton.onclick= function() {
+            localStorage.setItem("viewListingCategory", product.productCategory);
+            location.href="product_listing";
+        }
+        table_cellr2.appendChild(backButton);
+
+        var lineBreak= document.createElement("p");
+        table_cellr2.appendChild(lineBreak);
+        var homeButton= document.createElement("button");
+        homeButton.className= "btn btn-primary";
+        homeButton.innerHTML= "Back to HomePage";
+        homeButton.onclick= function() {
+            location.href="homepage";
+        }
+        table_cellr2.appendChild(homeButton);
 
         document.getElementById('viewContainer').appendChild(prod_img);
 

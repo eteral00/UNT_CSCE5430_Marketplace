@@ -44,7 +44,7 @@
 
 				// validate input
 				var productName = $("#product_name").val().trim();
-				var productCategory = $("#product_category").val();
+				var productCategory = $("#product_category").val().toLowerCase();
 				var productPrice = $("#product_price").val();
 				var productQuantity = $("#product_quantity").val();
 				var productDescription = $("#product_description").val().trim();
@@ -140,9 +140,9 @@
 					<div class="form-group ">
 						<label for="product_category">Product Category</label>
 						<select name="product_category" id="product_category">
-							<option value="Furniture" selected>Furniture</option>
-							<option value="Electronics">Electronics</option>
-							<option value="Automobile">Automobile</option>
+							<option value="furniture" selected>Furniture</option>
+							<option value="electronics">Electronics</option>
+							<option value="automobile">Automobile</option>
 						</select>
 					</div>
 

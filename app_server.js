@@ -8,6 +8,7 @@ const mySQL_DbConnection = require("./config/db.config");
 // Load modules
 const path = require("path");
 const SHA2 = require("sha2");
+const fs = require("fs");
 const express = require("express");
 const session = require("express-session");
 const multer = require("multer");
@@ -38,13 +39,17 @@ var sessionOb;
 // get-uploaded_img for products
 app_server.get("/uploads/img/:img", (req, res) => {
   try {
-    console.log("GET-Img hit.");
+    console.log("GET-Upload_img hit.");
     var options = {
       root : path.join(__dirname, "/uploads/img")
     };
     
     var fileName = req.params.img;
     
+    if ( !fs.existsSync(options.root + "/" + fileName) ) {
+      console.log("404! Requested image not found! Replaced with placeholder!");
+      fileName = "imagenotavailable.png";
+    }
     res.sendFile(fileName, options, function(err) {
       if (err) {
         console.error(err.message);
@@ -69,6 +74,10 @@ app_server.get("/img/:img", (req, res) => {
     
     var fileName = req.params.img;
     
+    if ( !fs.existsSync(options.root + "/" + fileName) ) {
+      console.log("404! Requested image not found! Replaced with placeholder!");
+      fileName = "imagenotavailable.png";
+    }
     res.sendFile(fileName, options, function(err) {
       if (err) {
         console.error(err.message);
@@ -93,14 +102,19 @@ app_server.get("/css/:stylesheet", (req, res) => {
     
     var fileName = req.params.stylesheet;
     
-    res.sendFile(fileName, options, function(err) {
-      if (err) {
-        console.error(err.message);
-        //next(err);
-      } else {
-        console.log("File sent: ", fileName);
-      }
-    });
+    if ( fs.existsSync(options.root + "/" + fileName) ) {
+      res.sendFile(fileName, options, function(err) {
+        if (err) {
+          console.error(err.message);
+          //next(err);
+        } else {
+          console.log("File sent: ", fileName);
+        }
+      });
+    } else {
+      console.log("404! Requested resources not found!");
+      res.status(404).json({message : "Requested resources not found!" });
+    }
 
   } catch (err) {
     console.error(err.message);
@@ -117,14 +131,19 @@ app_server.get("/js/:scriptfile", (req, res) => {
     
     var fileName = req.params.scriptfile;
     
-    res.sendFile(fileName, options, function(err) {
-      if (err) {
-        console.error(err.message);
-        //next(err);
-      } else {
-        console.log("File sent: ", fileName);
-      }
-    });
+    if ( fs.existsSync(options.root + "/" + fileName) ) {
+      res.sendFile(fileName, options, function(err) {
+        if (err) {
+          console.error(err.message);
+          //next(err);
+        } else {
+          console.log("File sent: ", fileName);
+        }
+      });
+    } else {
+      console.log("404! Requested resources not found!");
+      res.status(404).json({message : "Requested resources not found!" });
+    }
 
   } catch (err) {
     console.error(err.message);
@@ -198,14 +217,64 @@ app_server.get("/admin/:page", (req, res) => {
 });
 
 
-// get-view_productby_id
+// get-view_product_by_category
+app_server.get("/product/category/:category", (req, res) => {
+  try {
+    console.log("GET-view_product_by_category hit.");
+
+    sessionOb = req.session;
+
+    //var productCategory = req.params.category;
+
+    var queryStr = "SELECT `product_id`,`product_name`, `product_description`, `product_image_link`, `unit_price` "
+      + " FROM `product` "
+      + " WHERE `product_category` = ? "
+      + " AND `is_removed` = b'0' "
+      + " AND `remaining_quantity` > 0 ;";
+    
+    var queryVar = req.params.category;
+    console.log("query var", queryVar);
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+      if(err) {
+        console.log("Error: ", err);
+        //console.error(err.message);
+        //res.status()
+      } else {
+        console.log("product id result: ", result_rows);
+
+        var productListing = [];
+        for ( var idx = 0; idx < result_rows.length; idx++ )
+        {
+          var product = { 
+            productID : result_rows[idx].product_id,
+            productName : result_rows[idx].product_name,
+            productDescription : result_rows[idx].product_description,
+            productImage : result_rows[idx].product_image_link,
+            price : result_rows[idx].unit_price,
+          };
+          productListing.push(product);
+        }
+        
+        console.log("product listing: ", productListing);
+        res.status(200).json({ user : { username : sessionOb.user.username }, productListing: productListing });
+
+      }
+    });
+
+  } catch (err) {
+    console.error(err.message);
+  }
+}
+);
+
+// get-view_product_by_id
 app_server.get("/product/id/:id", (req, res) => {
   try {
     console.log("GET-view_product_by_id hit.");
 
     sessionOb = req.session;
 
-    var productID = req.params.id;
+    //var productID = req.params.id;
 
     var queryStr = "SELECT `product_id`, `is_removed`,`product_name`, `product_category`, `product_description`, `product_image_link`, `unit_price`, `remaining_quantity` "
       + " FROM `product` "
@@ -219,7 +288,8 @@ app_server.get("/product/id/:id", (req, res) => {
         //console.error(err.message);
         //res.status()
       } else {
-        console.log("product id result: ", result_rows[0]);
+        if (result_rows.length > 0) {
+          console.log("product id result: ", result_rows[0]);
         var is_removed = Boolean(result_rows[0].is_removed.toJSON().data[0]);
         var product = { 
           productID : result_rows[0].product_id,
@@ -233,7 +303,7 @@ app_server.get("/product/id/:id", (req, res) => {
         };
         console.log("product: ", product);
         res.status(200).json({ user : { username : sessionOb.user.username }, product: product});
-
+        }
       }
     });
 
@@ -502,11 +572,12 @@ app_server.post("/sell_item", fileUpload.single("productImage"), (req, res, next
   try {
     console.log("req form body: ", req.body);
     
+    sessionOb = req.session;
     // product-table's fields:
     // product_id (auto generated), is_removed, product_name, product_category, product_description, product_image_link, unit_price, initial_quantity, remaining_quantity, seller_username
-    // insert fields (7): name, category, description, price, initial quantity, remaining quantity, image_link
-    var queryStr = "INSERT INTO `product` (`product_name`, `product_category`, `product_description`,`unit_price`, `initial_quantity`, `remaining_quantity`, `product_image_link`) "
-      + " VALUES ( ? , ? , ? , ? , ? , ? , ? );"
+    // insert fields (8): name, category, description, price, initial quantity, remaining quantity, image_link, seller_username
+    var queryStr = "INSERT INTO `product` (`product_name`, `product_category`, `product_description`,`unit_price`, `initial_quantity`, `remaining_quantity`, `product_image_link`, `seller_username`) "
+      + " VALUES ( ? , ? , ? , ? , ? , ? , ? , ? );"
     
     
     var productName = req.body.productName;
@@ -523,6 +594,8 @@ app_server.post("/sell_item", fileUpload.single("productImage"), (req, res, next
     } else {
       queryVar.push("");
     }
+
+    queryVar.push(sessionOb.user.username);
 
     // send query to insert product
     mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
