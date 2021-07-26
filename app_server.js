@@ -10,6 +10,17 @@ const path = require("path");
 const SHA2 = require("sha2");
 const express = require("express");
 const session = require("express-session");
+const multer = require("multer");
+const storageDest = multer.diskStorage({
+  destination: function(req, file, cb) {
+      cb(null, './uploads/img/');
+   },
+  filename: function (req, file, cb) {
+      cb(null , (new Date()).getTime().toString() + file.originalname);
+  }
+});
+const fileUpload = multer({storage : storageDest });
+
 const { stringify } = require("querystring");
 
 const app_server = express();
@@ -24,6 +35,29 @@ app_server.use( session({ secret : "uNkNoWn", resave : true, saveUninitialized :
 //session object
 var sessionOb; 
 
+// get-uploaded_img for products
+app_server.get("/uploads/img/:img", (req, res) => {
+  try {
+    console.log("GET-Img hit.");
+    var options = {
+      root : path.join(__dirname, "/uploads/img")
+    };
+    
+    var fileName = req.params.img;
+    
+    res.sendFile(fileName, options, function(err) {
+      if (err) {
+        console.error(err.message);
+        //next(err);
+      } else {
+        console.log("File sent: ", fileName);
+      }
+    });
+
+  } catch (err) {
+    console.error(err.message);
+  }
+});
 
 // get-img
 app_server.get("/img/:img", (req, res) => {
@@ -110,7 +144,7 @@ app_server.get("/admin/:page.*", (req, res) => {
   }
 });
 //get-admin-page-slash
-app_server.get("/admin/:page/*", (req, res) => {
+app_server.get("/admin/:page/$", (req, res) => {
   try {
     console.log("GET-Admin-Page-slash hit. Redirected to get-admin-page");
     res.redirect("/admin/" + req.params.page);
@@ -163,6 +197,52 @@ app_server.get("/admin/:page", (req, res) => {
   }
 });
 
+
+// get-view_productby_id
+app_server.get("/product/id/:id", (req, res) => {
+  try {
+    console.log("GET-view_product_by_id hit.");
+
+    sessionOb = req.session;
+
+    var productID = req.params.id;
+
+    var queryStr = "SELECT `product_id`, `is_removed`,`product_name`, `product_category`, `product_description`, `product_image_link`, `unit_price`, `remaining_quantity` "
+      + " FROM `product` "
+      + " WHERE `product_id` = ? ;"
+    
+    var queryVar = req.params.id;
+    console.log("query var", queryVar);
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+      if(err) {
+        console.log("Error: ", err);
+        //console.error(err.message);
+        //res.status()
+      } else {
+        console.log("product id result: ", result_rows[0]);
+        var is_removed = Boolean(result_rows[0].is_removed.toJSON().data[0]);
+        var product = { 
+          productID : result_rows[0].product_id,
+          isRemoved : is_removed,
+          productName : result_rows[0].product_name,
+          productCategory : result_rows[0].product_category,
+          productDescription : result_rows[0].product_description,
+          productImage : result_rows[0].product_image_link,
+          price : result_rows[0].unit_price,
+          remainingQuantity : result_rows[0].remaining_quantity
+        };
+        console.log("product: ", product);
+        res.status(200).json({ user : { username : sessionOb.user.username }, product: product});
+
+      }
+    });
+
+  } catch (err) {
+    console.error(err.message);
+  }
+}
+);
+
 //get-page-dot
 app_server.get("/:page.*", (req, res) => {
   try {
@@ -174,7 +254,7 @@ app_server.get("/:page.*", (req, res) => {
   }
 });
 //get-page-slash
-app_server.get("/:page/*", (req, res) => {
+app_server.get("/:page/$", (req, res) => {
   try {
     console.log("GET-Page-slash hit. Redirected to get-page");
     res.redirect("/" + req.params.page);
@@ -294,7 +374,7 @@ app_server.get("/", (req, res) => {
       res.redirect("/homepage");
     }
     
-    //res.status(200).json({ message: "GET tested!" + JSON.stringify(sessionOb) }).end();
+    //res.status(200).json({ message: "GET tested!" + JSON.stringify(sessionOb) });
 
   } catch (err) {
     console.error(err.message);
@@ -330,20 +410,20 @@ app_server.post("/login", (req, res) => {
       if(err) {
           console.log("Error: ", err);
           //console.error(err.message);
-      } else{
+      } else {
         //console.log("Result row: ", result_rows);
         var hashPassword = SHA2.sha_256(inputPassword);
         //console.log("Hashed Password: ", hashPassword);
         
         if (result_rows.length < 1) {
           console.log("Sorry! This Username, '" + queryVar + "', does not exist!");
-          res.status(404).json({ message : "Sorry! This Username, '" + queryVar + "', does not exist!"}).end();
+          res.status(404).json({ message : "Sorry! This Username, '" + queryVar + "', does not exist!"});
         } else if ( Boolean(result_rows[0].is_locked.toJSON().data[0]) ) {
           console.log("Sorry! This User, '" + queryVar + "', is being locked!");
-          res.status(403).json({ message : "Sorry! This User, '" + queryVar + "', is being locked!"}).end();
+          res.status(403).json({ message : "Sorry! This User, '" + queryVar + "', is being locked!"});
         } else if (JSON.stringify(result_rows[0].user_password) != JSON.stringify(hashPassword)) {
           console.log("Sorry! Wrong password!");
-          res.status(409).json({ message : "Sorry! Wrong password!"}).end();
+          res.status(409).json({ message : "Sorry! Wrong password!"});
         } else {
           // finally successfully logged in
           console.log("Welcome, " + queryVar + "!");
@@ -354,7 +434,7 @@ app_server.post("/login", (req, res) => {
           sessionOb.user.is_admin = ( Boolean(result_rows[0].is_admin.toJSON().data[0]) );
           
           //console.log("req session post-login: ", req.session);
-          res.status(200).json({user : { username : sessionOb.user.username, is_admin : sessionOb.user.is_admin } }).end();
+          res.status(200).json({user : { username : sessionOb.user.username, is_admin : sessionOb.user.is_admin } });
           //res.end();
         }          
       }
@@ -387,13 +467,14 @@ app_server.post("/register", (req, res) => {
     var queryStr = "INSERT INTO user " + 
       " VALUES ( ?, ?, 0, 0, null, ?, ?, ?, ? ,null, null );";
     
+    // send query to insert user
     mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
       if(err) {
         console.log("Error: ", err);  
         //console.error(err.message);
         if (err.errno == 1062) {
           console.log("Duplicated User!");
-          res.status(409).json({message : "Sorry! This Username, '" +  inputUsername + "', already existed. Please choose another Username and retry! If that was your Username and you forgot your password, please contact the techical support!" }).end();
+          res.status(409).json({message : "Sorry! This Username, '" +  inputUsername + "', already existed. Please choose another Username and retry! If that was your Username and you forgot your password, please contact the techical support!" });
         }
         
       } else {
@@ -402,10 +483,10 @@ app_server.post("/register", (req, res) => {
         sessionOb.user.username = inputUsername;
         console.log("req session post-reg: ", req.session);
         /*
-        //res.json({ user : {username : result_rows[0].username, is_admin : result_rows[0].is_admin }, message : "Welcome, " + queryVar + "!"}).end();
-        res.status(200).json({user : { username : sessionOb.user.username, is_admin : sessionOb.user.is_admin } }).end();
+        //res.json({ user : {username : result_rows[0].username, is_admin : result_rows[0].is_admin }, message : "Welcome, " + queryVar + "!"});
+        res.status(200).json({user : { username : sessionOb.user.username, is_admin : sessionOb.user.is_admin } });
         */
-        res.status(200).json({user : { username : inputUsername, password: hashPassword, is_admin : false } }).end();
+        res.status(200).json({user : { username : inputUsername, password: hashPassword, is_admin : false } });
           
       }
     });
@@ -416,7 +497,49 @@ app_server.post("/register", (req, res) => {
 });
 
 
+// POST-sell_item
+app_server.post("/sell_item", fileUpload.single("productImage"), (req, res, next) => {
+  try {
+    console.log("req form body: ", req.body);
+    
+    // product-table's fields:
+    // product_id (auto generated), is_removed, product_name, product_category, product_description, product_image_link, unit_price, initial_quantity, remaining_quantity, seller_username
+    // insert fields (7): name, category, description, price, initial quantity, remaining quantity, image_link
+    var queryStr = "INSERT INTO `product` (`product_name`, `product_category`, `product_description`,`unit_price`, `initial_quantity`, `remaining_quantity`, `product_image_link`) "
+      + " VALUES ( ? , ? , ? , ? , ? , ? , ? );"
+    
+    
+    var productName = req.body.productName;
+    var productCategory = req.body.productCategory;
+    var productDescription = req.body.productDescription;
+    var unitPrice = req.body.price;
+    var initialQuantity = req.body.quantity;
+    var remainingQuantity = initialQuantity;
+    
+    var queryVar = [ productName, productCategory, productDescription, unitPrice, initialQuantity, remainingQuantity ];
+    if(req.file) {
+      console.log("file uploaded: ", req.file.path);
+      queryVar.push(req.file.path);
+    } else {
+      queryVar.push("");
+    }
 
+    // send query to insert product
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+      if(err) {
+        console.log("Error: ", err);  
+        //console.error(err.message);
+        //res.status()
+      } else {
+        res.status(200).json({message : "Success! Your item, '" + productName + "', has been added to listing!" });
+      }
+    });
+    
+    
+  } catch (err) {
+    console.error(err.message);
+  }
+});
 
 
 // PUT-update_profile
@@ -483,11 +606,11 @@ app_server.put("/update_profile", (req, res) => {
     mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
       if(err) {
         console.log("Error: ", err);
-        res.status(409).json({ message : "Sorry! There were errors updating your profile!" }).end();
+        res.status(409).json({ message : "Sorry! There were errors updating your profile!" });
 
       } else {
         console.log("Successfully updated the profile of user '" + sessionOb.user.username + "'!");
-        res.status(200).json({ message : "Successfully updated the profile!" }).end();
+        res.status(200).json({ message : "Successfully updated the profile!" });
 
       }
     });
@@ -526,7 +649,7 @@ app_server.put("/change_pass", (req, res) => {
         //console.log("input pw: ", hashCurrentPassword.toJSON().data.toString());
         if ( JSON.stringify(result_rows[0].user_password) !== JSON.stringify(hashCurrentPassword) ) {
           console.log("Sorry! Wrong password!");
-          res.status(409).json({ message : "Sorry! Wrong password!"}).end();
+          res.status(409).json({ message : "Sorry! Wrong password!"});
 
         } else {
           console.log("Changing password for user '" + sessionOb.user.username + "'!");
@@ -543,7 +666,7 @@ app_server.put("/change_pass", (req, res) => {
               //res.status();
             } else {
               console.log("Successfully changed password for user '" + sessionOb.user.username + "'!");
-              res.status(200).json({ message : "Successfully changed password!" }).end();
+              res.status(200).json({ message : "Successfully changed password!" });
             }
           });
         }          

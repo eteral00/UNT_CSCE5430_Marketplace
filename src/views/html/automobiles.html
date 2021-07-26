@@ -5,9 +5,12 @@
     <style>
         table { width: 100%; }
          td { border: solid 0px #DDD;
-            border-collapse: collapse; padding: 2px 3px,width:15%;
+            border-collapse: collapse; padding: 2px 3px; width:15%;
         }
     </style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
 </head>
 
 <body onload="createTable()">
@@ -29,38 +32,42 @@
         {image:"automobiles.png",description:"this is image5"}
         ];
     function createTable() {
-    var adv = document.createElement('table');
-    var no_of_adv=advertisments.length;
-    var no_of_rows=no_of_adv%4;
-    var tr = adv.insertRow(-1);
-    var j=-1;
-    for (var i=0;i<no_of_adv;i++) { j++;
-        var p=i%4;
-        if(p==0) { 
-            j=0
-            tr = adv.insertRow(-1);
-        }
+        var adv = document.createElement('table');
+        var no_of_adv=advertisments.length;
+        var no_of_rows=no_of_adv%4;
+        var tr = adv.insertRow(-1);
+        var j=-1;
+        for (var i=0;i<no_of_adv;i++) { j++;
+            var p=i%4;
+            if(p==0) { 
+                j=0
+                tr = adv.insertRow(-1);
+            }
 
-        var td = document.createElement('td');
-        td=tr.insertCell(j);
-        var img=document.createElement('img');
-        img.src=advertisments[i].image;
-        img.setAttribute('width','300px');
-        td.appendChild(img);
-        var br = document.createElement("br");
-        td.appendChild(br);
-        var a = document.createElement('a');
-            a.target = '_blank';
-            a.href="product_view.html";
-            a.onclick=pass_values(i);
-            a.innerText =advertisments[i].description ;
-            td.appendChild(a);
+            var td = document.createElement('td');
+            td=tr.insertCell(j);
+            var img=document.createElement('img');
+            img.src=advertisments[i].image;
+            img.setAttribute('width','300px');
+            td.appendChild(img);
+            var br = document.createElement("br");
+            td.appendChild(br);
+            var a = document.createElement('a');
+                a.target = '_blank';
+                a.href="product_view.html";
+                a.onclick=viewProduct(advertisments[i].id);
+                a.innerText =advertisments[i].description ;
+                td.appendChild(a);
         }
 
         var div = document.getElementById('listings');
         div.appendChild(adv);
     }
 
+    function viewProduct(id) {
+        //location.href="product/id/"+ id.toString();
+        localStorage.setItem("productID",id);
+    }
     function pass_values(i) {
         localStorage.setItem("image",advertisments[i].image);
         localStorage.setItem("txtvalue",i);

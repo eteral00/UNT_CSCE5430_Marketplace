@@ -52,6 +52,11 @@
 						},
 						dataType: "json",
 						success: function(result){
+
+							var shoppingCart = {};
+							var storedCartID = result.user.username + "__ShoppingCart";
+							localStorage.setItem( storedCartID, JSON.stringify(shoppingCart) );
+
 							if (result.user.is_admin) {
 								$(location).attr("href", "admin/admindashboard");
 							}

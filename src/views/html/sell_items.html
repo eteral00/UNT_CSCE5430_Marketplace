@@ -5,6 +5,119 @@
 	<link rel ="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
 	<link rel ="stylesheet" type="text/css" href="../css/style.css"/>
 
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script>
+
+		// preview image func
+		function previewImage() { 
+				const fileReader = new FileReader();
+				if ( $("#product_image").prop("files")[0] ) {
+					const productImage = $("#product_image").prop("files")[0];
+					fileReader.readAsDataURL(productImage);				
+					fileReader.onload = function() {
+						$("#image_preview").attr("src", fileReader.result);
+					}; 
+				}
+			}
+		//
+		$(document).ready(function() {
+			
+			// clean URL
+			var url = window.location.toString();
+			if (url.indexOf("?") > 0) {
+				var clean_url = url.substring(0, url.indexOf("?"));
+				window.history.replaceState({}, document.title, clean_url);
+			}
+			
+			// clean input validate msg
+			$("#message_text").empty();
+
+			// preview image
+			$("#product_image").on("change", previewImage); 
+				
+
+			// validate input before submitting POST-request
+			$("#product_submit").click( function(event) {
+
+				// clean input validate msg
+				$("#message_text").empty();
+
+				// validate input
+				var productName = $("#product_name").val().trim();
+				var productCategory = $("#product_category").val();
+				var productPrice = $("#product_price").val();
+				var productQuantity = $("#product_quantity").val();
+				var productDescription = $("#product_description").val().trim();
+				
+				var productImage = null;
+				if ( $("#product_image").prop("files")[0] ) {
+					productImage = $("#product_image").prop("files")[0];
+				}
+
+				var anyErrors = false;
+
+				// validate product name
+				if ( productName === "" ) {
+						$("#message_text").append("<p>Error: Product Name cannot be empty!</p>" );
+						anyErrors = true;
+				}
+				if ( productName.length > 255 ) {
+						$("#message_text").append("<p>Error: Product Name cannot be longer than 255 characters!</p>" );
+						anyErrors = true;
+				}
+
+				// validate min quantity
+				if ( productQuantity < 1 ) {
+					$("#message_text").append("<p>Error: Available Quantity should be at least 1 !</p>" );
+						anyErrors = true;
+				
+				}
+
+				// if error, prevent submit
+				if (anyErrors){
+					event.preventDefault();
+				} else {
+					var formData = new FormData();
+
+					formData.append("productName", productName);
+					formData.append("productCategory", productCategory);
+					formData.append("productDescription", productDescription);
+					formData.append("price", productPrice);
+					formData.append("quantity", productQuantity);
+					if (productImage) {
+						formData.append("productImage", productImage, productImage.name);
+					}
+
+
+					// no error, submit POST-request
+					$.ajax({
+						method : "POST",
+						url : "/sell_item",
+						data : formData,
+						processData: false,
+						contentType: false,
+						enctype: 'multipart/form-data',
+						dataType: "json",
+						success: function(result){
+							$("#message_text").empty();
+							$("#message_text").html(result.message);
+							$("#product_name").val("");
+							$("#product_description").val("");
+							$("#product_price").val("");
+							$("#product_quantity").val(1);
+							$("#product_image").val("");
+							$("#image_preview").attr("src","");
+						},
+						error: function(xhr, status, err){
+							$("#message_text").empty();
+							var errorMsg = xhr.responseJSON.message;
+							$("#message_text").html(errorMsg);
+						}
+					});
+				}				
+			} );
+		});			
+	</script>
 
 </head>
 
@@ -37,15 +150,11 @@
 						<label for="product_price">Product Price (US$)</label>
 						<input type="number" class="form-control" name="product_price" id="product_price" required>
 						<label for="product_quantity">Available Quantity</label>
-						<input type="number" class="form-control" name="product_quantity" id="product_quantity" required>
+						<input type="number" class="form-control" name="product_quantity" id="product_quantity" min="1" val="1" required>
 						
 					</div>
 
 					<div class="form-group">
-						<label for="product_model">Model Name</label>
-						<input type="text" class="form-control" name="product_model" id="product_model">
-						<label for="product_model_num">Model Number</label>
-						<input type="text" class="form-control" name="product_model_num" id="product_model_num">
 						<label for="product_description">Description</label>
 						<textarea class="form-control" rows="4" name="product_description" id="product_description"></textarea>
 					</div>
@@ -56,7 +165,8 @@
 
 					<div class="form-group">
 						<label for="product_img">Product Image</label>
-						<input type="file" name="product_img" id="product_img" accept="image/png, image/jpeg">
+						<input type="file" name="product_image" id="product_image" accept="image/png, image/jpeg">
+						<img id="image_preview" src="" height="200" alt="Image preview...">
 					</div>
 
 					<div>

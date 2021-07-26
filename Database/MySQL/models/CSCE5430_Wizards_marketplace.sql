@@ -158,12 +158,12 @@ CREATE TABLE IF NOT EXISTS `marketplace`.`product` (
   `unit_price` DECIMAL(65,2) NOT NULL,
   `initial_quantity` INT NOT NULL DEFAULT '1',
   `remaining_quantity` INT NULL DEFAULT NULL,
-  `seller_user_name` VARCHAR(50) NULL DEFAULT NULL,
+  `seller_username` VARCHAR(50) NULL DEFAULT NULL,
   PRIMARY KEY (`product_id`),
   UNIQUE INDEX `product_id_UNIQUE` (`product_id` ASC) VISIBLE,
-  INDEX `fk_seller_user_name_idx` (`seller_user_name` ASC) VISIBLE,
-  CONSTRAINT `fk_seller_user_name`
-    FOREIGN KEY (`seller_user_name`)
+  INDEX `fk_seller_user_name_idx` (`seller_username` ASC) VISIBLE,
+  CONSTRAINT `fk_seller_username`
+    FOREIGN KEY (`seller_username`)
     REFERENCES `marketplace`.`user` (`username`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE)
