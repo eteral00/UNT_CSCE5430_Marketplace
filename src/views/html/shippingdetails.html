@@ -3,11 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SHOPPING CART</title>
+    <title>SHIPPING INFO</title>
     
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel ="stylesheet" type="text/css" href="../css/product_style.css"/>
+    <!--
+        <link rel ="stylesheet" type="text/css" href="../css/product_style.css"/>
+    -->
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
     <script type="text/javascript">
@@ -15,14 +18,87 @@
             document.getElementByClassName("cart px-sm-5 px-2").classList.toggle(" cart px-sm-5 px-2 bg-dark");
         }; 
 
-        document.getElementById("proceed btn-secondary").onclick = function () {
-            location.href = "";
-        };
+        $(document).ready(function() {
+			
+			// clean input validate msg
+			$("#message_text").empty();
+
+			// validate input before submitting POST-request
+			$("#shipping_next").click( function(event) {
+
+				// clean input validate msg
+				$("#message_text").empty();
+
+				// validate input
+				var receiverName = $("#receiver_name").val().trim();
+				var addressStreet = $("#address_street").val().trim();
+				var addressCity = $("#address_city").val().trim();
+				var addressState = $("#address_state").val().trim();
+				var addressZip = $("#address_zip").val().trim();
+				var contactPhone = $("#contact_phone").val().trim();
+
+				const digits = /^[0-9]+$/;
+				var anyErrors = false;
+
+				if ( receiverName === "" || addressStreet === "" || addressCity === "" || addressState === "" || addressZip === "" ) {
+						$("#message_text").append("<p>Error: Receiver Name & Address fields are required! Please retry!</p>" );
+						anyErrors = true;
+				} else {
+
+					// validate length of receiver name field
+					if (receiverName.length > 255){
+						$("#message_text").append("<p>Error: Receiver Name is too long! Max length is 255 characters!</p>" );
+						anyErrors = true;
+					}
+
+                    // validate length of street address
+					if (addressStreet.lenth > 255 ){
+						$("#message_text").append("<p>Error: Street Address is too long! Max length is 255 characters!</p>" );
+						anyErrors = true;
+					}
+
+					// validate length of city and state
+					if (addressCity.lenth > 50 || addressState.length > 50){
+						$("#message_text").append("<p>Error: City or State is too long! Max length is 50 characters!</p>" );
+						anyErrors = true;
+					}
+
+                    // some zip code contains letter beside numbers, so no validate digit-only for zip
+					// validate length of zip code
+					if (addressZip.length > 9){
+						$("#message_text").append("<p>Error: Zip Code is too long! Zip Code cannot be longer than 9 characters!</p>" );
+						anyErrors = true;
+					}
+
+                    // validate phone number contains only numbers
+					if (contactPhone.length > 0 && !digits.test(contactPhone)){
+						$("#message_text").append("<p>Error: Phone Number must contain only digits!</p>" );
+						anyErrors = true;
+					}
+					// validate length of phone number
+					if (contactPhone.length > 10){
+						$("#message_text").append("<p>Error: Phone Number cannot be longer than 10 digits!</p>" );
+						anyErrors = true;
+					}
+
+                    if (anyErrors) {
+                        //event.preventDefault(); //unneeded, no event here
+                    } else {
+                        var sessionUser = JSON.parse( localStorage.getItem("sessionUser") );
+                        var shippingDetails = { receiverName : receiverName, addressStreet : addressStreet, addressCity : addressCity, addressState : addressState, addressZip : addressZip, contactPhone : contactPhone };
+                        sessionUser.shippingDetails = shippingDetails;
+                        localStorage.setItem ("sessionUser", JSON.stringify(sessionUser) );
+                        location.href = "paymentoption";
+                    }
+				}
+		    });
+        });
+
     </script>
 
 </head>
 
-<body onload="change()">
+<body>
     <div class ="container  py-4 my-3">
         <nav class="navbar navbar-inverse navbar-fixed-top">
           <div class="container">
@@ -44,52 +120,50 @@
             
         <div class ="container bg-light py-5">
 
-            <h4>Shipping Details:</h4>
+            <h3>Shipping Details:</h3>
             
-            <form method ="post" action="paymentoption">
-                <div class="form-row">
-                    <div class="col-6" class="form-group">
-                        <input type="text" class="form-control" placeholder="First Name" required="true">
-                    </div>
+            <div class="form-row">
+                <input type="text" class="form-control" name="receiver_name" id="receiver_name"
+                    placeholder="Ship To/Receiver Name:" required="true">
+            </div>
 
-                    <div class="col" class="form-group" >
-                        <input type="text" class="form-control" placeholder="Last Name" required="true">
-                    </div>
+            <div class="form-group pt-3">
+                <input type="text" class="form-control" name="address_street" id="address_street" 
+                    placeholder="Address:" required="true">
+            </div>
 
-                </div>
+            <div class="form-group">
+                <input type="text" class="form-control" name="address_city" id="address_city" 
+                    placeholder="City:"  required="true">
+            </div>
 
-                <div class="form-group pt-3">
-                    <input type="text" class="form-control" placeholder="ADDRESS 1:" required="true">
-                </div>
+            <div class="form-group">
+                <input type="text" class="form-control" name="address_state" id="address_state"
+                    placeholder="State:"  required="true">
+            </div>
 
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="ADDRESS 2:"  required="true">
-                </div>
+            <div class="form-group pb-5">
+                <input type="text" class="form-control" name="address_zip" id="address_zip"
+                    placeholder="Zip:"  required="true">
+            </div>
 
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="phone"  required="true">
-                </div>
+            <div class="form-group pb-5">
+                <input type="tel" class="form-control" name="contact_phone" id="contact_phone"
+                    placeholder="Contact Phone: ">
+            </div>
 
-                <div class="form-group pb-5">
-                    <input type="text" class="form-control" placeholder="zip"  required="true">
-                </div>
+            <div class="align">
+                <h3 id="message_text"></h3>
+            </div>
 
-                <div class="float-right">
-                    <button onclick="location.href = 'shoppingcart';" class="proceed btn-secondary ">PREVIOUS</button>
-                    <button type="submit" class="Cancel btn-secondary ">NEXT</button>
-                </div>
-
-            </form>
+            <div class="float-right">
+                <button type="button" class="proceed btn-secondary" name="shipping_back" id="shipping_back"
+                    onclick="location.href = 'shoppingcart';">PREVIOUS</button>
+                <button type="submit" class="Cancel btn-secondary" name="shipping_next" id="shipping_next">NEXT</button>
+            </div>
         </div>
 
-        <div class="d-flex justify-content-center">
-            <script>
-                var pages = Math.floor(100/3);
-                document.getElementByClassName('cart px-sm-5 px-2').className="container-sm bg-light";
-                document.getElementByClassName('progress-bar').setAttribute('aria-valuenow',pages);
-                document.getElementByClassName('progress-bar').setAttribute('style','width: '+Number(pages)+%);
-            </script> 
-        </div>
+
     </div>    
     
 </body>

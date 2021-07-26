@@ -28,6 +28,8 @@
             if (sessionUser.shoppingCart) {
                 sessionUser.shoppingCart = {};
                 localStorage.setItem("sessionUser", JSON.stringify(sessionUser));
+                $("#cartViewContainer").empty().append("<h1>Your Shopping Cart is empty!</h1>")
+                $("#summaryViewContainer").empty();
                 $("#cart_clear").hide();
                 $("#cart_proceed").hide();
             }
@@ -181,7 +183,7 @@
                             <button type="button" class="cancel btn-secondary" id="cart_home" 
                                 onclick="location.href='homepage';" >Back to Homepage</button>
                             <button type="button" class="cancel btn-secondary" id="cart_clear" 
-                                onclick="clearCart()" >Clear Cart</button>
+                                onclick="clearCart()">Clear Cart</button>
                             <button type="button" class="proceed btn-secondary" id="cart_proceed"
                                 onclick="location.href = 'shippingdetails';">Proceed</button>
                         </div>

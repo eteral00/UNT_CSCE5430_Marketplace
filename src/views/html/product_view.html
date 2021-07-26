@@ -155,7 +155,21 @@
             desc.innerHTML="Item Description: " + product.productDescription;
             table_cellr1.appendChild(desc);
 
+            
+
             var table_cellr2= table_row1.insertCell(1);
+
+           
+            var checkoutButton= document.createElement("button");
+            checkoutButton.className= "btn btn-primary";
+            checkoutButton.innerHTML= "View Cart & Checkout";
+            checkoutButton.onclick= function() {
+                location.href="shoppingcart";
+            }
+            table_cellr2.appendChild(checkoutButton);
+
+            var lineBreak= document.createElement("p");
+            table_cellr2.appendChild(lineBreak);
             var backButton= document.createElement("button");
             backButton.className= "btn btn-primary";
             backButton.innerHTML= "Back to Product Listing";
@@ -165,8 +179,8 @@
             }
             table_cellr2.appendChild(backButton);
 
-            var lineBreak= document.createElement("p");
-            table_cellr2.appendChild(lineBreak);
+            var lineBreak2= document.createElement("p");
+            table_cellr2.appendChild(lineBreak2);
             var homeButton= document.createElement("button");
             homeButton.className= "btn btn-primary";
             homeButton.innerHTML= "Back to HomePage";

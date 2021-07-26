@@ -28,7 +28,7 @@ CREATE TABLE `shipping_info` (
   `shipping_info_id` int NOT NULL AUTO_INCREMENT,
   `shipping_to_name` varchar(255) NOT NULL,
   `shipping_address_id` int NOT NULL,
-  `shipping_contact_phone` char(10) DEFAULT NULL,
+  `shipping_contact_phone` varchar(10) DEFAULT NULL,
   PRIMARY KEY (`shipping_info_id`),
   UNIQUE KEY `shipping_info_id_UNIQUE` (`shipping_info_id`),
   KEY `fk_shipping_address_id_idx` (`shipping_address_id`),
@@ -54,4 +54,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-07-26 10:12:47
+-- Dump completed on 2021-07-26 16:33:56

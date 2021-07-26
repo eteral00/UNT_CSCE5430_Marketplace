@@ -31,7 +31,7 @@ CREATE TABLE `user` (
   `is_locked` bit(1) NOT NULL DEFAULT b'0',
   `locked_until_date` datetime DEFAULT NULL,
   `email_address` varchar(255) NOT NULL,
-  `phone_number` char(10) DEFAULT NULL,
+  `phone_number` varchar(10) DEFAULT NULL,
   `first_name` varchar(50) NOT NULL,
   `last_name` varchar(50) NOT NULL,
   `default_address_id` int DEFAULT NULL,
@@ -64,4 +64,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-07-26 10:12:46
+-- Dump completed on 2021-07-26 16:33:56
