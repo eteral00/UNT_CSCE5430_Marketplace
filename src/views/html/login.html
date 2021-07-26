@@ -54,8 +54,11 @@
 						success: function(result){
 
 							var shoppingCart = {};
-							var storedCartID = result.user.username + "__ShoppingCart";
-							localStorage.setItem( storedCartID, JSON.stringify(shoppingCart) );
+							var sessionUser = result.user;
+							sessionUser.shoppingCart = shoppingCart;
+							localStorage.setItem( "sessionUser", JSON.stringify(sessionUser) );
+							//var storedCartID = result.user.username + "__ShoppingCart";
+							//localStorage.setItem( storedCartID, JSON.stringify(shoppingCart) );
 
 							if (result.user.is_admin) {
 								$(location).attr("href", "admin/admindashboard");

@@ -39,7 +39,7 @@ var sessionOb;
 // get-uploaded_img for products
 app_server.get("/uploads/img/:img", (req, res) => {
   try {
-    console.log("GET-Upload_img hit.");
+    console.log("GET-Uploaded_img hit.");
     var options = {
       root : path.join(__dirname, "/uploads/img")
     };
@@ -240,7 +240,7 @@ app_server.get("/product/category/:category", (req, res) => {
         //console.error(err.message);
         //res.status()
       } else {
-        console.log("product id result: ", result_rows);
+        console.log("product category result: ", result_rows);
 
         var productListing = [];
         for ( var idx = 0; idx < result_rows.length; idx++ )
