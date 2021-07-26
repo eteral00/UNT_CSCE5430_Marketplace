@@ -15,12 +15,12 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     
     <script>
-        var viewListingCategory = localStorage.getItem("viewListingCategory");
+        var viewListingCategory = sessionStorage.getItem("viewListingCategory");
 
         document.title = viewListingCategory.toUpperCase();
 
         function viewProduct(productID) {
-            localStorage.setItem("viewProductID", productID);
+            sessionStorage.setItem("viewProductID", productID);
             location.href="product_view";
         }
 

@@ -19,9 +19,16 @@
             document.getElementByClassName("cart px-sm-5 px-2").classList.toggle(" cart px-sm-5 px-2 bg-dark");
         };
         
+        function prefillInfo() {
+            var sessionUser = JSON.parse( sessionStorage.getItem("sessionUser") );
+                if (sessionUser.paymentInfo && !($.isEmptyObject(sessionUser.paymentInfo)) ) {
+                    var paymentInfo = sessionUser.paymenInfo;
+
+                }
+        };
 
         $(document).ready(function() {
-            var sessionUser = JSON.parse( localStorage.getItem("sessionUser") );
+            var sessionUser = JSON.parse( sessionStorage.getItem("sessionUser") );
             console.log(sessionUser);
             console.log ( JSON.stringify(sessionUser) );
         });
@@ -31,18 +38,20 @@
 
 <body>
     <div class ="container  py-4 my-3">
-        <nav class="navbar navbar-inverse navbar-fixed-top">    
-          <div class="container">
-            <div class="navbar-header px-5">
-              <a class="navbar-brand px-3" href="homepage">Home</a>
-              <a class="navbar-brand px-3 " href="shoppingcart">Shopping Cart</a>
-              <a class="navbar-brand px-3 " href="shippingdetails">Shipping Details</a>
-              <a class="navbar-brand px-3 dis" href="#" ><b>Payment Options</b></a>
-            </div>
-          </div>
-        </nav>
-
-        <div class="container pl-5 " >
+        <div>
+            <nav class="navbar navbar-inverse navbar-fixed-top">    
+                <div class="container">
+                  <div class="navbar-header px-5">
+                    <a class="navbar-brand px-3" href="homepage">Home</a>
+                    <a class="navbar-brand px-3 " href="shoppingcart">Shopping Cart</a>
+                    <a class="navbar-brand px-3 " href="shippingdetails">Shipping Details</a>
+                    <a class="navbar-brand px-3 dis" href="#" ><b>Payment Options</b></a>
+                  </div>
+                </div>
+              </nav>
+        </div>
+        
+        <div class="container pl-5" >
             <div class="progress align-middle " style="height:3px; width:50%">
                 <div class="progress-bar bg-success" role="progressbar" aria-valuemin="0" aria-valuenow="33" aria-valuemax="100" style="width: 100%">
                 </div>
@@ -50,9 +59,7 @@
         </div>  
             
         <div class ="container bg-light py-5">
-
-            <h4>Payment</h4>
-            
+            <h3>Payment:</h3>
             <form method ="post" action="paymentsuccess">
                 <div class="form-check">    
                     <form>    

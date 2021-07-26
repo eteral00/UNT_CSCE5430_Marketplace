@@ -20,7 +20,7 @@
 
     <script>
         function displayProduct( product ) {
-            var sessionUser = JSON.parse(localStorage.getItem("sessionUser"));
+            var sessionUser = JSON.parse(sessionStorage.getItem("sessionUser"));
             var shoppingCart = sessionUser.shoppingCart;
 
             var prod_img= document.createElement('table');
@@ -115,7 +115,7 @@
                 }
                 
                 sessionUser.shoppingCart = shoppingCart;
-                localStorage.setItem( "sessionUser" , JSON.stringify(sessionUser) );
+                sessionStorage.setItem( "sessionUser" , JSON.stringify(sessionUser) );
                 labelQuantityInCart.innerHTML= quantityInCart;
             }
 
@@ -133,7 +133,7 @@
                 }
 
                 sessionUser.shoppingCart = shoppingCart;
-                localStorage.setItem( "sessionUser" , JSON.stringify(sessionUser) );
+                sessionStorage.setItem( "sessionUser" , JSON.stringify(sessionUser) );
                 labelQuantityInCart.innerHTML= quantityInCart;
             }
             
@@ -174,7 +174,7 @@
             backButton.className= "btn btn-primary";
             backButton.innerHTML= "Back to Product Listing";
             backButton.onclick= function() {
-                localStorage.setItem("viewListingCategory", product.productCategory);
+                sessionStorage.setItem("viewListingCategory", product.productCategory);
                 location.href="product_listing";
             }
             table_cellr2.appendChild(backButton);
@@ -194,7 +194,7 @@
         };
 
         $(document).ready(function() {
-            var viewProductID = localStorage.getItem("viewProductID");
+            var viewProductID = sessionStorage.getItem("viewProductID");
         
             $.ajax({
                 method : "GET",

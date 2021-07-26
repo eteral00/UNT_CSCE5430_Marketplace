@@ -24,10 +24,10 @@
         //};
 
         function clearCart() {
-            var sessionUser = JSON.parse(localStorage.getItem("sessionUser"));
+            var sessionUser = JSON.parse(sessionStorage.getItem("sessionUser"));
             if (sessionUser.shoppingCart) {
                 sessionUser.shoppingCart = {};
-                localStorage.setItem("sessionUser", JSON.stringify(sessionUser));
+                sessionStorage.setItem("sessionUser", JSON.stringify(sessionUser));
                 $("#cartViewContainer").empty().append("<h1>Your Shopping Cart is empty!</h1>")
                 $("#summaryViewContainer").empty();
                 $("#cart_clear").hide();
@@ -45,7 +45,7 @@
 
         $(document).ready(function() {
 
-            var sessionUser = JSON.parse(localStorage.getItem("sessionUser"));
+            var sessionUser = JSON.parse(sessionStorage.getItem("sessionUser"));
             var shoppingCart = sessionUser.shoppingCart;
             var orderTotal = 0;
             var subTotal = 0;
@@ -98,7 +98,7 @@
                         subTotal -= parseInt(productDetails.price);
                         delete shoppingCart[productID];
                         sessionUser.shoppingCart = shoppingCart;
-                        localStorage.setItem("sessionUser", JSON.stringify(sessionUser) );
+                        sessionStorage.setItem("sessionUser", JSON.stringify(sessionUser) );
 
                         $("#item_" + productID).remove();
                     }
@@ -168,36 +168,25 @@
             <div class="row align-items-center">
                 <div class= "prod col align-items-left" id="cartViewContainer">
                     
-                        
-                        
-
-                    
                 </div>
                 
-
                 <div class="prod col align-items-right">
                     <div id="summaryViewContainer">
                         
                     </div>
-                        <div class="float-right pt-5">
-                            <button type="button" class="cancel btn-secondary" id="cart_home" 
-                                onclick="location.href='homepage';" >Back to Homepage</button>
-                            <button type="button" class="cancel btn-secondary" id="cart_clear" 
-                                onclick="clearCart()">Clear Cart</button>
-                            <button type="button" class="proceed btn-secondary" id="cart_proceed"
-                                onclick="location.href = 'shippingdetails';">Proceed</button>
-                        </div>
-                    </div>    
-                    
-                </div>
-            
-                
 
+                    <div class="float-right pt-5">
+                        <button type="button" class="cancel btn-secondary" id="cart_home" 
+                            onclick="location.href='homepage';" >Back to Homepage</button>
+                        <button type="button" class="cancel btn-secondary" id="cart_clear" 
+                            onclick="clearCart()">Clear Cart</button>
+                        <button type="button" class="proceed btn-secondary" id="cart_proceed"
+                            onclick="location.href = 'shippingdetails';">Proceed</button>
+                    </div>
+                </div>        
             </div>
-
-
         </div>
-    </div>    
-
+    </div>
+   
 </body>
 </html> 

@@ -18,13 +18,32 @@
             document.getElementByClassName("cart px-sm-5 px-2").classList.toggle(" cart px-sm-5 px-2 bg-dark");
         }; 
 
+        function prefillInfo() {
+            var sessionUser = JSON.parse( sessionStorage.getItem("sessionUser") );
+                if (sessionUser.shippingInfo && !($.isEmptyObject(sessionUser.shippingInfo)) ) {
+                    var shippingInfo = sessionUser.shippingInfo;
+                    $("#receiver_name").val(shippingInfo.receiverName);
+                    $("#address_street").val(shippingInfo.addressStreet);
+				    $("#address_city").val(shippingInfo.addressCity);
+				    $("#address_state").val(shippingInfo.addressState);
+				    $("#address_zip").val(shippingInfo.addressZip);
+				    $("#contact_phone").val(shippingInfo.contactPhone);
+                }
+        };
+
         $(document).ready(function() {
 			
 			// clean input validate msg
 			$("#message_text").empty();
-
-			// validate input before submitting POST-request
+            
+            // prefill if previously stored
+            prefillInfo();
+			
+            // validate input before submitting POST-request
 			$("#shipping_next").click( function(event) {
+
+                
+                
 
 				// clean input validate msg
 				$("#message_text").empty();
@@ -84,10 +103,10 @@
                     if (anyErrors) {
                         //event.preventDefault(); //unneeded, no event here
                     } else {
-                        var sessionUser = JSON.parse( localStorage.getItem("sessionUser") );
+                        var sessionUser = JSON.parse( sessionStorage.getItem("sessionUser") );
                         var shippingDetails = { receiverName : receiverName, addressStreet : addressStreet, addressCity : addressCity, addressState : addressState, addressZip : addressZip, contactPhone : contactPhone };
                         sessionUser.shippingDetails = shippingDetails;
-                        localStorage.setItem ("sessionUser", JSON.stringify(sessionUser) );
+                        sessionStorage.setItem ("sessionUser", JSON.stringify(sessionUser) );
                         location.href = "paymentoption";
                     }
 				}
@@ -100,16 +119,19 @@
 
 <body>
     <div class ="container  py-4 my-3">
-        <nav class="navbar navbar-inverse navbar-fixed-top">
-          <div class="container">
-            <div class="navbar-header px-5">
-              <a class="navbar-brand px-3" href="homepage">Home</a>
-              <a class="navbar-brand px-3 " href="shoppingcart">Shopping Cart</a>
-              <a class="navbar-brand px-3 " href="#"><b>Shipping Details</b></a>
-              <a class="navbar-brand px-3 dis" >Payment Options</a>
-            </div>
-          </div>
-        </nav>
+        <div>
+            <nav class="navbar navbar-inverse navbar-fixed-top">
+                <div class="container">
+                  <div class="navbar-header px-5">
+                    <a class="navbar-brand px-3" href="homepage">Home</a>
+                    <a class="navbar-brand px-3 " href="shoppingcart">Shopping Cart</a>
+                    <a class="navbar-brand px-3 " href="#"><b>Shipping Details</b></a>
+                    <a class="navbar-brand px-3 dis" >Payment Options</a>
+                  </div>
+                </div>
+              </nav>
+        </div>
+        
 
         <div class="container pl-5 " >
             <div class="progress align-middle " style="height:3px; width:50%">
@@ -120,7 +142,7 @@
             
         <div class ="container bg-light py-5">
 
-            <h3>Shipping Details:</h3>
+            <h3>Shipping:</h3>
             
             <div class="form-row">
                 <input type="text" class="form-control" name="receiver_name" id="receiver_name"
