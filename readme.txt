@@ -1,4 +1,4 @@
-+Install MySQL ver 8.x
++Install MySQL ver 8.x ( do NOT set password for root )
 +Install nodejs 14+
 
 +Pull the repo from this location

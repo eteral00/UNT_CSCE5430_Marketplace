@@ -19,6 +19,10 @@
             document.getElementByClassName("cart px-sm-5 px-2").classList.toggle(" cart px-sm-5 px-2 bg-dark");
         };
 
+        function clearForm() {
+            $("input").val("");
+        }
+
         $(document).ready(function() {
             var sessionUser = JSON.parse( sessionStorage.getItem("sessionUser") );
             console.log(sessionUser);
@@ -27,7 +31,6 @@
 			// clean input validate msg
 			$("#message_text").empty();
             
-            // prefill if previously stored
 
             $("#payment_type").change( function() {
                 var paymentType = $(this).val().toLowerCase();
@@ -87,7 +90,9 @@
                             $("#message_text").append("<p>Error: Card Expiration Date or CCV is empty! Please retry!</p>" );
 						    anyErrors = true;
                         } else {
-                            var expireDate = new Date(paymentExpire);
+                            var expireMonth = new Date(paymentExpire).getMonth() + 3;
+                            var expireYear = new Date(paymentExpire).getFullYear();
+                            var expireDate = new Date(expireYear + "-" + expireMonth);
                             var todayDate = new Date();
                             if ( expireDate < todayDate ) {
                                 $("#message_text").append("<p>Error: The Card you entered is already expired! Please enter an expire date that is after today!</p>" );
@@ -104,12 +109,31 @@
                         event.preventDefault();
                     } else {
                         var sessionUser = JSON.parse( sessionStorage.getItem("sessionUser") );
-                        var paymentInfo = { receiverName : receiverName, addressStreet : addressStreet, addressCity : addressCity, addressState : addressState, addressZip : addressZip, contactPhone : contactPhone };
+                        var paymentInfo = { paymentType : paymentType, ownerName : ownerName, accountNumber : paymentNumber, accountCode : paymentSecureCode, expireDate : paymentExpire };
                         sessionUser.paymentInfo = paymentInfo;
                         sessionStorage.setItem ("sessionUser", JSON.stringify(sessionUser) );
 
+                        clearForm();
+                        /*
                         // send POST-req to server
-                        //$.ajax()
+                        $.ajax({
+                            method : "POST",
+                            url : "/order/place_order",
+                            data : sessionUser,
+                            dataType: "json",
+                            success: function(result){
+                                $("#message_text").empty();
+                                $("#message_text").html(result.message);
+
+                                clearForm();
+                            },
+                            error: function(xhr, status, err){
+                                $("#message_text").empty();
+                                var errorMsg = xhr.responseJSON.message;
+                                $("#message_text").html(errorMsg);
+                            }
+					    })
+                        */
                     }
 				
                 
