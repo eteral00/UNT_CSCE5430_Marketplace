@@ -470,7 +470,7 @@ app_server.get("/", (req, res) => {
 // product-table's fields:
 // product_id (auto generated), is_removed, product_name, product_category, product_description, product_image_link, unit_price, initial_quantity, remaining_quantity, seller_username
 // insert fields (8): name, category, description, price, initial quantity, remaining quantity, image_link, seller_username
-function insertProduct(newProduct) {
+function insertProduct(newProduct, callback) {
   var queryStr = "INSERT INTO `product` (`product_name`, `product_category`, `product_description`,`unit_price`, `initial_quantity`, `remaining_quantity`, `product_image_link`, `seller_username`) "
       + " VALUES ( ? , ? , ? , ? , ? , ? , ? , ? );"
   var queryVar = [];
@@ -527,19 +527,22 @@ function insertProduct(newProduct) {
     mySQL_DbConnection.query(queryStr, queryVar, function (err, resultSetHeader) {             
       if(err) {
         console.log("Error: ", err);  
-        return -1;
+        callback(-1);
       } else {
-        console.log("insert id: ", resultSetHeader.insertId);
-        return resultSetHeader.insertId;
+        console.log("insert product id: ", resultSetHeader.insertId);
+        callback(resultSetHeader.insertId);
       }
+      
     });
+
+    
     
 };
 
 // functions to insert new record into address_info table
 // address-tables's fields: address_id (auto), address_street, address city, address state, address_zip
 // insert fields (4): all except address_id, which is auto incremented
-function insertAddress(address) {
+function insertAddress(address, callback) {
   var queryStr = "INSERT INTO `address_info` ( address_street, address_city, address_state, address_zip ) " 
     + " VALUES ( ? , ? , ? , ? );";
   var queryVar = [];
@@ -571,10 +574,10 @@ function insertAddress(address) {
     mySQL_DbConnection.query(queryStr, queryVar, function (err, resultSetHeader) {             
       if(err) {
         console.log("Error: ", err);  
-        return -1;
+        callback(-1);
       } else {
-        console.log("insert id: ", resultSetHeader.insertId);
-        return resultSetHeader.insertId;
+        console.log("insert address id: ", resultSetHeader.insertId);
+        callback(resultSetHeader.insertId);
       }
     });
     
@@ -582,9 +585,9 @@ function insertAddress(address) {
 
 
 // functions to insert new record into shipping_info table
-// address-tables's fields: shipping_info_id (auto), shipping_to_name, shipping_address_id, shipping_contact_phone
+// shipping-tables's fields: shipping_info_id (auto), shipping_to_name, shipping_address_id, shipping_contact_phone
 // insert fields (3): all except shipping_info_id, which is auto incremented
-function insertShipping(shippingInfo) {
+function insertShipping(shippingInfo, callback) {
   var queryStr = "INSERT INTO `shipping_info` ( shipping_to_name, shipping_address_id, shipping_contact_phone ) " 
     + " VALUES ( ? , ? , ? );";
   var queryVar = [];
@@ -604,16 +607,16 @@ function insertShipping(shippingInfo) {
     if (shippingInfo.shippingContactPhone === undefined) {
       queryVar.push("");
     } else {
-      queryVar.push(shippingContactPhone);
+      queryVar.push(shippingInfo.shippingContactPhone);
     }
 
     mySQL_DbConnection.query(queryStr, queryVar, function (err, resultSetHeader) {             
       if(err) {
         console.log("Error: ", err);  
-        return -1;
+        callback(-1);
       } else {
-        console.log("insert id: ", resultSetHeader.insertId);
-        return resultSetHeader.insertId;
+        console.log("insert shipping id: ", resultSetHeader.insertId);
+        callback(resultSetHeader.insertId);
       }
     });
     
@@ -621,10 +624,10 @@ function insertShipping(shippingInfo) {
 
 
 // functions to insert new record into payment_method table
-// address-tables's fields: payment_method_id (auto), payment_method_type, account_number, account_owner_name, account_security_code, account_expire_date, billing_address_id, is_locked
+// payment-tables's fields: payment_method_id (auto), payment_method_type, account_number, account_owner_name, account_security_code, account_expire_date, billing_address_id, is_locked
 // insert fields (6): payment_method_type, account_number, account_owner_name, account_security_code, account_expire_date, billing_address_id;
 // account_number, owner_name, and security_code are hashed with sha2_256
-function insertPaymentMethod(paymentMethod) {
+function insertPaymentMethod(paymentMethod, callback) {
   var queryStr = "INSERT INTO `payment_method` ( payment_method_type, account_number, account_owner_name, account_security_code, account_expire_date, billing_address_id) " 
     + " VALUES ( ? , UNHEX(sha2(?,256)) , UNHEX(sha2(?,256)) , UNHEX(sha2(?,256)) , ? , ? );";
 
@@ -669,14 +672,60 @@ function insertPaymentMethod(paymentMethod) {
     mySQL_DbConnection.query(queryStr, queryVar, function (err, resultSetHeader) {             
       if(err) {
         console.log("Error: ", err);  
-        return -1;
+        callback(-1);
       } else {
-        console.log("insert id: ", resultSetHeader.insertId);
-        return resultSetHeader.insertId;
+        console.log("insert payment id: ", resultSetHeader.insertId);
+        callback(resultSetHeader.insertId);
       }
     });
     
 };
+
+// functions to insert new record into order table
+// order-tables's fields: order_id (auto), order_date, buyer_username, payment_method_id, shipping_info_id, is_cancelled, is_shipped
+// insert fields (4): order_date, buyer_username, payment_method_id, shipping_info_id
+function insertOrder(orderInfo, callback) {
+  var queryStr = "INSERT INTO `order` ( order_date, buyer_username, payment_method_id, shipping_info_id) " 
+    + " VALUES ( ? , ? , ? , ? );";
+
+  var queryVar = [];
+
+    if (orderInfo.orderDate === undefined) {
+      queryVar.push(new Date() );
+    } else {
+      queryVar.push(orderInfo.orderDate);
+    }
+    
+    if (orderInfo.buyerUsername === undefined) {
+      queryVar.push(null);
+    } else {
+      queryVar.push(orderInfo.buyerUsername);
+    }
+
+    if (orderInfo.paymentMethodId === undefined) {
+      queryVar.push(null);
+    } else {
+      queryVar.push(orderInfo.paymentMethodId);
+    }
+
+    if (orderInfo.shippingInfoId === undefined) {
+      queryVar.push(null);
+    } else {
+      queryVar.push(orderInfo.shippingInfoId);
+    }
+
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, resultSetHeader) {             
+      if(err) {
+        console.log("Error: ", err);
+        callback(-1);
+      } else {
+        console.log("insert order id: ", resultSetHeader.insertId);
+        callback(resultSetHeader.insertId);
+      }      
+    });
+};
+
+
 
 
 // login post
@@ -831,12 +880,13 @@ app_server.post("/sell_item/add", fileUpload.single("productImage"), (req, res) 
       sellerUsername : sellerUsername
     }
 
-    var insertId = insertProduct(newProduct);
-    if (insertId == -1) {
-      res.status(400).json({message : "Error posting!" });
-    } else {
-      res.status(200).json({message : "Success! Your item, '" + productName + "', has been added to listing!" });
-    }
+    insertProduct(newProduct, function(insertedItemId) {
+      if (insertedItemId == -1) {
+        res.status(400).json({message : "Error posting!" });
+      } else {
+        res.status(200).json({message : "Success! Your item, '" + productName + "', has been added to listing!" });
+      }
+    } );
     
   } catch (err) {
     console.error(err.message);
@@ -850,47 +900,85 @@ app_server.post("/order/place_order", (req, res) => {
     console.log("req form body: ", req.body);
 
     sessionOb = req.session;
-    // 4 tables involved, in order: address_info, shipping_info, payment_method, order
-    
-    // shipping-table's fields:
-    // insert fields :
-    // payment-table's fields:
-    // insert fields :
-    // order-table's fields:
-    // insert fields :
-    var queryStr = "INSERT INTO `product` (`product_name`, `product_category`, `product_description`,`unit_price`, `initial_quantity`, `remaining_quantity`, `product_image_link`, `seller_username`) "
-      + " VALUES ( ? , ? , ? , ? , ? , ? , ? , ? );"
-    
-    
-    var productName = req.body.productName;
-    var productCategory = req.body.productCategory;
-    var productDescription = req.body.productDescription;
-    var unitPrice = req.body.price;
-    var initialQuantity = req.body.quantity;
-    var remainingQuantity = initialQuantity;
-    
-    var queryVar = [ productName, productCategory, productDescription, unitPrice, initialQuantity, remainingQuantity ];
-    if(req.file) {
-      console.log("file uploaded: ", req.file.path);
-      queryVar.push(req.file.path);
-    } else {
-      queryVar.push("");
-    }
+    // 5 tables involved, insert in order: address_info, shipping_info, payment_method, order, order_detail
+    // data received is a json object in form { username: "" , shoppingCart: [{},{}], shippingInfo: {}, paymentInfo: {}  }
 
-    queryVar.push(sessionOb.user.username);
+    var shippingToName = req.body.shippingInfo.receiverName;
+    var addressStreet = req.body.shippingInfo.addressStreet;
+    var addressCity = req.body.shippingInfo.addressCity;
+    var addressState = req.body.shippingInfo.addressState;
+    var addressZip = req.body.shippingInfo.addressZip;
+    var shippingContactPhone = req.body.shippingInfo.contactPhone;
 
-    // send query to insert product
-    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
-      if(err) {
-        console.log("Error: ", err);  
-        //console.error(err.message);
-        //res.status()
+    var newAddress = { 
+      addressStreet : addressStreet, 
+      addressCity : addressCity, 
+      addressState : addressState, 
+      addressZip : addressZip 
+    };
+    
+    var paymentType = req.body.paymentInfo.paymentType;
+    var accountNumber = req.body.paymentInfo.accountNumber;
+    var accountOwnerName = req.body.paymentInfo.ownerName;
+    var accountSecurityCode = req.body.paymentInfo.accountCode;
+    var accountExpireDate = new Date(req.body.paymentInfo.expireDate);
+    var newPaymentMethod;
+    
+    var newShippingInfo;
+    var newShippingInfoId;
+    var newPaymentMethodId;
+    var newOrder;
+
+    insertAddress(newAddress, function(insertedAddressId) {
+      newPaymentMethod = { 
+        paymentType : paymentType, 
+        accountNumber : accountNumber, 
+        accountOwnerName : accountOwnerName, 
+        accountSecurityCode : accountSecurityCode, 
+        accountExpireDate : accountExpireDate, 
+        billingAddressId : insertedAddressId
+      };
+
+      newShippingInfo = { 
+        shippingToName : shippingToName, 
+        shippingAddressId : insertedAddressId, 
+        shippingContactPhone : shippingContactPhone 
+      };
+      if (insertedAddressId == -1)
+      {
+        res.status(400).json({message : "Error placing order! Having issues with Address!" });
       } else {
-        res.status(200).json({message : "Success! Your item, '" + productName + "', has been added to listing!" });
-      }
+        insertPaymentMethod(newPaymentMethod, function(insertedPaymentMethodId){
+          if (insertedPaymentMethodId == -1) {
+            res.status(400).json({message : "Error placing order! Having issues with Payment Info!" });
+          } else {
+            newPaymentMethodId = insertedPaymentMethodId;
+            insertShipping(newShippingInfo, function(insertedShippingInfoId) {
+              if (insertedShippingInfoId == -1) {
+                res.status(400).json({message : "Error placing order! Having issues with Shipping Info!" });
+              } else {
+                newShippingInfoId = insertedShippingInfoId;    
+                newOrder = { 
+                  orderDate : new Date(), 
+                  buyerUsername : req.body.username, 
+                  paymentMethodId : newPaymentMethodId, 
+                  shippingInfoId : newShippingInfoId 
+                };
+      
+                insertOrder(newOrder, function(insertedOrderId) {
+                  console.log("new order id: ", insertedOrderId);
+                  if (insertedOrderId == -1) {
+                    res.status(400).json({message : "Error placing order!" });
+                  } else {
+                    res.status(200).json({ message : "Success! Your order has been placed! Your Confirmation Number is: " + insertedOrderId });
+                  }
+                }); // 4 layers of callbacks is really messy...
+              }
+            });
+          }        
+        });
+      }      
     });
-    
-    
   } catch (err) {
     console.error(err.message);
   }

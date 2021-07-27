@@ -114,7 +114,7 @@
                         sessionStorage.setItem ("sessionUser", JSON.stringify(sessionUser) );
 
                         clearForm();
-                        /*
+                        
                         // send POST-req to server
                         $.ajax({
                             method : "POST",
@@ -125,7 +125,7 @@
                                 $("#message_text").empty();
                                 $("#message_text").html(result.message);
 
-                                clearForm();
+                                //clearForm();
                             },
                             error: function(xhr, status, err){
                                 $("#message_text").empty();
@@ -133,7 +133,7 @@
                                 $("#message_text").html(errorMsg);
                             }
 					    })
-                        */
+                        
                     }
 				
                 
