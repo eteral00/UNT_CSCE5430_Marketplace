@@ -7,6 +7,9 @@ Team Project for Class CSCE5430 at UNT
 #Pull the repo from this location
 	https://github.com/eteral00/UNT_CSCE5430_Marketplace
 
+#Build the DB using MySQL model file in project Database\models directory -> would produce a blank db
+#or (PREFERRED) restore it from a dumped-db using a DB dump file/file-set in Database\dumps directory -> would make a DB with data
+
 #Open up a command line console with admin right.
 #Navigate to directory where you put the project repo. 
 	For example mine was "D:\Workspace\UNT_CSCE5430_Marketplace"
