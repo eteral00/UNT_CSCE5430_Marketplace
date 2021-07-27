@@ -18,14 +18,6 @@
             
             document.getElementByClassName("cart px-sm-5 px-2").classList.toggle(" cart px-sm-5 px-2 bg-dark");
         };
-        
-        function prefillInfo() {
-            var sessionUser = JSON.parse( sessionStorage.getItem("sessionUser") );
-                if (sessionUser.paymentInfo && !($.isEmptyObject(sessionUser.paymentInfo)) ) {
-                    var paymentInfo = sessionUser.paymenInfo;
-
-                }
-        };
 
         $(document).ready(function() {
             var sessionUser = JSON.parse( sessionStorage.getItem("sessionUser") );
@@ -36,7 +28,6 @@
 			$("#message_text").empty();
             
             // prefill if previously stored
-            prefillInfo();
 
             $("#payment_type").change( function() {
                 var paymentType = $(this).val().toLowerCase();
@@ -110,12 +101,14 @@
                     
 
                     if (anyErrors) {
-                        //event.preventDefault(); //unneeded, no event here
+                        event.preventDefault();
                     } else {
                         var sessionUser = JSON.parse( sessionStorage.getItem("sessionUser") );
                         var paymentInfo = { receiverName : receiverName, addressStreet : addressStreet, addressCity : addressCity, addressState : addressState, addressZip : addressZip, contactPhone : contactPhone };
                         sessionUser.paymentInfo = paymentInfo;
                         sessionStorage.setItem ("sessionUser", JSON.stringify(sessionUser) );
+
+                        // send POST-req to server
                         //$.ajax()
                     }
 				
