@@ -466,6 +466,219 @@ app_server.get("/", (req, res) => {
 
 
 
+// function to insert record into product table
+// product-table's fields:
+// product_id (auto generated), is_removed, product_name, product_category, product_description, product_image_link, unit_price, initial_quantity, remaining_quantity, seller_username
+// insert fields (8): name, category, description, price, initial quantity, remaining quantity, image_link, seller_username
+function insertProduct(newProduct) {
+  var queryStr = "INSERT INTO `product` (`product_name`, `product_category`, `product_description`,`unit_price`, `initial_quantity`, `remaining_quantity`, `product_image_link`, `seller_username`) "
+      + " VALUES ( ? , ? , ? , ? , ? , ? , ? , ? );"
+  var queryVar = [];
+
+    if (newProduct.productName === undefined) {
+      queryVar.push("");
+    } else {
+      queryVar.push(newProduct.productName);
+    }
+    
+    if (newProduct.productCategory === undefined) {
+      queryVar.push("");
+    } else {
+      queryVar.push(newProduct.productCategory);
+    }
+
+    if (newProduct.productDescription === undefined) {
+      queryVar.push("");
+    } else {
+      queryVar.push(newProduct.productDescription);
+    }
+
+    if (newProduct.unitPrice === undefined) {
+      queryVar.push(0);
+    } else {
+      queryVar.push(newProduct.unitPrice);
+    }
+
+    if (newProduct.initialQuantity === undefined) {
+      queryVar.push(1);
+    } else {
+      queryVar.push(newProduct.initialQuantity);
+    }
+
+    if (newProduct.remainingQuantity === undefined) {
+      queryVar.push(1);
+    } else {
+      queryVar.push(newProduct.remainingQuantity);
+    }
+
+    if (newProduct.productImageLink === undefined) {
+      queryVar.push("");
+    } else {
+      queryVar.push(newProduct.productImageLink);
+    }
+
+    if (newProduct.sellerUsername === undefined) {
+      queryVar.push(null);
+    } else {
+      queryVar.push(newProduct.sellerUsername);
+    }
+
+    // send query to DB to insert product
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, resultSetHeader) {             
+      if(err) {
+        console.log("Error: ", err);  
+        return -1;
+      } else {
+        console.log("insert id: ", resultSetHeader.insertId);
+        return resultSetHeader.insertId;
+      }
+    });
+    
+};
+
+// functions to insert new record into address_info table
+// address-tables's fields: address_id (auto), address_street, address city, address state, address_zip
+// insert fields (4): all except address_id, which is auto incremented
+function insertAddress(address) {
+  var queryStr = "INSERT INTO `address_info` ( address_street, address_city, address_state, address_zip ) " 
+    + " VALUES ( ? , ? , ? , ? );";
+  var queryVar = [];
+
+    if (address.address_street === undefined) {
+      queryVar.push("");
+    } else {
+      queryVar.push(address.address_street);
+    }
+    
+    if (address.address_city === undefined) {
+      queryVar.push("");
+    } else {
+      queryVar.push(address.address_city);
+    }
+
+    if (address.address_state === undefined) {
+      queryVar.push("");
+    } else {
+      queryVar.push(address.address_state);
+    }
+
+    if (address.address_zip === undefined) {
+      queryVar.push("");
+    } else {
+      queryVar.push(address.address_zip);
+    }
+
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, resultSetHeader) {             
+      if(err) {
+        console.log("Error: ", err);  
+        return -1;
+      } else {
+        console.log("insert id: ", resultSetHeader.insertId);
+        return resultSetHeader.insertId;
+      }
+    });
+    
+};
+
+
+// functions to insert new record into shipping_info table
+// address-tables's fields: shipping_info_id (auto), shipping_to_name, shipping_address_id, shipping_contact_phone
+// insert fields (3): all except shipping_info_id, which is auto incremented
+function insertShipping(shippingInfo) {
+  var queryStr = "INSERT INTO `shipping_info` ( shipping_to_name, shipping_address_id, shipping_contact_phone ) " 
+    + " VALUES ( ? , ? , ? );";
+  var queryVar = [];
+
+    if (shippingInfo.shippingToName === undefined) {
+      queryVar.push("");
+    } else {
+      queryVar.push(shippingInfo.shippingToName);
+    }
+    
+    if (shippingInfo.shippingAddressId === undefined) {
+      queryVar.push(null);
+    } else {
+      queryVar.push(shippingInfo.shippingAddressId);
+    }
+
+    if (shippingInfo.shippingContactPhone === undefined) {
+      queryVar.push("");
+    } else {
+      queryVar.push(shippingContactPhone);
+    }
+
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, resultSetHeader) {             
+      if(err) {
+        console.log("Error: ", err);  
+        return -1;
+      } else {
+        console.log("insert id: ", resultSetHeader.insertId);
+        return resultSetHeader.insertId;
+      }
+    });
+    
+};
+
+
+// functions to insert new record into payment_method table
+// address-tables's fields: payment_method_id (auto), payment_method_type, account_number, account_owner_name, account_security_code, account_expire_date, billing_address_id, is_locked
+// insert fields (6): payment_method_type, account_number, account_owner_name, account_security_code, account_expire_date, billing_address_id;
+// account_number, owner_name, and security_code are hashed with sha2_256
+function insertPaymentMethod(paymentMethod) {
+  var queryStr = "INSERT INTO `payment_method` ( payment_method_type, account_number, account_owner_name, account_security_code, account_expire_date, billing_address_id) " 
+    + " VALUES ( ? , UNHEX(sha2(?,256)) , UNHEX(sha2(?,256)) , UNHEX(sha2(?,256)) , ? , ? );";
+
+  var queryVar = [];
+
+    if (paymentMethod.paymentMethodType === undefined) {
+      queryVar.push("");
+    } else {
+      queryVar.push(paymentMethod.paymentMethodType);
+    }
+    
+    if (paymentMethod.accountNumber === undefined) {
+      queryVar.push("");
+    } else {
+      queryVar.push(paymentMethod.accountNumber);
+    }
+
+    if (paymentMethod.accountOwnerName === undefined) {
+      queryVar.push("");
+    } else {
+      queryVar.push(paymentMethod.accountOwnerName);
+    }
+
+    if (paymentMethod.accountSecurityCode === undefined) {
+      queryVar.push("");
+    } else {
+      queryVar.push(paymentMethod.accountSecurityCode);
+    }
+
+    if (paymentMethod.accountExpireDate === undefined) {
+      queryVar.push(new Date());
+    } else {
+      queryVar.push(paymentMethod.accountExpireDate);
+    }
+
+    if (paymentMethod.billingAddressId === undefined) {
+      queryVar.push(null);
+    } else {
+      queryVar.push(paymentMethod.billingAddressId);
+    }
+
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, resultSetHeader) {             
+      if(err) {
+        console.log("Error: ", err);  
+        return -1;
+      } else {
+        console.log("insert id: ", resultSetHeader.insertId);
+        return resultSetHeader.insertId;
+      }
+    });
+    
+};
+
+
 // login post
 app_server.post("/login", (req, res) => {
   try {
@@ -580,76 +793,6 @@ app_server.post("/register", (req, res) => {
 });
 
 
-// function to insert record into product table
-// product-table's fields:
-// product_id (auto generated), is_removed, product_name, product_category, product_description, product_image_link, unit_price, initial_quantity, remaining_quantity, seller_username
-// insert fields (8): name, category, description, price, initial quantity, remaining quantity, image_link, seller_username
-function insertProduct(newProduct) {
-  var queryStr = "INSERT INTO `product` (`product_name`, `product_category`, `product_description`,`unit_price`, `initial_quantity`, `remaining_quantity`, `product_image_link`, `seller_username`) "
-      + " VALUES ( ? , ? , ? , ? , ? , ? , ? , ? );"
-  var queryVar = [];
-
-    if (newProduct.productName === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(newProduct.productName);
-    }
-    
-    if (newProduct.productCategory === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(newProduct.productCategory);
-    }
-
-    if (newProduct.productDescription === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(newProduct.productDescription);
-    }
-
-    if (newProduct.unitPrice === undefined) {
-      queryVar.push(0);
-    } else {
-      queryVar.push(newProduct.unitPrice);
-    }
-
-    if (newProduct.initialQuantity === undefined) {
-      queryVar.push(1);
-    } else {
-      queryVar.push(newProduct.initialQuantity);
-    }
-
-    if (newProduct.remainingQuantity === undefined) {
-      queryVar.push(1);
-    } else {
-      queryVar.push(newProduct.remainingQuantity);
-    }
-
-    if (newProduct.productImageLink === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(newProduct.productImageLink);
-    }
-
-    if (newProduct.sellerUsername === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(newProduct.sellerUsername);
-    }
-
-    // send query to DB to insert product
-    mySQL_DbConnection.query(queryStr, queryVar, function (err, resultSetHeader) {             
-      if(err) {
-        console.log("Error: ", err);  
-        return -1;
-      } else {
-        console.log("insert id: ", resultSetHeader.insertId);
-        return resultSetHeader.insertId;
-      }
-    });
-    
-};
-
 // POST-sell_item
 app_server.post("/sell_item/add", fileUpload.single("productImage"), (req, res) => {
   try {
@@ -699,151 +842,6 @@ app_server.post("/sell_item/add", fileUpload.single("productImage"), (req, res) 
     console.error(err.message);
   }
 });
-
-
-// functions to insert new record into address_info table
-// address-tables's fields: address_id (auto), address_street, address city, address state, address_zip
-// insert fields (4): all except address_id, which is auto incremented
-function insertAddress(address) {
-  var queryStr = "INSERT INTO `address_info` ( address_street, address_city, address_state, address_zip ) " 
-    + " VALUES ( ? , ? , ? , ? );";
-  var queryVar = [];
-
-    if (address.address_street === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(address.address_street);
-    }
-    
-    if (address.address_city === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(address.address_city);
-    }
-
-    if (address.address_state === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(address.address_state);
-    }
-
-    if (address.address_zip === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(address.address_zip);
-    }
-
-    mySQL_DbConnection.query(queryStr, queryVar, function (err, resultSetHeader) {             
-      if(err) {
-        console.log("Error: ", err);  
-        return -1;
-      } else {
-        console.log("insert id: ", resultSetHeader.insertId);
-        return resultSetHeader.insertId;
-      }
-    });
-    
-};
-
-
-// functions to insert new record into shipping_info table
-// address-tables's fields: shipping_info_id (auto), shipping_to_name, shipping_address_id, shipping_contact_phone
-// insert fields (3): all except shipping_info_id, which is auto incremented
-function insertShipping(shippingInfo) {
-  var queryStr = "INSERT INTO `shipping_info` ( shipping_to_name, shipping_address_id, shipping_contact_phone ) " 
-    + " VALUES ( ? , ? , ? );";
-  var queryVar = [];
-
-    if (shippingInfo.shippingToName === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(shippingInfo.shippingToName);
-    }
-    
-    if (shippingInfo.shippingAddressId === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(shippingInfo.shippingAddressId);
-    }
-
-    if (shippingInfo.shippingContactPhone === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(shippingContactPhone);
-    }
-
-    mySQL_DbConnection.query(queryStr, queryVar, function (err, resultSetHeader) {             
-      if(err) {
-        console.log("Error: ", err);  
-        return -1;
-      } else {
-        console.log("insert id: ", resultSetHeader.insertId);
-        return resultSetHeader.insertId;
-      }
-    });
-    
-};
-
-
-// functions to insert new record into payment_method table
-// address-tables's fields: payment_method_id (auto), payment_method_type, account_number, account_owner_name, account_security_code, account_expire_date, billing_address_id, is_locked
-// insert fields (6): payment_method_type, account_number, account_owner_name, account_security_code, account_expire_date, billing_address_id;
-// account_number, owner_name, and security_code are hashed with sha2_256
-function insertPaymentMethod(paymentMethod) {
-  var queryStr = "INSERT INTO `payment_method` ( payment_method_type, account_number, account_owner_name, account_security_code, account_expire_date, billing_address_id) " 
-    + " VALUES ( ? , UNHEX(sha2(?,256)) , UNHEX(sha2(?,256)) , UNHEX(sha2(?,256)) , ? , ? );";
-
-  var queryVar = [];
-
-    if (paymentMethod.paymentMethodType === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(paymentMethod.paymentMethodType);
-    }
-    
-    if (paymentMethod.accountNumber === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(paymentMethod.accountNumber);
-    }
-
-    if (paymentMethod.accountOwnerName === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(paymentMethod.accountOwnerName);
-    }
-
-    if (paymentMethod.accountSecurityCode === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(paymentMethod.accountSecurityCode);
-    }
-
-    if (paymentMethod.accountExpireDate === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(paymentMethod.accountExpireDate);
-    }
-
-    if (paymentMethod.billingAddressId === undefined) {
-      queryVar.push("");
-    } else {
-      queryVar.push(paymentMethod.billingAddressId);
-    }
-
-    mySQL_DbConnection.query(queryStr, queryVar, function (err, resultSetHeader) {             
-      if(err) {
-        console.log("Error: ", err);  
-        return -1;
-      } else {
-        console.log("insert id: ", resultSetHeader.insertId);
-        return resultSetHeader.insertId;
-      }
-    });
-    
-};
-
-
 
 
 // POST-place_order
