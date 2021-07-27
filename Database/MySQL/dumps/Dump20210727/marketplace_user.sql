@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `marketplace` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `marketplace`;
 -- MySQL dump 10.13  Distrib 8.0.25, for Win64 (x86_64)
 --
 -- Host: localhost    Database: marketplace
@@ -49,7 +51,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES ('admin',_binary '^ˆH˜\Ú(qQ\Ğ\åo\Æ)\'s`=\rj«½\Ö*\ïrB\Ø',_binary '',_binary '\0',NULL,'khoaho@my.unt.edu',NULL,'Khoa','Ho',NULL,NULL),('admin1',_binary '–\ïn\Ê\ÓÂš:b’€\æ†\Ï?]Z†¯ó\Ê’:\Ül’',_binary '',_binary '\0',NULL,'khoaho@my.unt.edu','1234567890','First','Admin',NULL,NULL),('admin2',_binary '–\ïn\Ê\ÓÂš:b’€\æ†\Ï?]Z†¯ó\Ê’:\Ül’',_binary '',_binary '\0',NULL,'khoaho@my.unt.edu','123456','Second','Admin',NULL,NULL),('user1',_binary '–\ïn\Ê\ÓÂš:b’€\æ†\Ï?]Z†¯ó\Ê’:\Ül’',_binary '\0',_binary '\0',NULL,'khoaho@my.unt.edu','65789','F006','L006',NULL,NULL),('user2',_binary '–\ïn\Ê\ÓÂš:b’€\æ†\Ï?]Z†¯ó\Ê’:\Ül’',_binary '\0',_binary '\0',NULL,'khoaho@my.unt.edu','987654321','Second','User',NULL,NULL),('user3',_binary '–\ïn\Ê\ÓÂš:b’€\æ†\Ï?]Z†¯ó\Ê’:\Ül’',_binary '\0',_binary '\0',NULL,'khoaho@my.unt.edu','31353','Third','User',NULL,NULL);
+INSERT INTO `user` VALUES ('admin',_binary '^ˆH˜\Ú(qQ\Ğ\åo\Æ)\'s`=\rj«½\Ö*\ïrB\Ø',_binary '',_binary '\0',NULL,'khoaho@my.unt.edu',NULL,'Khoa','Ho',NULL,NULL),('admin1',_binary '–\ïn\Ê\ÓÂš:b’€\æ†\Ï?]Z†¯ó\Ê’:\Ül’',_binary '',_binary '\0',NULL,'khoaho@my.unt.edu','1234567890','First','Admin',NULL,NULL),('admin2',_binary '–\ïn\Ê\ÓÂš:b’€\æ†\Ï?]Z†¯ó\Ê’:\Ül’',_binary '',_binary '\0',NULL,'khoaho@my.unt.edu','123456','Second','Admin',NULL,NULL),('newuser',_binary '–\ïn\Ê\ÓÂš:b’€\æ†\Ï?]Z†¯ó\Ê’:\Ül’',_binary '\0',_binary '\0',NULL,'khoaho@my.unt.edu','23131','New','User',NULL,NULL),('user1',_binary '‹°\Ïn¹±}}\"´Vñ!%}Á%NfSpGcƒ\êwmô',_binary '\0',_binary '\0',NULL,'khoaho2@my.unt.edu','141412','Khoa','Ho',NULL,NULL),('user2',_binary '–\ïn\Ê\ÓÂš:b’€\æ†\Ï?]Z†¯ó\Ê’:\Ül’',_binary '\0',_binary '\0',NULL,'khoaho@my.unt.edu','987654321','Second','User',NULL,NULL),('user3',_binary '–\ïn\Ê\ÓÂš:b’€\æ†\Ï?]Z†¯ó\Ê’:\Ül’',_binary '\0',_binary '\0',NULL,'khoaho@my.unt.edu','31353','Third','User',NULL,NULL),('user4',_binary '–\ïn\Ê\ÓÂš:b’€\æ†\Ï?]Z†¯ó\Ê’:\Ül’',_binary '\0',_binary '\0',NULL,'khoaho@my.unt.edu','123465','Fourth','User',NULL,NULL),('userx',_binary '^ˆH˜\Ú(qQ\Ğ\åo\Æ)\'s`=\rj«½\Ö*\ïrB\Ø',_binary '',_binary '\0',NULL,'khoaho@my.unt.edu',NULL,'Khoa','Ho',NULL,NULL);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -62,4 +64,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-07-26 17:46:33
+-- Dump completed on 2021-07-27 15:50:25
