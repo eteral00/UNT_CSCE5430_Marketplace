@@ -108,6 +108,11 @@
 						},
 						dataType: "json",
 						success: function(result){
+							let sessionUser = { 
+								username : username,
+								is_admin : false
+							}
+							sessionStorage.setItem( "sessionUser", JSON.stringify(sessionUser) );
 							$(location).attr("href", "homepage.html");
 						},
 						error: function(xhr, status, err){
