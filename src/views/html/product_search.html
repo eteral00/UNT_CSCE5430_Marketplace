@@ -19,6 +19,12 @@
 
         document.title = "Search Results";
 
+        function searchItem() {
+            let searchValue = $("#search_value").val().trim();
+            sessionStorage.setItem("searchValue", searchValue);
+            location.href="product_search";
+        }
+
         function viewProduct(productID) {
             sessionStorage.setItem("viewProductID", productID);
             location.href="product_view";
@@ -169,6 +175,13 @@
                         <a class="nav-link" href="admin/admindashboard">Admin Page</a>
                         </li>
                     </ul>
+                </div>
+
+                <div class="form-inline">
+                    <input type="search" class="form-control mr-sm-2" name="search_value" id="search_value" 
+                      placeholder="Search" aria-label="Search">
+                    <button type="submit" class="btn btn-outline-success my-2 my-sm-0" name="search_submit" id="search_submit"
+                      onclick="searchItem()">Search</button>
                 </div>
             </nav>
             <br/>

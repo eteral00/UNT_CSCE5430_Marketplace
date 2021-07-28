@@ -14,6 +14,12 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
     <script type="text/javascript">
+
+        function searchItem() {
+            let searchValue = $("#search_value").val().trim();
+            sessionStorage.setItem("searchValue", searchValue);
+            location.href="product_search";
+        }
         function change() {
             
             document.getElementByClassName("cart px-sm-5 px-2").classList.toggle(" cart px-sm-5 px-2 bg-dark");
@@ -188,36 +194,42 @@
                 <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item active">
-                    <a class="nav-link" href="homepage">Home 
-                    </a>
-                    </li>
-            
-                    <li class="nav-item">
-                    <a class="nav-link" href="update_profile">Update profile</a>
-                    </li>
-            
-                    <li class="nav-item">
-                    <a class="nav-link" href="#">Order History</a>
-                    </li>
-            
-                    <li class="nav-item">
-                    <a class="nav-link" href="shoppingcart">Shopping cart</a>
-                    </li>
-            
-                    <li class="nav-item">
-                    <a class="nav-link " href="sell_items">Selling items</a>
-                    </li>
-            
-                    <li class="nav-item">
-                    <a class="nav-link " href="logout">Logout</a>
-                    </li>
-            
-                    <li class="nav-item" name="admin_page" id="admin_page">
-                    <a class="nav-link" href="admin/admindashboard">Admin Page</a>
-                    </li>
-                </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item active">
+                        <a class="nav-link" href="homepage">Home 
+                        </a>
+                        </li>
+                
+                        <li class="nav-item">
+                        <a class="nav-link" href="update_profile">Update profile</a>
+                        </li>
+                
+                        <li class="nav-item">
+                        <a class="nav-link" href="#">Order History</a>
+                        </li>
+                
+                        <li class="nav-item">
+                        <a class="nav-link" href="shoppingcart">Shopping cart</a>
+                        </li>
+                
+                        <li class="nav-item">
+                        <a class="nav-link " href="sell_items">Selling items</a>
+                        </li>
+                
+                        <li class="nav-item">
+                        <a class="nav-link " href="logout">Logout</a>
+                        </li>
+                
+                        <li class="nav-item" name="admin_page" id="admin_page">
+                        <a class="nav-link" href="admin/admindashboard">Admin Page</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="form-inline">
+                    <input type="search" class="form-control mr-sm-2" name="search_value" id="search_value" 
+                      placeholder="Search" aria-label="Search">
+                    <button type="submit" class="btn btn-outline-success my-2 my-sm-0" name="search_submit" id="search_submit"
+                      onclick="searchItem()">Search</button>
                 </div>
             </nav>
             </br>

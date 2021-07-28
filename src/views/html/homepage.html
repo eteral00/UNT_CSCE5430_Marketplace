@@ -30,6 +30,7 @@
       sessionStorage.setItem("searchValue", searchValue);
       location.href="product_search";
     }
+    
     $(document).ready(function () {
       var sessionUser = JSON.parse(sessionStorage.getItem("sessionUser"));
       console.log("is admin",sessionUser.is_admin);
