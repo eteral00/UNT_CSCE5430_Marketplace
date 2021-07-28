@@ -3,12 +3,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Paymenthelp</title>
+    <title>Payment Help</title>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel ="stylesheet" type="text/css" href="../../css/product_style.css"/>
     
     <script>
+        function clearForm() {
+			$("input").val("");
+		};
+
         function myfunction(){
             var x = document.getElementById("userid").value;
             var y = document.getElementById("transactionid").value;
@@ -22,16 +26,14 @@
 <body>
     <div class="container-sm pt-5">
         <div style="float:right">
-            <form align="right" name="form" method="post" action="login.html">
-                <label class="logout">
-                <input name="submit" type="submit" id="submit" value="log out">
-                </label>
-            </form>
+            <label class="logout" for="admin_logout">
+                <button type="button" class="btn-primary" name="admin_logout" id="admin_logout" value="LOGOUT" 
+                    onclick="location.href = '../logout';">LOGOUT</button>
+            </label>
         </div>  
 
         <h3>Payment Help</h3>
-
-        <form method ="GET" action="adminpaymentsuccess.html">    
+  
             <div class="form-group pt-3">
                 <label class="form-label ">ENTER USER ID: </label>
                 <input type="text"  class="form-control" id="userid" style="width:50%" required="true">
@@ -42,10 +44,14 @@
                 <input type="text" class="form-control" id="transactionid" style="width:50%" required="true">
             </div>
             
-            <div class="form-group pt-5 pr-5">
-                <button onclick="myfunction()" type="submit"  class="Cancel btn-secondary float-right">VIEW TRANSACTION</button>
-            </div>
-        </form>
+            <div class="container-sm pl-5 pt-5 mx-auto">
+                <button type="button" name ="go_back" value="Go Back" class="btn-primary "
+                    onclick="location.href = 'admindashboard';">Go Back</button>
+                <button type="submit" name="view" id="view" class="next btn-secondary ">View</button>
+                <button type="button" class="cancel btn-secondary" 
+					onclick="clearForm()">Clear</button>
+            </div> 
+
     </div>
 
 </body>

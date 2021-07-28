@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>View and modify product</title>
+    <title>Product Management</title>
     
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
@@ -102,26 +102,19 @@
         var anyErrors = false;
         console.log("===>"+userName,productId)
 
-        // all fields are empty, nothing to edit
-
         if ( productId === "") {
-					$("#message_text").append("<p>Error: New Password is empty. Nothing to update!</p>" );
-					anyErrors = true;
-				} else {
-					// validate new password is different from current password
-					if ( productId === userName ) {
-						$("#message_text").append("<p>Error: New Password is the same as current Password! Nothing to update!</p>" );
-						anyErrors = true;
-					}
+                $("#message_text").append("<p>Error: ProductId cannot be empty!</p>" );
+                anyErrors = true;
+            } else {
 
-					// validate current password not empty
-					if ( userName === "" ) {
-						$("#message_text").append("<p>Error: Current Password cannot be empty! Please enter your current Password!</p>" );
-						anyErrors = true;
-					}
+                // validate username not empty
+                if ( userName === "" ) {
+                    $("#message_text").append("<p>Error: Username cannot be empty!</p>" );
+                    anyErrors = true;
+                }
 
-					
-				}
+                
+            }
 
             
 
@@ -166,16 +159,14 @@
 <body>
     <div class="container-sm bg-light w-50 align-items-center pt-5 mx-auto">
         <div style="float:right">
-            <form align="right" name="form" method="post" action="login.html">
-                <label class="logout">
-                <input name="submitt" type="submit" id="submitt" value="log out">
-                </label>
-            </form>
+            <label class="logout" for="admin_logout">
+                <button type="button" class="btn-primary" name="admin_logout" id="admin_logout" value="LOGOUT" 
+                    onclick="location.href = '../logout';">LOGOUT</button>
+            </label>
         </div>
 
         <h4 class="container-sm mx-auto"><b>VIEW AND MODIFY PRODUCTS </b></h4>
         
-        <form method ="GET" >
             <div class="form-group pt-3">
                 <label class="form-label">Enter Product Id</label>
                 <input type="text" id="product_id" class="form-control" style="width:50%" required="true">
@@ -191,11 +182,12 @@
             </div>
 
             <div class="container-sm pl-5 pt-5 mx-auto">
-                <button type="submit" id="block_product" class="modify btn-secondary ">Block Product</button>
-                <button type="submit" id="delete_product" class="delete btn-secondary ">Delete Product</button>
+                <button type="button" name ="go_back" value="Go Back" class="btn-primary "
+                    onclick="location.href = 'admindashboard';">Go Back</button>
+                <button type="button" id="block_product" class="modify btn-secondary ">Block Product</button>
+                <button type="button" id="delete_product" class="delete btn-secondary ">Delete Product</button>   
             </div> 
 
-        </form>
     </div>
     
 </bosdy>
