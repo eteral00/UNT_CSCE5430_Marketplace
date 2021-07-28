@@ -243,7 +243,7 @@ app_server.get("/product/category/:category", (req, res) => {
         console.log("product category result: ", result_rows);
 
         var productListing = [];
-        for ( var idx = 0; idx < result_rows.length; idx++ )
+        for ( let idx = 0; idx < result_rows.length; idx++ )
         {
           var productImageLink;
           if ( result_rows[idx].product_image_link ) {
@@ -533,11 +533,10 @@ function insertProduct(newProduct, callback) {
         callback(resultSetHeader.insertId);
       }
       
-    });
-
-    
+    });    
     
 };
+
 
 // functions to insert new record into address_info table
 // address-tables's fields: address_id (auto), address_street, address city, address state, address_zip
@@ -928,7 +927,7 @@ app_server.post("/order/place_order", (req, res) => {
     var newShippingInfoId;
     var newPaymentMethodId;
     var newOrder;
-
+    
     insertAddress(newAddress, function(insertedAddressId) {
       newPaymentMethod = { 
         paymentType : paymentType, 
