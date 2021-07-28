@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Shopping Cart</title>
+    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!--
+        <link rel ="stylesheet" type="text/css" href="../css/product_style.css"/>
+    -->
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+        function change() {
+            
+            document.getElementByClassName("cart px-sm-5 px-2").classList.toggle(" cart px-sm-5 px-2 bg-dark");
+        };
+
+        function computeTotal(subTotal) {
+            shippingCost = subTotal * 0.2;
+            taxes = subTotal * 0.07;
+            orderTotal = subTotal + shippingCost + taxes;
+
+            return { shippingCost: shippingCost.toFixed(2), taxes: taxes.toFixed(2), orderTotal: orderTotal.toFixed(2) };
+        }
+
+        function displayHistory(orderHistory) {
+            if (!orderHistory || $.isEmptyObject(orderHistory) || orderHistory.length == 0) {    
+                // order history is undefined or empty
+                $("#orderHistoryContainer").empty().append("<h1>You have no Order in History!</h1>");
+            }
+            else {
+                $.each(orderHistory, function(idx, orderEntry) {
+
+                    var orderTotal = 0;
+                    var subTotal = 0;
+                    var taxes = 0;
+                    var shippingCost = 0;
+
+                    var historyEntryContainer = document.createElement("div");
+                    historyEntryContainer.id="order_" + orderEntry.orderId;
+                    
+                    var orderLabelContainer = document.createElement("div");
+                    //orderLabelContainer.className= "row align-items-center";
+                    orderLabelContainer.style.display= "block";
+                    orderLabelContainer.style.verticalAlign= "top";
+                    var orderNumberContainer = document.createElement("h3");
+                    orderNumberContainer.innerHTML= "Order Number: " + "<b>" + orderEntry.orderId + "</b>";
+                    orderNumberContainer.style.display= "block";
+                    orderNumberContainer.style.verticalAlign= "top";
+                    orderLabelContainer.append(orderNumberContainer);
+                    let lnBreak = document.createElement("br");
+                    orderLabelContainer.append(lnBreak);
+                    var orderDateContainer = document.createElement("h4");
+                    orderDateContainer.innerHTML= "Order Date: " + "<b>" + orderEntry.orderDate + "</b>";
+                    orderDateContainer.style.display= "block";
+
+                    orderLabelContainer.append(orderDateContainer);
+                    historyEntryContainer.append(orderLabelContainer);
+
+                    var orderEntryContainer = document.createElement("div");
+                    orderEntryContainer.className= "row";
+                    var orderItemListContainer = document.createElement("div");
+                    orderItemListContainer.className= "prod col align-items-left";
+                    var orderSummaryContainer = document.createElement("div");
+                    orderSummaryContainer.className= "prod col align-items-right";
+                    orderSummaryContainer.setAttribute("vertical-align","top");
+
+
+                    $.each(orderEntry.orderItemList, function(idx, productDetails) {
+                        var productContainer = document.createElement("div");
+                        productContainer.id= "item_" + productDetails.productId;
+                        
+                        var productImageContainer = document.createElement("img");
+                        productImageContainer.className= "rounded";
+                        productImageContainer.alt= "Rounded Image";
+                        productImageContainer.height= 100;
+                        productImageContainer.src= productDetails.productImageLink;
+                        productContainer.append(productImageContainer);
+
+                        var productNameContainer = document.createElement("div");
+                        productNameContainer.className= "container-sm  px-3 my-3 border bg-secondary";
+                        productNameContainer.innerHTML= "<h4>" + productDetails.productName + "</h4>";
+                        productContainer.append(productNameContainer);
+
+                        var productPriceContainer = document.createElement("h5");
+                        productPriceContainer.innerHTML= "PRICE: " + "<b>$" + productDetails.unitPrice + "</b>";
+                        productContainer.append(productPriceContainer);
+
+                        var productQuantityContainer = document.createElement("h5");
+                        productQuantityContainer.innerHTML= "QUANTITY: " + "<b>" + productDetails.productQuantity + "</b>";
+                        productContainer.append(productQuantityContainer);
+                        
+                        //
+                        subTotal += (productDetails.unitPrice * productDetails.productQuantity);
+
+                        orderItemListContainer.append(productContainer);
+                    }); // end single order's items $.each()
+
+                    orderEntryContainer.append(orderItemListContainer);
+
+                    var orderSummary = computeTotal(subTotal);
+                    shippingCost = orderSummary.shippingCost;
+                    taxes = orderSummary.taxes;
+                    orderTotal = orderSummary.orderTotal;
+
+                    var summaryLabelContainer = document.createElement("div");
+                    summaryLabelContainer.className= "container-sm bg-secondary";
+                    summaryLabelContainer.innerHTML= "<h4>ORDER SUMMARY</h4>";
+                    
+
+                    var valsContainer = document.createElement("div");
+                    
+                    var subTotalContainer = document.createElement("h5");
+                    subTotalContainer.innerHTML= "SUBTOTAL: " + "<b>$" + subTotal + "</b>";
+                    valsContainer.append(subTotalContainer);
+
+                    var shippingCostContainer = document.createElement("h5");
+                    shippingCostContainer.innerHTML= "SHIPPING: " + "<b>$" + shippingCost + "</b>";
+                    valsContainer.append(shippingCostContainer);
+
+                    var taxesContainer = document.createElement("h5");
+                    taxesContainer.innerHTML= "TAXES: " + "<b>$" + taxes + "</b>";
+                    valsContainer.append(taxesContainer);
+
+                    var orderTotalContainer = document.createElement("div");
+                    orderTotalContainer.className= "container-sm bg-secondary";
+                    orderTotalContainer.innerHTML= "<h4>TOTAL: " + "<b>$" + orderTotal + "</b></h4>";
+                    
+                    orderSummaryContainer.prepend(orderTotalContainer);
+                    orderSummaryContainer.prepend(valsContainer);
+                    orderSummaryContainer.prepend(summaryLabelContainer);
+                    
+
+                    orderEntryContainer.append(orderSummaryContainer);
+
+                    historyEntryContainer.append(orderEntryContainer);
+                    let orderBreak = document.createElement("div");
+                    orderBreak.className="row";
+                    orderBreak.style.background="black";
+                    orderBreak.innerHTML="</br></br></br>";
+                    $("#orderHistoryContainer").prepend(orderBreak);
+                    $("#orderHistoryContainer").prepend(historyEntryContainer);
+                }); // end order history $.each()
+            }
+        }
+
+        $(document).ready(function() {
+            var sessionUser = JSON.parse(sessionStorage.getItem("sessionUser"));
+            
+            if (sessionUser.is_admin == true) {
+                $("#admin_page").show();
+            } else {
+                $("#admin_page").hide();
+            }
+
+            $.ajax({
+                method : "GET",
+                url: "/order/order_history/" + sessionUser.username,
+                dataType: "json",
+                success: function(result){
+                    // orderHistory should be an array of "order" objects
+                    displayHistory ( result.orderHistory ); 
+                },
+                error: function(xhr, status, err){
+                    $("#message_text").empty();
+                    var errorMsg = xhr.responseJSON.message;
+                    $("#message_text").html(errorMsg);
+                    console.log(errorMsg);
+                }
+            });            
+            
+        });
+    </script>
+</head>
+
+<body>
+    <div>
+        <div>
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="homepage">Market Place</a>
+                <button class="navbar-toggler" type="button" 
+                data-toggle="collapse" data-target="#navbarNav" 
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
+                    <a class="nav-link" href="homepage">Home 
+                    </a>
+                    </li>
+            
+                    <li class="nav-item">
+                    <a class="nav-link" href="update_profile">Update profile</a>
+                    </li>
+            
+                    <li class="nav-item">
+                    <a class="nav-link" href="#">Order History</a>
+                    </li>
+            
+                    <li class="nav-item">
+                    <a class="nav-link" href="shoppingcart">Shopping cart</a>
+                    </li>
+            
+                    <li class="nav-item">
+                    <a class="nav-link " href="sell_items">Selling items</a>
+                    </li>
+            
+                    <li class="nav-item">
+                    <a class="nav-link " href="logout">Logout</a>
+                    </li>
+            
+                    <li class="nav-item" name="admin_page" id="admin_page">
+                    <a class="nav-link" href="admin/admindashboard">Admin Page</a>
+                    </li>
+                </ul>
+                </div>
+            </nav>
+            </br>
+        </div>
+
+        <div class ="container  py-4 my-3">
+            <div class="container pl-5 " >
+                <div class="progress align-middle " style="height:3px; width:50%">
+                    <div class="progress-bar bg-success" role="progressbar" aria-valuemin="0" aria-valuenow="33" aria-valuemax="100" style="width: 33%">
+                    </div>
+                </div>
+            </div>    
+
+            <div class ="container bg-light pt-5 pb-auto">
+                <div class="row align-items-center">
+                    <div class="prod col align-items-right">
+                        <div class="float-right pt-5">
+                            <button type="button" class="btn-primary" id="cart_home" 
+                                onclick="location.href='homepage';">Back to Homepage</button>
+                        </div>
+                    </div>       
+                </div>
+
+                <div id="orderHistoryContainer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

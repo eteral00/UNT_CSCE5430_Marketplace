@@ -194,6 +194,15 @@
         };
 
         $(document).ready(function() {
+            
+            var sessionUser = JSON.parse(sessionStorage.getItem("sessionUser"));
+            
+            if (sessionUser.is_admin == true) {
+                $("#admin_page").show();
+            } else {
+                $("#admin_page").hide();
+            }
+
             var viewProductID = sessionStorage.getItem("viewProductID");
         
             $.ajax({
@@ -217,52 +226,58 @@
 
 <body>
     <div>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="homepage">Market Place</a>
-            <button class="navbar-toggler" type="button" 
-            data-toggle="collapse" data-target="#navbarNav" 
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item active">
+        <div>
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="homepage">Market Place</a>
+                <button class="navbar-toggler" type="button" 
+                data-toggle="collapse" data-target="#navbarNav" 
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item active">
                         <a class="nav-link" href="homepage">Home 
-                        <span class="sr-only">(current)</span>
                         </a>
-                    </li>
-                    <li class="nav-item">
+                        </li>
+                
+                        <li class="nav-item">
                         <a class="nav-link" href="update_profile">Update profile</a>
-                    </li>
-                    <li class="nav-item">
+                        </li>
+                
+                        <li class="nav-item">
+                        <a class="nav-link" href="order_history">Order History</a>
+                        </li>
+                
+                        <li class="nav-item">
                         <a class="nav-link" href="shoppingcart">Shopping cart</a>
-                    </li>
-                    <li class="nav-item">
+                        </li>
+                
+                        <li class="nav-item">
                         <a class="nav-link " href="sell_items">Selling items</a>
-                    </li>
-                    <li class="nav-item">
+                        </li>
+                
+                        <li class="nav-item">
                         <a class="nav-link " href="logout">Logout</a>
-                    </li>
-                </ul>
-            </div>    
-        
-        </nav>
-        <br/>
-        
-    </div>
+                        </li>
+                
+                        <li class="nav-item" name="admin_page" id="admin_page">
+                        <a class="nav-link" href="admin/admindashboard">Admin Page</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <br/>
+            
+        </div>
 
-    <div id="viewContainer">
-    </div>
+        <div id="viewContainer">
+        </div>
 
-    <div class="align">
-        <h3 id="message_text"></h3>
+        <div class="align">
+            <h3 id="message_text"></h3>
+        </div>
     </div>
-
 </body>
 
-    <script>
-
-    
-
-    </script>
 </html>

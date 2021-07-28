@@ -270,8 +270,9 @@ app_server.get("/product/category/:category", (req, res) => {
   } catch (err) {
     console.error(err.message);
   }
-}
-);
+});
+
+
 
 // get-view_product_by_id
 app_server.get("/product/id/:id", (req, res) => {
@@ -296,26 +297,28 @@ app_server.get("/product/id/:id", (req, res) => {
       } else {
         if (result_rows.length > 0) {
           console.log("product id result: ", result_rows[0]);
-        var is_removed = Boolean(result_rows[0].is_removed.toJSON().data[0]);
-        var productImageLink;
+          var is_removed = Boolean(result_rows[0].is_removed.toJSON().data[0]);
+          var productImageLink;
           if ( !result_rows[0].product_image_link ) {
             productImageLink = "uploads/img/imagenotavailable.png";
           } else {
             productImageLink = result_rows[0].product_image_link;
           }
 
-        var product = { 
-          productID : result_rows[0].product_id,
-          isRemoved : is_removed,
-          productName : result_rows[0].product_name,
-          productCategory : result_rows[0].product_category,
-          productDescription : result_rows[0].product_description,
-          productImage : productImageLink,
-          price : result_rows[0].unit_price,
-          remainingQuantity : result_rows[0].remaining_quantity
-        };
-        console.log("product: ", product);
-        res.status(200).json({ user : { username : sessionOb.user.username }, product: product});
+          var product = { 
+            productID : result_rows[0].product_id,
+            isRemoved : is_removed,
+            productName : result_rows[0].product_name,
+            productCategory : result_rows[0].product_category,
+            productDescription : result_rows[0].product_description,
+            productImage : productImageLink,
+            price : result_rows[0].unit_price,
+            remainingQuantity : result_rows[0].remaining_quantity
+          };
+          console.log("product: ", product);
+          res.status(200).json({ user : { username : sessionOb.user.username }, product: product});
+        } else {
+          res.status(400).json({ message: "Item not found! It may have been removed from the system!"});
         }
       }
     });
@@ -325,6 +328,75 @@ app_server.get("/product/id/:id", (req, res) => {
   }
 }
 );
+
+
+// function to query and view order history
+function viewOrderHistory(username, callback) {
+  var queryVar = username;
+  var queryStr = "SELECT `order`.`order_id`, `order_date`, `order_detail`.`product_id`, `product_name`, `product_quantity`, `product_category`, `product_image_link`,`unit_price` " 
+    + " FROM `order`, `order_detail`, `product` "
+    + " WHERE `buyer_username` = ? "
+    + " AND `order`.`order_id` = `order_detail`.`order_id` "
+    + " AND `order_detail`.`product_id` = `product`.`product_id` "
+    + " ORDER BY `order_date` ASC;"
+  
+  mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+    if(err) {
+      console.log("Error: ", err);
+      //res.status()
+    } else {
+        const recordsGroupedByOrderId = result_rows.reduce((groups, record) => {
+          const orderGroup = (groups[record.order_id] || []);
+          orderGroup.push(record);
+          groups[record.order_id] = orderGroup;
+          
+          return groups;
+          }, {}
+        );
+
+        //console.log("groups", recordsGroupedByOrderId);
+        var orderHistory = [];
+        for (let recordGroup in recordsGroupedByOrderId) {
+          let orderItemList = [];
+          //console.log(recordGroup);
+          for (let record of recordsGroupedByOrderId[recordGroup]) {
+            //console.log("record: ", record);
+            let orderItem = { 
+              productId : record.product_id, 
+              productName : record.product_name,
+              productCategory : record.product_category, 
+              productImageLink : record.product_image_link,
+              productQuantity : record.product_quantity,
+              unitPrice : record.unit_price
+            };
+            orderItemList.push(orderItem);
+          }
+          let orderId = `${recordGroup}`;
+          let orderEntry = { 
+            orderId : orderId, 
+            orderDate : recordsGroupedByOrderId[recordGroup][0].order_date,
+            orderItemList : orderItemList
+          };
+          //console.log("single order entry: ", orderEntry);
+          orderHistory.push(orderEntry);
+        }
+        //console.log("history: ", orderHistory);
+
+        callback(orderHistory);
+    }
+  });
+};
+
+//get-view order_history
+app_server.get("/order/order_history/:username", (req, res) => {
+  // involved tables: order, order_detail, product
+  viewOrderHistory(req.params.username, function(orderHistory) {
+    res.status(200).json({ orderHistory : orderHistory });
+  });
+  
+});
+
+
 
 //get-page-dot
 app_server.get("/:page.*", (req, res) => {
@@ -724,6 +796,44 @@ function insertOrder(orderInfo, callback) {
     });
 };
 
+// functions to insert new record into order_detail table
+// order_detail-tables's fields: order_id (auto), order_date, buyer_username, payment_method_id, shipping_info_id, is_cancelled, is_shipped
+// insert fields (3): order_id, product_id, product_quantity
+function insertOrderDetail(orderDetail) {
+  var queryStr = "INSERT INTO `order_detail` (`order_id`, `product_id`, `product_quantity`) "
+      + " VALUES ( ? , ? , ? );"
+  var queryVar = [];
+
+    if (orderDetail.orderId === undefined) {
+      queryVar.push(1);
+    } else {
+      queryVar.push(orderDetail.orderId);
+    }
+    
+    if (orderDetail.productId === undefined) {
+      queryVar.push(1);
+    } else {
+      queryVar.push(orderDetail.productId);
+    }
+
+    if (orderDetail.productQuantity === undefined) {
+      queryVar.push(0);
+    } else {
+      queryVar.push(orderDetail.productQuantity);
+    }
+
+
+    // send query to DB to insert product
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, resultSetHeader) {             
+      if(err) {
+        console.log("Error: ", err);  
+      } else {
+        console.log("insert id: ", resultSetHeader);
+      }
+      
+    });    
+    
+};
 
 
 
@@ -899,9 +1009,12 @@ app_server.post("/order/place_order", (req, res) => {
     console.log("req form body: ", req.body);
 
     sessionOb = req.session;
-    // 5 tables involved, insert in order: address_info, shipping_info, payment_method, order, order_detail
-    // data received is a json object in form { username: "" , shoppingCart: [{},{}], shippingInfo: {}, paymentInfo: {}  }
 
+    // 5 tables involved, insert in order: address_info, shipping_info, payment_method, order, order_detail
+    // data received is a json object in form { username: "" , shoppingCart: [ {} , {} ], shippingInfo: {}, paymentInfo: {}  }
+    var shoppingCart = req.body.shoppingCart;
+
+    
     var shippingToName = req.body.shippingInfo.receiverName;
     var addressStreet = req.body.shippingInfo.addressStreet;
     var addressCity = req.body.shippingInfo.addressCity;
@@ -969,9 +1082,19 @@ app_server.post("/order/place_order", (req, res) => {
                   if (insertedOrderId == -1) {
                     res.status(400).json({message : "Error placing order!" });
                   } else {
+                    console.log("shopping cart:", shoppingCart);
+                    for (const item of shoppingCart) {
+                      let productId = item.productId;
+                      console.log("product id:", productId);
+                      let productQuantity = item.quantity;
+                      console.log("productQuantity: ", productQuantity);
+                      let orderDetail = { orderId: insertedOrderId, productId : productId, productQuantity : productQuantity };
+                      console.log("order detail: ", orderDetail);
+                      insertOrderDetail( orderDetail );
+                    }
                     res.status(200).json({ message : "Success! Your order has been placed! Your Confirmation Number is: " + insertedOrderId });
                   }
-                }); // 4 layers of callbacks is really messy...
+                }); // 4-5 layers of callbacks is really messy...
               }
             });
           }        
@@ -1390,3 +1513,6 @@ app_server.use((req, res) => {
 app_server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
 });
+
+
+module.exports = {insertProduct, insertAddress, insertShipping, insertPaymentMethod, insertOrder, insertOrderDetail};

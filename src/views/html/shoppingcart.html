@@ -46,7 +46,13 @@
         $(document).ready(function() {
 
             var sessionUser = JSON.parse(sessionStorage.getItem("sessionUser"));
+            for (let item in (sessionUser.shoppingCart)) {
+                sessionUser.shoppingCart[item].productId = parseInt(item);
+            }
+            sessionStorage.setItem("sessionUser", JSON.stringify(sessionUser) );
+
             var shoppingCart = sessionUser.shoppingCart;
+
             var orderTotal = 0;
             var subTotal = 0;
             var taxes = 0;
