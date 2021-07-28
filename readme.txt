@@ -1,4 +1,9 @@
-+Install MySQL ver 8.x ( do NOT set password for root )
++Install MySQL ver 8.x ( will have to remove password for root after installing)
+	->either by running this sql query inside MySQL DB server (connecting with a client such as Workbench - provided with default MySQL installation)
+		SET PASSWORD FOR root@localhost='';
+	->or this command on command-line console after navigating to install directory of MySQL Server (default: C:\Program Files\MySQL\MySQL Server 8.0\bin)
+		mysqladmin --user=root --password="<the password you enter for root-account during setup>" password "";
++You may need to read my Tech Tips document (included) on how to setup and use MySQL (4 of our 9 members was in troubles setting up and using MySQL on their computers).
 +Install nodejs 14+
 
 +Pull the repo from this location
@@ -18,4 +23,7 @@ this will start the server on local machine (localhost)
 
 +Open a browser, and enter the URL:
 	localhost:3000
-localhost at port 3000
+(localhost at port 3000)
+
++for unit tests, in the project directory, run command:
+	npm run test
