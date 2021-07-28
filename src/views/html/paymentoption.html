@@ -25,9 +25,9 @@
 
         $(document).ready(function() {
             var sessionUser = JSON.parse( sessionStorage.getItem("sessionUser") );
-            console.log(sessionUser);
-            console.log ( JSON.stringify(sessionUser) );
-			
+            //console.log(sessionUser);
+            //console.log ( JSON.stringify(sessionUser) );
+			console.log("shoppingCart: ", sessionUser.shoppingCart);
 			// clean input validate msg
 			$("#message_text").empty();
             
