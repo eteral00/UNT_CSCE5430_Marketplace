@@ -24,6 +24,12 @@
       location.href="product_listing";
     }
 
+
+    function searchItem() {
+      let searchValue = $("#search_value").val().trim();
+      sessionStorage.setItem("searchValue", searchValue);
+      location.href="product_search";
+    }
     $(document).ready(function () {
       var sessionUser = JSON.parse(sessionStorage.getItem("sessionUser"));
       console.log("is admin",sessionUser.is_admin);
@@ -32,7 +38,9 @@
       } else {
         $("#admin_page").hide();
       }
-    })
+
+
+    });
 
   </script>
 
@@ -79,10 +87,12 @@
       </ul>
     </div>
 
-    <form class="form-inline">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
+    <div class="form-inline">
+      <input type="search" class="form-control mr-sm-2" name="search_value" id="search_value" 
+        placeholder="Search" aria-label="Search">
+      <button type="submit" class="btn btn-outline-success my-2 my-sm-0" name="search_submit" id="search_submit"
+        onclick="searchItem()">Search</button>
+    </div>
 
   </nav>
   <br/>

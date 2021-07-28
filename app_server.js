@@ -283,6 +283,62 @@ app_server.get("/product/category/:category", (req, res) => {
 });
 
 
+// get-view_product_by_search value
+app_server.get("/product/search/:searchValue", (req, res) => {
+  try {
+    console.log("GET-view_product_by_category hit.");
+
+    sessionOb = req.session;
+
+    //var productCategory = req.params.category;
+
+    var queryStr = "SELECT `product_id`,`product_name`, `product_description`, `product_image_link`, `unit_price` "
+      + " FROM `product` "
+      + " WHERE `product_name` LIKE ? "
+      + " OR `product_description` LIKE ? "
+      + " AND `is_removed` = b'0' "
+      + " AND `remaining_quantity` > 0 ;";
+    
+    let searchValue = "%" + req.params.searchValue + "%";
+    var queryVar = [searchValue,searchValue];
+    console.log("query var", queryVar);
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+      if(err) {
+        console.log("Error: ", err);
+        //console.error(err.message);
+        //res.status()
+      } else {
+        console.log("product category result: ", result_rows);
+        
+        var productListing = [];
+        for ( let idx = 0; idx < result_rows.length; idx++ )
+        {
+          var productImageLink;
+          if ( result_rows[idx].product_image_link ) {
+            productImageLink = result_rows[idx].product_image_link;
+          } else {
+            productImageLink = "uploads/img/imagenotavailable.png";
+          }
+          var product = { 
+            productID : result_rows[idx].product_id,
+            productName : result_rows[idx].product_name,
+            productDescription : result_rows[idx].product_description,
+            productImage : productImageLink,
+            price : result_rows[idx].unit_price,
+          };
+          productListing.push(product);
+        }
+        
+        console.log("product listing: ", productListing);
+        res.status(200).json({ user : { username : sessionOb.user.username }, productListing: productListing });
+        
+      }
+    });
+
+  } catch (err) {
+    console.error(err.message);
+  }
+});
 
 // get-view_product_by_id
 app_server.get("/product/id/:id", (req, res) => {
