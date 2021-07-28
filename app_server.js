@@ -172,6 +172,16 @@ app_server.get("/admin/:page/$", (req, res) => {
     console.error(err.message);
   }
 });
+//get-admin
+app_server.get("/admin$", (req, res) => {
+  try {
+    console.log("GET-Admin-Page-slash hit. Redirected to get-admin-page");
+    res.redirect("/admin/admindashboard");
+
+  } catch (err) {
+    console.error(err.message);
+  }
+});
 // get-admin_page
 app_server.get("/admin/:page", (req, res) => {
   try {
@@ -328,6 +338,63 @@ app_server.get("/product/id/:id", (req, res) => {
   }
 }
 );
+
+
+// get-view_product_by_user
+app_server.get("/sell_items/view", (req, res) => {
+  try {
+    console.log("GET-view_product_by_user hit.");
+
+    sessionOb = req.session;
+
+    //var productCategory = req.params.category;
+
+    var queryStr = "SELECT `product_id`,`product_name`, `product_category`,`product_description`, `product_image_link`, `unit_price`, `remaining_quantity` "
+      + " FROM `product` "
+      + " WHERE `seller_username` = ? "
+      + " ORDER BY `product_id` ASC;";
+    
+    var queryVar = sessionOb.user.username;
+    console.log("query var", queryVar);
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+      if(err) {
+        console.log("Error: ", err);
+        //console.error(err.message);
+        //res.status()
+      } else {
+        console.log("product category result: ", result_rows);
+
+        var productListing = [];
+        for ( let idx = 0; idx < result_rows.length; idx++ )
+        {
+          let productImageLink;
+          if ( result_rows[idx].product_image_link ) {
+            productImageLink = result_rows[idx].product_image_link;
+          } else {
+            productImageLink = "uploads/img/imagenotavailable.png";
+          }
+          let product = { 
+            productID : result_rows[idx].product_id,
+            productName : result_rows[idx].product_name,
+            productCategory : result_rows[idx].product_category,
+            productDescription : result_rows[idx].product_description,
+            productImageLink : productImageLink,
+            unitPrice : result_rows[idx].unit_price,
+            remainingQuantity : result_rows[idx].remaining_quantity
+          };
+          productListing.push(product);
+        }
+        
+        console.log("product listing: ", productListing);
+        res.status(200).json({ user : { username : sessionOb.user.username }, productListing: productListing });
+
+      }
+    });
+
+  } catch (err) {
+    console.error(err.message);
+  }
+});
 
 
 // function to query and view order history

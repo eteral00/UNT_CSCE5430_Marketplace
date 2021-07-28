@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Purchase Order History</title>
+    <title>Posted Item History</title>
     
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!--
@@ -27,22 +27,22 @@
             return { shippingCost: shippingCost.toFixed(2), taxes: taxes.toFixed(2), orderTotal: orderTotal.toFixed(2) };
         }
 
-        function displayHistory(orderHistory) {
-            if (!orderHistory || $.isEmptyObject(orderHistory) || orderHistory.length == 0) {    
+        function displayPostedItems(productListing) {
+            if (!productListing || $.isEmptyObject(productListing) || productListing.length == 0) {    
                 // order history is undefined or empty
-                $("#orderHistoryContainer").empty().append("<h1>You have no Order in History!</h1>");
+                $("#orderHistoryContainer").empty().append("<h1>You have no Item posted for sales!</h1>");
             }
             else {
-                $.each(orderHistory, function(idx, orderEntry) {
-
+                //$.each(orderHistory, function(idx, orderEntry) {
+                    /*
                     var orderTotal = 0;
                     var subTotal = 0;
                     var taxes = 0;
                     var shippingCost = 0;
-
-                    var historyEntryContainer = document.createElement("div");
-                    historyEntryContainer.id="order_" + orderEntry.orderId;
-                    
+                    */
+                    //var itemEntryContainer = document.createElement("div");
+                    //historyEntryContainer.id="order_" + productDetails.productId;
+                    /*
                     var orderLabelContainer = document.createElement("div");
                     //orderLabelContainer.className= "row align-items-center";
                     orderLabelContainer.style.display= "block";
@@ -68,83 +68,54 @@
                     var orderSummaryContainer = document.createElement("div");
                     orderSummaryContainer.className= "prod col align-items-right";
                     orderSummaryContainer.setAttribute("vertical-align","top");
+                    */
 
+                    var postedItemListContainer = document.createElement("div");
+                    postedItemListContainer.className= "prod col align-items-left";
 
-                    $.each(orderEntry.orderItemList, function(idx, productDetails) {
-                        var productContainer = document.createElement("div");
+                    $.each(productListing, function(idx, productDetails) {
+                        let productContainer = document.createElement("div");
                         productContainer.id= "item_" + productDetails.productId;
                         
-                        var productImageContainer = document.createElement("img");
+                        let productImageContainer = document.createElement("img");
                         productImageContainer.className= "rounded";
                         productImageContainer.alt= "Rounded Image";
                         productImageContainer.height= 100;
                         productImageContainer.src= productDetails.productImageLink;
                         productContainer.append(productImageContainer);
 
-                        var productNameContainer = document.createElement("div");
+                        let productNameContainer = document.createElement("div");
                         productNameContainer.className= "container-sm  px-3 my-3 border bg-secondary";
                         productNameContainer.innerHTML= "<h4>" + productDetails.productName + "</h4>";
                         productContainer.append(productNameContainer);
 
-                        var productPriceContainer = document.createElement("h5");
+                        let productCategoryContainer = document.createElement("h5");
+                        productCategoryContainer.innerHTML= "CATEGORY: " + "<b>$" + productDetails.productCategory + "</b>";
+                        productContainer.append(productCategoryContainer);
+
+                        let productPriceContainer = document.createElement("h5");
                         productPriceContainer.innerHTML= "PRICE: " + "<b>$" + productDetails.unitPrice + "</b>";
                         productContainer.append(productPriceContainer);
 
-                        var productQuantityContainer = document.createElement("h5");
-                        productQuantityContainer.innerHTML= "QUANTITY: " + "<b>" + productDetails.productQuantity + "</b>";
-                        productContainer.append(productQuantityContainer);
+                        let remainingQuantityContainer = document.createElement("h5");
+                        remainingQuantityContainer.innerHTML= "QUANTITY: " + "<b>" + productDetails.remainingQuantity + "</b>";
+                        productContainer.append(remainingQuantityContainer);
                         
                         //
-                        subTotal += (productDetails.unitPrice * productDetails.productQuantity);
 
-                        orderItemListContainer.append(productContainer);
-                    }); // end single order's items $.each()
-
-                    orderEntryContainer.append(orderItemListContainer);
-
-                    var orderSummary = computeTotal(subTotal);
-                    shippingCost = orderSummary.shippingCost;
-                    taxes = orderSummary.taxes;
-                    orderTotal = orderSummary.orderTotal;
-
-                    var summaryLabelContainer = document.createElement("div");
-                    summaryLabelContainer.className= "container-sm bg-secondary";
-                    summaryLabelContainer.innerHTML= "<h4>ORDER SUMMARY</h4>";
+                        postedItemListContainer.prepend(productContainer);
+                        let itemBreak = document.createElement("div");
+                        itemBreak.className="row";
+                        itemBreak.style.background="white";
+                        itemBreak.innerHTML="</br></br></br>";
+                        postedItemListContainer.prepend(itemBreak);
                     
-
-                    var valsContainer = document.createElement("div");
+                    }); 
                     
-                    var subTotalContainer = document.createElement("h5");
-                    subTotalContainer.innerHTML= "SUBTOTAL: " + "<b>$" + subTotal + "</b>";
-                    valsContainer.append(subTotalContainer);
-
-                    var shippingCostContainer = document.createElement("h5");
-                    shippingCostContainer.innerHTML= "SHIPPING: " + "<b>$" + shippingCost + "</b>";
-                    valsContainer.append(shippingCostContainer);
-
-                    var taxesContainer = document.createElement("h5");
-                    taxesContainer.innerHTML= "TAXES: " + "<b>$" + taxes + "</b>";
-                    valsContainer.append(taxesContainer);
-
-                    var orderTotalContainer = document.createElement("div");
-                    orderTotalContainer.className= "container-sm bg-secondary";
-                    orderTotalContainer.innerHTML= "<h4>TOTAL: " + "<b>$" + orderTotal + "</b></h4>";
                     
-                    orderSummaryContainer.prepend(orderTotalContainer);
-                    orderSummaryContainer.prepend(valsContainer);
-                    orderSummaryContainer.prepend(summaryLabelContainer);
+                    $("#postedItemHistoryContainer").append(postedItemListContainer);
                     
-
-                    orderEntryContainer.append(orderSummaryContainer);
-
-                    historyEntryContainer.append(orderEntryContainer);
-                    let orderBreak = document.createElement("div");
-                    orderBreak.className="row";
-                    orderBreak.style.background="black";
-                    orderBreak.innerHTML="</br></br></br>";
-                    $("#orderHistoryContainer").prepend(orderBreak);
-                    $("#orderHistoryContainer").prepend(historyEntryContainer);
-                }); // end order history $.each()
+                //}); // end order history $.each()
             }
         }
 
@@ -157,13 +128,14 @@
                 $("#admin_page").hide();
             }
 
+
             $.ajax({
                 method : "GET",
-                url: "/order/order_history/" + sessionUser.username,
+                url: "/sell_items/view",
                 dataType: "json",
                 success: function(result){
                     // orderHistory should be an array of "order" objects
-                    displayHistory ( result.orderHistory ); 
+                    displayPostedItems ( result.productListing ); 
                 },
                 error: function(xhr, status, err){
                     $("#message_text").empty();
@@ -199,7 +171,7 @@
                     </li>
             
                     <li class="nav-item">
-                    <a class="nav-link" href="#">Order History</a>
+                    <a class="nav-link" href="order_history">Order History</a>
                     </li>
             
                     <li class="nav-item">
@@ -223,22 +195,28 @@
             </br>
         </div>
 
-        <div class ="container  py-4 my-3">
+        <div class ="container  py-4 my-3"> 
             <div class="container pl-5" id="page_title" >
-                <h1>Order History</h1>
-            </div>    
+                <h1>Posted Item History</h1>
+            </div> 
 
             <div class ="container bg-light pt-5 pb-auto">
                 <div class="row align-items-center">
                     <div class="prod col align-items-right">
-                        <div class="float-right pt-5">
+                        <div class="float-left pt-5">
                             <button type="button" class="btn-primary" id="cart_home" 
                                 onclick="location.href='homepage';">Back to Homepage</button>
+                                
+                        </div>
+                        <div class="float-right pt-5">
+                            <button type="button" class="btn-primary" id="cart_home" 
+                                onclick="location.href='sell_items';">To New Item Posting</button>
+                                
                         </div>
                     </div>       
                 </div>
 
-                <div id="orderHistoryContainer">
+                <div id="postedItemHistoryContainer">
 
                 </div>
             </div>
