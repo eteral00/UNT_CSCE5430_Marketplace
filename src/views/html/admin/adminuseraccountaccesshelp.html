@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>User account access help</title>
+    <title>Account Access Help</title>
 
     
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -21,7 +21,10 @@
         //         return true;
         //     }
         // }
-
+		
+		function clearForm() {
+			$("input").val("");
+		};
         $(document).ready(function() {
 			
 			// clean URL
@@ -117,9 +120,10 @@
 <body>
     <div class="container-sm bg-light w-50 align-items-center pt-5 mx-auto">
         <div style="float:right">
-                <label class="logout">
-                <input name="submitt" type="submit" id="submitt" value="log out">
-                </label>
+            <label class="logout" for="admin_logout">
+				<button type="button" class="btn-primary" name="admin_logout" id="admin_logout" value="LOGOUT" 
+					onclick="location.href = '../logout';">LOGOUT</button>
+			</label>
         </div>  
 
         <h4 class="container-sm mx-auto"><b>Account Access Help </b></h4>
@@ -144,9 +148,11 @@
             </div>
             
             <div class="container-sm pl-5 pt-5 mx-auto">
-                <button onclick="location.href = 'admindashboard.html';" class="cancel btn-secondary ">GO BACK</button>
-                <button type="submit" name="password_save" id="password_save" class="Next btn-secondary ">SAVE</button>
-                <button onclick="location.href = 'admindashboard.html';" class="cancel btn-secondary ">DONE</button>
+                <button type="button" name ="go_back" value="Go Back" class="btn-primary "
+                    onclick="location.href = 'admindashboard';">Go Back</button>
+                <button type="submit" name="password_save" id="password_save" class="next btn-secondary ">Save</button>
+                <button type="button" class="cancel btn-secondary" 
+					onclick="clearForm()">Clear</button>
             </div> 
                 
     </div>

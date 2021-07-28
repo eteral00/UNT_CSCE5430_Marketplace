@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>view and modify user</title>
+    <title>User Account Management</title>
     
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
@@ -38,22 +38,14 @@
 				
 				// all fields are empty, nothing to edit
 				if ( flexSwitchCheckDefault === "") {
-					$("#message_text").append("<p>Error: New Password is empty. Nothing to update!</p>" );
+					$("#message_text").append("<p>Error: Nothing to edit!</p>" );
 					anyErrors = true;
 				} else {
-					// validate new password is different from current password
-					if ( flexSwitchCheckDefault === userName ) {
-						$("#message_text").append("<p>Error: New Password is the same as current Password! Nothing to update!</p>" );
-						anyErrors = true;
-					}
-
-					// validate current password not empty
-					if ( userName === "" ) {
-						$("#message_text").append("<p>Error: Current Password cannot be empty! Please enter your current Password!</p>" );
-						anyErrors = true;
-					}
-
-					
+					// validate username not empty
+                    if ( userName === "" ) {
+                        $("#message_text").append("<p>Error: Username cannot be empty! Please enter Username!</p>" );
+                        anyErrors = true;
+                    }			
 				}
 
 				// if error, prevent submit
@@ -91,56 +83,52 @@
 
             $("#delete_user").click( function(event) {
 
-        // clean input validate msg
-        $("#message_text").empty();
+                // clean input validate msg
+                $("#message_text").empty();
 
-        // validate input
-        var userName = $("#user_name").val().trim();
+                // validate input
+                var userName = $("#user_name").val().trim();
 
-        var anyErrors = false;
-        console.log("===>"+userName)
+                var anyErrors = false;
+                console.log("===>"+userName)
 
-        // all fields are empty, nothing to edit
-
-            // validate current password not empty
-            if ( userName === "" ) {
-                $("#message_text").append("<p>Error: Current Password cannot be empty! Please enter your current Password!</p>" );
-                anyErrors = true;
-            }
-
-            
-
-        // if error, prevent submit
-        if (anyErrors){
-            event.preventDefault();
-        } else {
-            // no error, submit POST-request
-            $.ajax({
-                method : "PUT",
-                url : "/admin/delete_user",
-                data : {
-                    userName: userName,
-                },
-                dataType: "json",
-                success: function(result){
-                    // alert(result.message);
-                    console.log("error in message1")
-                    $("#message_text").empty();
-                    $("#message_text").html(result.message);
-                },
-                error: function(xhr, status, err){
-                    console.log("error in message101")
-                    $("#message_text").empty();
-                    // var errorMsg = xhr.responseJSON.message;
-                    // $("#message_text").html(errorMsg);
-                },
-                complete: function() {
-                    $("#user_name").val("");
-                    $("#flexSwitchCheckDefault").val("");
+                // validate username not empty
+                if ( userName === "" ) {
+                    $("#message_text").append("<p>Error: Username cannot be empty! Please enter Username!</p>" );
+                    anyErrors = true;
                 }
-            });
-        }				
-        } );
+
+                // if error, prevent submit
+                if (anyErrors){
+                    event.preventDefault();
+                } else {
+                    // no error, submit POST-request
+                    $.ajax({
+                        method : "PUT",
+                        url : "/admin/delete_user",
+                        data : {
+                            userName: userName,
+                        },
+                        dataType: "json",
+                        success: function(result){
+                            // alert(result.message);
+                            console.log("error in message1")
+                            $("#message_text").empty();
+                            $("#message_text").html(result.message);
+                        },
+                        error: function(xhr, status, err){
+                            console.log("error in message101")
+                            $("#message_text").empty();
+                            // var errorMsg = xhr.responseJSON.message;
+                            // $("#message_text").html(errorMsg);
+                        },
+                        complete: function() {
+                            $("#user_name").val("");
+                            $("#flexSwitchCheckDefault").val("");
+                        }
+                    });
+                }				
+            } );
 
 		});	
     </script>
@@ -150,16 +138,14 @@
 <body>
     <div class="container-sm bg-light w-50 align-items-center pt-5 mx-auto">
         <div style="float:right">
-            <form align="right" name="form" method="post" action="login.html">
-                <label class="logout">
-                <input name="submitt" type="submit" id="submitt" value="log out">
-                </label>
-            </form>
+            <label class="logout" for="admin_logout">
+                <button type="button" class="btn-primary" name="admin_logout" id="admin_logout" value="LOGOUT" 
+                    onclick="location.href = '../logout';">LOGOUT</button>
+            </label>
         </div>
 
         <h4 class="container-sm mx-auto"><b>VIEW AND MODIFY Users </b></h4>
         
-        <form method ="GET" >
             <div class="form-group pt-3">
                 <label class="form-label">ENTER USER NAME</label>
                 <input type="text" id = "user_name" class="form-control" style="width:50%" required="true">
@@ -175,12 +161,11 @@
             </div>
 
             <div class="container-sm pl-5 pt-5 mx-auto">
-                <button type="submit" name="modify_user" id="modify_user" class="modify btn-secondary ">Modify User</button>
-                <button type="submit" id="delete_user" class="delete btn-secondary ">Delete User</button>
-                <button type="submit" onclick="location.href = 'admindashboard.html';" formaction="admindashboard.html" name ="action" value="Go Back" class="delete btn-secondary ">Go Back</button>
+                <button type="button" name ="go_back" value="Go Back" class="btn-primary "
+                    onclick="location.href = 'admindashboard';">Go Back</button>
+                <button type="button" name="modify_user" id="modify_user" class="modify btn-secondary ">Modify User</button>
+                <button type="button" id="delete_user" class="delete btn-secondary ">Delete User</button>
             </div> 
-
-        </form>
     </div>
     
 </bosdy>
