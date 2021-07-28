@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+
+    <link rel ="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+
+    <style>
+        table { width: 100%; }
+         td { border: solid 0px #DDD;
+            border-collapse: collapse; padding: 2px 3px; width:15%;
+        }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    
+    <script>
+        var searchValue = sessionStorage.getItem("searchValue");
+
+        document.title = "Search Results";
+
+        function viewProduct(productID) {
+            sessionStorage.setItem("viewProductID", productID);
+            location.href="product_view";
+        }
+
+        function createTable( advertisments ) {
+            var adv = document.createElement('table');
+
+            var no_of_adv= advertisments.length;
+            console.log(no_of_adv);
+            var no_of_rows= no_of_adv%4;
+            var tr = adv.insertRow(-1);
+            var j=-1;
+            for (var i=0; i < no_of_adv; i++) { 
+                j++;
+                var p= i%4;
+                if(p==0) { 
+                    j= 0;
+                    tr = adv.insertRow(-1);
+                }
+
+                var td = document.createElement('td');
+                td= tr.insertCell(j);
+                
+                var img=document.createElement('img');
+                if(advertisments[i].productImage)
+                {
+                    img.src= "../../" + advertisments[i].productImage;
+                } else {
+                    img.src= "../img/imagenotavailable.png";
+                }
+                
+                img.setAttribute('width','300px');
+                td.appendChild(img);
+                
+                var br = document.createElement("br");
+                td.appendChild(br);
+                
+                var itemName= document.createElement("h5");
+                itemName.innerHTML = "Item Name: " + "<b>" + advertisments[i].productName + "</b>";
+                td.appendChild(itemName);
+                
+                var viewButton= document.createElement("button");
+                viewButton.value= advertisments[i].productID;
+                viewButton.innerHTML= "View Details";
+                viewButton.onclick= function() {
+                    viewProduct(this.value);
+                }
+                td.appendChild(viewButton);
+
+                var pPrice= document.createElement('p');
+                pPrice.innerHTML= "Price: <b>$" + advertisments[i].price + "</b>"; 
+                td.appendChild(pPrice);
+
+                var pDescLabel= document.createElement("label");
+                pDescLabel.innerHTML= "Description:";
+                td.appendChild(pDescLabel);
+                var pDesc= document.createElement('p');
+                pDesc.innerHTML= advertisments[i].productDescription;
+                td.appendChild(pDesc);
+
+            } // end for-loop
+
+            var listingContainer = document.getElementById('p_listing');
+            listingContainer.appendChild(adv);
+
+            var homeButton= document.createElement("button");
+            homeButton.className= "btn btn-primary right-side";
+            homeButton.innerHTML= "Back to HomePage";
+            homeButton.onclick= function() {
+                location.href="homepage";
+            }
+            document.getElementById("nav_buttons").appendChild(homeButton);
+            
+        }
+
+        $(document).ready(function() {
+            
+            var sessionUser = JSON.parse(sessionStorage.getItem("sessionUser"));
+            
+            if (sessionUser.is_admin == true) {
+                $("#admin_page").show();
+            } else {
+                $("#admin_page").hide();
+            }
+
+            var listingCategory = document.getElementById('listing_category');
+            listingCategory.innerHTML = "SEARCH RESULTS FOR '"+ searchValue +"'";
+
+            $.ajax({
+                method : "GET",
+                url: "/product/search/" + searchValue,
+                dataType: "json",
+                success: function(result){
+                    
+                    createTable ( result.productListing );
+                },
+                error: function(xhr, status, err){
+                    $("#message_text").empty();
+                    var errorMsg = xhr.responseJSON.message;
+                    $("#message_text").html(errorMsg);
+                    console.log(errorMsg);
+                }
+            });
+        });
+    </script>
+
+</head>
+
+<body>
+    <div>
+        <div>
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="homepage">Market Place</a>
+                <button class="navbar-toggler" type="button" 
+                data-toggle="collapse" data-target="#navbarNav" 
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item active">
+                        <a class="nav-link" href="homepage">Home 
+                        </a>
+                        </li>
+                
+                        <li class="nav-item">
+                        <a class="nav-link" href="update_profile">Update profile</a>
+                        </li>
+                
+                        <li class="nav-item">
+                        <a class="nav-link" href="order_history">Order History</a>
+                        </li>
+                
+                        <li class="nav-item">
+                        <a class="nav-link" href="shoppingcart">Shopping cart</a>
+                        </li>
+                
+                        <li class="nav-item">
+                        <a class="nav-link " href="sell_items">Selling items</a>
+                        </li>
+                
+                        <li class="nav-item">
+                        <a class="nav-link " href="logout">Logout</a>
+                        </li>
+                
+                        <li class="nav-item" name="admin_page" id="admin_page">
+                        <a class="nav-link" href="admin/admindashboard">Admin Page</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <br/>
+
+        </div>
+
+        <div>
+            <h1 id="listing_category"></h1>
+            <br/>
+        </div>
+
+        <div id="p_listing">
+
+        </div>
+
+        <div id="nav_buttons">
+
+        </div>
+
+        <div class="align">
+            <h3 id="message_text"></h3>
+        </div>
+    </div>
+</body>
+
+<script>
+    
+    
+
+</script>
+
+</html>
