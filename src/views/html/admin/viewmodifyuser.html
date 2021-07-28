@@ -6,7 +6,9 @@
     <title>view and modify user</title>
     
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel ="stylesheet" type="text/css" href="../css/product_style.css"/>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
 
     <script>
          $(document).ready(function() {
@@ -29,18 +31,18 @@
 
 				// validate input
 				var userName = $("#user_name").val().trim();
-				var newPassword = $("#new_password").val().trim();
-				var confirmPassword = $("#confirm_password").val().trim();
+				var flexSwitchCheckDefault = $("#flexSwitchCheckDefault").val().trim();
 				
 				var anyErrors = false;
+                console.log("===>"+userName,flexSwitchCheckDefault)
 				
 				// all fields are empty, nothing to edit
-				if ( newPassword === "") {
+				if ( flexSwitchCheckDefault === "") {
 					$("#message_text").append("<p>Error: New Password is empty. Nothing to update!</p>" );
 					anyErrors = true;
 				} else {
 					// validate new password is different from current password
-					if ( newPassword === userName ) {
+					if ( flexSwitchCheckDefault === userName ) {
 						$("#message_text").append("<p>Error: New Password is the same as current Password! Nothing to update!</p>" );
 						anyErrors = true;
 					}
@@ -51,16 +53,7 @@
 						anyErrors = true;
 					}
 
-					// validate length of new password field
-					if (newPassword.length < 6){
-						$("#message_text").append("<p>Error: New Password must be at least 6 characters!</p>" );
-						anyErrors = true;
-					}
-					// validate password match
-					if (newPassword !== confirmPassword){
-						$("#message_text").append("<p>Error: New Password & Confirm Password do not match!</p>" );
-						anyErrors = true;
-					}
+					
 				}
 
 				// if error, prevent submit
@@ -70,10 +63,10 @@
 					// no error, submit POST-request
 					$.ajax({
 						method : "PUT",
-						url : "/admin/change_pass_admin",
+						url : "/admin/modify_user",
 						data : {
 							userName: userName,
-							newPassword: newPassword
+							flexSwitchCheckDefault: flexSwitchCheckDefault
 						},
 						dataType: "json",
 						success: function(result){
@@ -90,12 +83,65 @@
 						},
 						complete: function() {
 							$("#user_name").val("");
-							$("#new_password").val("");
-							$("#confirm_password").val("");
+							$("#flexSwitchCheckDefault").val("");
 						}
 					});
 				}				
 			} );
+
+            $("#delete_user").click( function(event) {
+
+        // clean input validate msg
+        $("#message_text").empty();
+
+        // validate input
+        var userName = $("#user_name").val().trim();
+
+        var anyErrors = false;
+        console.log("===>"+userName)
+
+        // all fields are empty, nothing to edit
+
+            // validate current password not empty
+            if ( userName === "" ) {
+                $("#message_text").append("<p>Error: Current Password cannot be empty! Please enter your current Password!</p>" );
+                anyErrors = true;
+            }
+
+            
+
+        // if error, prevent submit
+        if (anyErrors){
+            event.preventDefault();
+        } else {
+            // no error, submit POST-request
+            $.ajax({
+                method : "PUT",
+                url : "/admin/delete_user",
+                data : {
+                    userName: userName,
+                },
+                dataType: "json",
+                success: function(result){
+                    // alert(result.message);
+                    console.log("error in message1")
+                    $("#message_text").empty();
+                    $("#message_text").html(result.message);
+                },
+                error: function(xhr, status, err){
+                    console.log("error in message101")
+                    $("#message_text").empty();
+                    // var errorMsg = xhr.responseJSON.message;
+                    // $("#message_text").html(errorMsg);
+                },
+                complete: function() {
+                    $("#user_name").val("");
+                    $("#flexSwitchCheckDefault").val("");
+                }
+            });
+        }				
+        } );
+
 		});	
     </script>
 
@@ -116,7 +162,7 @@
         <form method ="GET" >
             <div class="form-group pt-3">
                 <label class="form-label">ENTER USER NAME</label>
-                <input type="text" class="form-control" style="width:50%" required="true">
+                <input type="text" id = "user_name" class="form-control" style="width:50%" required="true">
             </div>
 
             <div class="form-check form-switch">
@@ -124,10 +170,14 @@
                 <label class="form-check-label" for="flexSwitchCheckDefault">Block User</label>
             </div> 
 
+            <div class="align">
+                <h3 id="message_text"></h3>
+            </div>
+
             <div class="container-sm pl-5 pt-5 mx-auto">
-                <button type="submit" onclick="location.href = 'adminmodifyuser.html';" formaction="adminmodifyuser.html" name="action" id="modify_user" value="Update"class="modify btn-secondary ">Modify User</button>
-                <button type="submit" onclick="location.href = 'admindeleteuser.html';" formaction="admindeleteuser.html" name ="action" value="Delete" class="delete btn-secondary ">Delete User</button>
-                <button type="submit" onclick="location.href = 'admindashboard.html';" formaction="admindashboard.html" name ="action" value="Go Back" class="delete btn-secondary ">Delete User</button>
+                <button type="submit" name="modify_user" id="modify_user" class="modify btn-secondary ">Modify User</button>
+                <button type="submit" id="delete_user" class="delete btn-secondary ">Delete User</button>
+                <button type="submit" onclick="location.href = 'admindashboard.html';" formaction="admindashboard.html" name ="action" value="Go Back" class="delete btn-secondary ">Go Back</button>
             </div> 
 
         </form>

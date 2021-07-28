@@ -51,15 +51,14 @@ app_server.put("/admin/change_pass_admin", (req, res) => {
   
 
 // PUT-change_password_admin
-app_server.put("/admin/change_pass_admin", (req, res) => {
+app_server.put("/admin/modify_user", (req, res) => {
     try {
       console.log("PUT-change_password hit");
       
       sessionOb = req.session;
   
       var userName = req.body.userName;
-      var newPassword = req.body.newPassword;
-      var hashNewPassword = SHA2.sha_256(newPassword);
+      var flexSwitchCheckDefault = req.body.flexSwitchCheckDefault;
       
       var queryStr = "SELECT username, user_password " + 
         "FROM user " + 
@@ -76,10 +75,10 @@ app_server.put("/admin/change_pass_admin", (req, res) => {
         } else {
           
             console.log("Changing password for user '" + userName + "'!");
-            queryVar.unshift(hashNewPassword);
+            queryVar.unshift(flexSwitchCheckDefault);
   
             queryStr = "UPDATE user " + 
-              " SET `user_password`= ? " +
+              " SET `is_blocked`= ? " +
               " WHERE (`username` = ? );";
   
             // send 2nd query to change password
