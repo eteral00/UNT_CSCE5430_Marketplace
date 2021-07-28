@@ -38,18 +38,18 @@
 				
 				// all fields are empty, nothing to edit
 				if ( productId === "") {
-					$("#message_text").append("<p>Error: New Password is empty. Nothing to update!</p>" );
+					$("#message_text").append("<p>Error: ProductId cannot be empty!</p>" );
 					anyErrors = true;
 				} else {
-					// validate new password is different from current password
+					
 					if ( productId === userName ) {
-						$("#message_text").append("<p>Error: New Password is the same as current Password! Nothing to update!</p>" );
+						$("#message_text").append("<p>Error: Unknown Error!</p>" );
 						anyErrors = true;
 					}
 
 					// validate current password not empty
 					if ( userName === "" ) {
-						$("#message_text").append("<p>Error: Current Password cannot be empty! Please enter your current Password!</p>" );
+						$("#message_text").append("<p>Error: Username cannot be empty!</p>" );
 						anyErrors = true;
 					}
 
