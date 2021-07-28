@@ -4,7 +4,9 @@
   
   <link rel ="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
   <link rel ="stylesheet" type="text/css" href="../css/style.css"/>
-  
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script>
     
     function automobile() {
@@ -21,6 +23,16 @@
       sessionStorage.setItem("viewListingCategory", "furniture");
       location.href="product_listing";
     }
+
+    $(document).ready(function () {
+      var sessionUser = sessionStorage.getItem("sessionUser");
+      console.log("is admin",sessionUser.is_admin);
+      if (sessionUser.is_admin == true) {
+        $("#admin_page").show();
+      } else {
+        $("#admin_page").hide();
+      }
+    })
 
   </script>
 
@@ -41,17 +53,29 @@
             <span class="sr-only">(current)</span>
           </a>
         </li>
+
         <li class="nav-item">
           <a class="nav-link" href="update_profile">Update profile</a>
         </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="order_history">Order History</a>
+        </li>
+
         <li class="nav-item">
           <a class="nav-link" href="shoppingcart">Shopping cart</a>
         </li>
+
         <li class="nav-item">
           <a class="nav-link " href="sell_items">Selling items</a>
         </li>
-      <li class="nav-item">
+
+        <li class="nav-item">
           <a class="nav-link " href="logout">Logout</a>
+        </li>
+
+        <li class="nav-item" name="admin_page" id="admin_page">
+          <a class="nav-link" href="admin/admindashboard">Admin Page</a>
         </li>
       </ul>
     </div>
