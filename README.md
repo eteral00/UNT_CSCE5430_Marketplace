@@ -29,3 +29,5 @@ this will start the server on local machine (localhost)
 
 #for unit tests, in the project directory, run command:
 	npm run test
+
+#for additional ADMIN's Functions, install "xampp" (should leave out the mysql in the package to avoid conflicting software because we installed the standalone version already), and config xampp's apache web server to use "port 8081" (we set it up for our site to use this port, so if you use another port, it will require more config/modification)
