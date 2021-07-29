@@ -130,7 +130,58 @@
                 }				
             } );
 
+             $("#view_user  ").click( function(event) {
+
+                // clean input validate msg
+                $("#message_text").empty();
+
+                // validate input
+                var userName = $("#user_name").val().trim();
+
+                var anyErrors = false;
+                console.log("===>"+userName)
+
+                // validate username not empty
+                if ( userName === "" ) {
+                    $("#message_text").append("<p>Error: Username cannot be empty! Please enter Username!</p>" );
+                    anyErrors = true;
+                }
+
+                // if error, prevent submit
+                if (anyErrors){
+                    event.preventDefault();
+                } else {
+                    // no error, submit POST-request
+                    $.ajax({
+                        method : "PUT",
+                        url : "/admin/view_user",
+                        data : {
+                            userName: userName,
+                        },
+                        dataType: "json",
+                        success: function(result){
+                            // alert(result.message);
+                            console.log("error in message1")
+                            $("#message_text").empty();
+                            $("#message_text").html(result.message);
+                        },
+                        error: function(xhr, status, err){
+                            console.log("error in message101")
+                            $("#message_text").empty();
+                            // var errorMsg = xhr.responseJSON.message;
+                            // $("#message_text").html(errorMsg);
+                        },
+                        complete: function() {
+                            $("#user_name").val("");
+                            $("#flexSwitchCheckDefault").val("");
+                        }
+                    });
+                }				
+            } );
+
 		});	
+
+        
     </script>
 
 </head>
@@ -163,6 +214,7 @@
             <div class="container-sm pl-5 pt-5 mx-auto">
                 <button type="button" name ="go_back" value="Go Back" class="btn-primary "
                     onclick="location.href = 'admindashboard';">Go Back</button>
+                <button type="button" id="view_user" class="modify btn-secondary ">View User</button>
                 <button type="button" name="modify_user" id="modify_user" class="modify btn-secondary ">Modify User</button>
                 <button type="button" id="delete_user" class="delete btn-secondary ">Delete User</button>
             </div> 

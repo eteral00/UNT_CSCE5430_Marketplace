@@ -1454,6 +1454,77 @@ app_server.put("/admin/delete_user", (req, res) => {
   }
 });
 
+// PUT-admin_view_user
+app_server.put("/admin/view_user", (req, res) => {
+  try {
+    console.log("PUT-change_password hit");
+    
+    sessionOb = req.session;
+
+    var userName = req.body.userName;
+    
+    var queryStr = "SELECT username, user_password " + 
+      "FROM user " + 
+      "WHERE username = ? ;";
+
+    var queryVar = [userName];
+    
+    // SUGGESTION: better if create a procedure in mysql for updating password so that app server only needs to query once by submitting the required variables
+    // first query, verify user enter correct current password
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+      if(err) {
+          console.log("Error: ", err);
+          //res.status();
+      } else {
+        
+          console.log("Changing is locked for user '" + userName + "' as !" );
+
+          queryStr = "SELECT * " + 
+          "FROM user " + 
+          "WHERE username = ? ;" ;
+          // send 2nd query to change password
+          mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {
+            if(err) {
+              console.log("Error: ", err);
+              //res.status();
+            } else {
+
+              console.log("product category result: ", result_rows);
+
+              var userData = [];
+              for ( let idx = 0; idx < result_rows.length; idx++ )
+              {
+                // let productImageLink;
+                // if ( result_rows[idx].product_image_link ) {
+                //   productImageLink = result_rows[idx].product_image_link;
+                // } else {
+                //   productImageLink = "uploads/img/imagenotavailable.png";
+                // }
+                let product = { 
+                  productID : result_rows[idx].product_id,
+                  productName : result_rows[idx].product_name,
+                  productCategory : result_rows[idx].product_category,
+                  productDescription : result_rows[idx].product_description,
+                  productImageLink : productImageLink,
+                  unitPrice : result_rows[idx].unit_price,
+                  remainingQuantity : result_rows[idx].remaining_quantity
+                };
+                productListing.push(product);
+              }
+
+              console.log("Successfully changed password for user '" + userName + "'!");
+              res.status(200).json({ message : "Successfully deleted user!" });
+            }
+          });
+        }          
+      
+    });
+
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
 // PUT-admin_modify_user
 app_server.put("/admin/modify_user", (req, res) => {
   try {
