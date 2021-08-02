@@ -11,7 +11,140 @@
 
 
     <script>
-         $(document).ready(function() {
+
+        function clearForm() {
+            $("input").val("");
+        };
+        function validateInput() {
+
+            // clean input validate msg
+            $("#message_text").empty();
+
+            // validate input
+			let username = $("#user_name").val().trim();
+            let anyErrors = false;
+
+            // validate username not empty
+            if ( username === "" ) {
+                $("#message_text").append("<p>Error: Username cannot be empty! Please enter a Username!</p>" );
+                anyErrors = true;
+            }
+
+            return anyErrors;
+        };
+        
+        function toggleLockButtons(isLocked) {
+            if(isLocked) {
+                $("#lock_user").hide();
+                $("#unlock_user").show();
+            } else {
+                $("#lock_user").show();
+                $("#unlock_user").hide();
+            }
+        }
+
+        function displaySearchResult(resultList) {
+            // userList is an array of users { username, emailAddress, phoneNumber, firstName, lastName, isLocked, LockedUntilDate }
+            $("#message_text").empty();
+            
+            $("#searchResultContainer").empty();
+            let searchResultTable = document.createElement("tb");
+
+            let tableHeadingRow = document.createElement("tr");
+
+            let usernameHeading = document.createElement("th");
+            usernameHeading.innerHTML = "Username";
+            tableHeadingRow.append(usernameHeading);
+
+            let emailAddressHeading = document.createElement("th");
+            emailAddressHeading.innerHTML = "Email Address";
+            tableHeadingRow.append(emailAddressHeading);
+
+            let phoneNumberHeading = document.createElement("th");
+            phoneNumberHeading.innerHTML = "Phone Number";
+            tableHeadingRow.append(phoneNumberHeading);
+
+            let firstNameHeading = document.createElement("th");
+            firstNameHeading.innerHTML = "First Name";
+            tableHeadingRow.append(firstNameHeading);
+
+            let lastNameHeading = document.createElement("th");
+            lastNameHeading.innerHTML = "Last Name";
+            tableHeadingRow.append(lastNameHeading);
+
+            let isLockedHeading = document.createElement("th");
+            isLockedHeading.innerHTML = "Is Locked";
+            tableHeadingRow.append(isLockedHeading);
+
+            let lockedUntilDateHeading = document.createElement("th");
+            lockedUntilDateHeading.innerHTML = "Locked Until Date";
+            tableHeadingRow.append(lockedUntilDateHeading);
+
+            let selectHeading = document.createElement("th");
+            selectHeading.innerHTML = "SELECT";
+            tableHeadingRow.append(selectHeading);
+
+            searchResultTable.append(tableHeadingRow);
+
+            $.each(resultList, function(idx, userRecord) {
+                let recordRow = document.createElement("tr");
+                recordRow.id = "user__" + userRecord.username;
+
+                let usernameCell = document.createElement("td");
+                usernameCell.innerHTML = userRecord.username;
+                recordRow.append(usernameCell);
+
+                let emailAddressCell = document.createElement("td");
+                emailAddressCell.innerHTML = userRecord.emailAddress;
+                recordRow.append(emailAddressCell);
+
+                let phoneNumberCell = document.createElement("td");
+                phoneNumberCell.innerHTML = userRecord.phoneNumber;
+                recordRow.append(phoneNumberCell);
+
+                let firstNameCell = document.createElement("td");
+                firstNameCell.innerHTML = userRecord.firstName;
+                recordRow.append(firstNameCell);
+
+                let lastNameCell = document.createElement("td");
+                lastNameCell.innerHTML = userRecord.lastName;
+                recordRow.append(lastNameCell);
+
+                let isLockedCell = document.createElement("td");
+                isLockedCell.innerHTML = userRecord.isLocked;
+                recordRow.append(isLockedCell);
+
+                let lockedUntilDateCell = document.createElement("td");
+                lockedUntilDateCell.innerHTML = userRecord.lockedUntilDate;
+                recordRow.append(lockedUntilDateCell);
+
+                let selectButtonCell = document.createElement("td");
+                let selectButton = document.createElement("button");
+                selectButton.innerHTML = "Select"
+                selectButton.onclick = function () {
+                    $("#user_name").val(userRecord.username);
+                    $("#userFirstName").val(userRecord.firstName);
+                    $("#userLastName").val(userRecord.lastName);
+                    $("#userEmail").val(userRecord.emailAddress);
+                    $("#userPhone").val(userRecord.phoneNumber);
+                    $("#userLockedLabel").text(userRecord.isLocked);
+                    
+                    toggleLockButtons(userRecord.isLocked);
+                };
+                selectButtonCell.append(selectButton);
+                recordRow.append(selectButtonCell);
+
+                searchResultTable.append(recordRow);
+
+            });
+
+
+
+            $("#searchResultContainer").append(searchResultTable);
+        };
+
+
+        $(document).ready(function() {
 			
 			// clean URL
 			var url = window.location.toString();
@@ -23,77 +156,149 @@
 			// clean input validate msg
 			$("#message_text").empty();
 
-			// validate input before submitting POST-request
+            // view button click event
+            $("#view_user").click( function(event) {
+
+                let username = $("#user_name").val().trim();
+
+                let anyErrors = false;
+
+                // validate username not empty
+                if ( username === "" ) {
+                    $("#message_text").append("<p>Error: Username cannot be empty! Please enter a Username!</p>" );
+                    anyErrors = true;
+                }
+                
+                // if error, prevent submit
+                if (anyErrors){
+                    event.preventDefault();
+                } else {
+                    // no error, submit POST-request
+                    $.ajax({
+                        method : "POST",
+                        url : "/admin/manage_user/view",
+                        data : {
+                            username: username,
+                        },
+                        dataType: "json",
+                        success: function(result){
+                            $("#message_text").empty();
+                            console.log(result);
+                            
+                            clearForm();
+                            
+                            displaySearchResult(result.userList);
+
+                        },
+                        error: function(xhr, status, err){
+                            $("#message_text").empty();
+                            var errorMsg = xhr.responseJSON.message;
+                            $("#message_text").html(errorMsg);
+                        }
+                    });
+                }				
+                });
+
+            
+			// modify button click event
 			$("#modify_user").click( function(event) {
-
-				// clean input validate msg
-				$("#message_text").empty();
-
-				// validate input
-				var userName = $("#user_name").val().trim();
-				var flexSwitchCheckDefault = $("#flexSwitchCheckDefault").val().trim();
 				
-				var anyErrors = false;
-                console.log("===>"+userName,flexSwitchCheckDefault)
-				
-				// all fields are empty, nothing to edit
-				if ( flexSwitchCheckDefault === "") {
-					$("#message_text").append("<p>Error: Nothing to edit!</p>" );
+                let username = $("#user_name").val().trim();
+                let firstName = $("#userFirstName").val().trim();
+                let lastName = $("#userLastName").val().trim();
+                let emailAddress = $("#userEmail").val().trim();
+                let phoneNumber = $("#userPhone").val().trim();
+                let lockCheck = $("#lockUserCheck").prop("checked");
+
+                const emailForm = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+				const digits = /^[0-9]+$/;
+				let anyErrors = false;
+
+                // validate username not empty
+                if ( username === "" ) {
+                    $("#message_text").append("<p>Error: Username cannot be empty! Please enter Username!</p>" );
+                    anyErrors = true;
+                }
+
+                // all info fields are empty, nothing to edit
+				if ( firstName === "" && lastName === "" && userPhone === "" && userEmail === "" ) {
+					$("#message_text").append("<p>Error: All User's info fields are empty. Nothing to update!</p>" );
 					anyErrors = true;
 				} else {
-					// validate username not empty
-                    if ( userName === "" ) {
-                        $("#message_text").append("<p>Error: Username cannot be empty! Please enter Username!</p>" );
-                        anyErrors = true;
-                    }			
+					// validate length of first & last names
+					if (firstName.length > 50 || lastName.length > 50) {
+						$("#message_text").append("<p>Error: First & Last Name cannot be more than 50 characters!</p>" );
+						anyErrors = true;
+					}
+
+					// validate phone number contains only numbers
+					if (phoneNumber !== "" && !digits.test(phoneNumber)) {
+						$("#message_text").append("<p>Error: Phone Number must contain only digits!</p>" );
+						anyErrors = true;
+					}
+					// validate length of phone number
+					if ( phoneNumber.length > 10){
+						$("#message_text").append("<p>Error: Phone Number cannot be longer than 10 digits!</p>" );
+						anyErrors = true;
+					}
+
+					// validate email in valid format
+					if (emailAddress !== "" && !emailForm.test(emailAddress)) {
+						$("#message_text").append("<p>Error: Invalid Email format! Please enter a valid email in the form 'abc@abc.xyz'!</p>" );
+						anyErrors = true;
+					}
+					// validate length of email address
+					if (emailAddress.length > 255){
+						$("#message_text").append("<p>Error: Email Address cannot be more than 255 characters!</p>" );
+						anyErrors = true;
+					}
 				}
 
-				// if error, prevent submit
-				if (anyErrors){
-					event.preventDefault();
-				} else {
-					// no error, submit POST-request
-					$.ajax({
-						method : "PUT",
-						url : "/admin/modify_user",
-						data : {
-							userName: userName,
-							flexSwitchCheckDefault: flexSwitchCheckDefault
-						},
-						dataType: "json",
-						success: function(result){
-							// alert(result.message);
-                            console.log("error in message1")
-							$("#message_text").empty();
-							$("#message_text").html(result.message);
-						},
-						error: function(xhr, status, err){
-                            console.log("error in message101")
-							$("#message_text").empty();
-							// var errorMsg = xhr.responseJSON.message;
-							// $("#message_text").html(errorMsg);
-						},
-						complete: function() {
-							$("#user_name").val("");
-							$("#flexSwitchCheckDefault").val("");
-						}
-					});
-				}				
-			} );
+                if (anyErrors){
+                        event.preventDefault();
+                    } else {
+                        let user = {
+                            username : username,
+                            firstName : firstName,
+                            lastName : lastName,
+                            emailAddress : emailAddress,
+                            phoneNumber : phoneNumber
+                        };
+                        // no error, submit POST-request
+                        $.ajax({
+                            method : "PUT",
+                            url : "/admin/manage_user/modify",
+                            data : user,
+                            dataType: "json",
+                            success: function(result){
+                                $("#message_text").empty();
+                                $("#message_text").html(result.message);
 
-            $("#delete_user").click( function(event) {
+                            },
+                            error: function(xhr, status, err){
+                                $("#message_text").empty();
+                                var errorMsg = xhr.responseJSON.message;
+                                $("#message_text").html(errorMsg);
+                            }
+                        });
+                    }	
+			});
+
+
+            
+            // lock button click event
+            $("#lock_user").click( function(event) {
 
                 // clean input validate msg
                 $("#message_text").empty();
 
                 // validate input
-                var userName = $("#user_name").val().trim();
+                var username = $("#user_name").val().trim();
 
                 var anyErrors = false;
-                console.log("===>"+userName)
 
                 // validate username not empty
-                if ( userName === "" ) {
+                if ( username === "" ) {
                     $("#message_text").append("<p>Error: Username cannot be empty! Please enter Username!</p>" );
                     anyErrors = true;
                 }
@@ -102,82 +307,77 @@
                 if (anyErrors){
                     event.preventDefault();
                 } else {
+
                     // no error, submit POST-request
                     $.ajax({
                         method : "PUT",
-                        url : "/admin/delete_user",
+                        url : "/admin/manage_user/lock",
                         data : {
-                            userName: userName,
+                            username: username,
                         },
                         dataType: "json",
                         success: function(result){
-                            // alert(result.message);
-                            console.log("error in message1")
                             $("#message_text").empty();
                             $("#message_text").html(result.message);
+
+                            toggleLockButtons(true);
                         },
                         error: function(xhr, status, err){
-                            console.log("error in message101")
                             $("#message_text").empty();
-                            // var errorMsg = xhr.responseJSON.message;
-                            // $("#message_text").html(errorMsg);
-                        },
-                        complete: function() {
-                            $("#user_name").val("");
-                            $("#flexSwitchCheckDefault").val("");
+                            var errorMsg = xhr.responseJSON.message;
+                            $("#message_text").html(errorMsg);
                         }
                     });
                 }				
             } );
 
-             $("#view_user  ").click( function(event) {
+            // unlock button click event
+            $("#unlock_user").click( function(event) {
 
-                // clean input validate msg
-                $("#message_text").empty();
+            // clean input validate msg
+            $("#message_text").empty();
 
-                // validate input
-                var userName = $("#user_name").val().trim();
+            // validate input
+            var username = $("#user_name").val().trim();
 
-                var anyErrors = false;
-                console.log("===>"+userName)
+            var anyErrors = false;
 
-                // validate username not empty
-                if ( userName === "" ) {
-                    $("#message_text").append("<p>Error: Username cannot be empty! Please enter Username!</p>" );
-                    anyErrors = true;
-                }
+            // validate username not empty
+            if ( username === "" ) {
+                $("#message_text").append("<p>Error: Username cannot be empty! Please enter Username!</p>" );
+                anyErrors = true;
+            }
 
-                // if error, prevent submit
-                if (anyErrors){
-                    event.preventDefault();
-                } else {
-                    // no error, submit POST-request
-                    $.ajax({
-                        method : "PUT",
-                        url : "/admin/view_user",
-                        data : {
-                            userName: userName,
-                        },
-                        dataType: "json",
-                        success: function(result){
-                            // alert(result.message);
-                            console.log("error in message1")
-                            $("#message_text").empty();
-                            $("#message_text").html(result.message);
-                        },
-                        error: function(xhr, status, err){
-                            console.log("error in message101")
-                            $("#message_text").empty();
-                            // var errorMsg = xhr.responseJSON.message;
-                            // $("#message_text").html(errorMsg);
-                        },
-                        complete: function() {
-                            $("#user_name").val("");
-                            $("#flexSwitchCheckDefault").val("");
-                        }
-                    });
-                }				
+            // if error, prevent submit
+            if (anyErrors){
+                event.preventDefault();
+            } else {
+
+                // no error, submit POST-request
+                $.ajax({
+                    method : "PUT",
+                    url : "/admin/manage_user/unlock",
+                    data : {
+                        username: username,
+                    },
+                    dataType: "json",
+                    success: function(result){
+                        $("#message_text").empty();
+                        $("#message_text").html(result.message);
+
+                        toggleLockButtons(false);
+
+                    },
+                    error: function(xhr, status, err){
+                        $("#message_text").empty();
+                        var errorMsg = xhr.responseJSON.message;
+                        $("#message_text").html(errorMsg);
+                    }
+                });
+            }				
             } );
+
+            
 
 		});	
 
@@ -195,17 +395,12 @@
             </label>
         </div>
 
-        <h4 class="container-sm mx-auto"><b>VIEW AND MODIFY Users </b></h4>
+        <h4 class="container-sm mx-auto"><b>VIEW AND MODIFY USERS </b></h4>
         
             <div class="form-group pt-3">
-                <label class="form-label">ENTER USER NAME</label>
-                <input type="text" id = "user_name" class="form-control" style="width:50%" required="true">
+                <label class="form-label">Enter Username: </label>
+                <input type="text" id="user_name" class="form-control" style="width:50%" required="true">
             </div>
-
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" name="flexSwitchCheckDefault" id="flexSwitchCheckDefault" />
-                <label class="form-check-label" for="flexSwitchCheckDefault">Block User</label>
-            </div> 
 
             <div class="align">
                 <h3 id="message_text"></h3>
@@ -216,8 +411,61 @@
                     onclick="location.href = 'admindashboard';">Go Back</button>
                 <button type="button" id="view_user" class="modify btn-secondary ">View User</button>
                 <button type="button" name="modify_user" id="modify_user" class="modify btn-secondary ">Modify User</button>
-                <button type="button" id="delete_user" class="delete btn-secondary ">Delete User</button>
-            </div> 
+                <button type="button" id="lock_user" class="delete btn-secondary" value="lock">Lock</button>
+                <button type="button" id="unlock_user" class="delete btn-secondary" value="unlock">Unlock</button>
+                
+            </div>
+
+            <div name="userInfoContainer" id="userInfoContainer">
+                </br>
+                <table>
+                    <tr>
+                        <th>
+                            <label for="userFirstName">First Name:</label>
+                        </th>
+                        <td>
+                            <input type="text" name="userFirstName" id="userFirstName">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <label for="userLastName">Last Name:</label>
+                        </th>
+                        <td>
+                            <input type="text" name="userLastName" id="userLastName">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <label for="userEmail">Email Address:</label>
+                        </th>
+                        <td>
+                            <input type="email" name="userEmail" id="userEmail">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <label for="">Phone:</label>
+                        </th>
+                        <td>
+                            <input type="tel" name="userPhone" id="userPhone">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <label for="">Is Locked?</label>
+                        </th>
+                        <td>
+                            <label name="userLockedLabel" id="userLockedLabel"></label>
+                        </td>
+                    </tr>
+                </table>
+            </br>
+            </div>
+            
+            <div name="searchResultContainer" id="searchResultContainer">
+                
+            </div>
     </div>
     
 </bosdy>

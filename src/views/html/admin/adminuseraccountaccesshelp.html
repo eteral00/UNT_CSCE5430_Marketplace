@@ -25,6 +25,7 @@
 		function clearForm() {
 			$("input").val("");
 		};
+
         $(document).ready(function() {
 			
 			// clean URL
@@ -97,17 +98,17 @@
                             console.log("error in message1")
 							$("#message_text").empty();
 							$("#message_text").html(result.message);
+
+							clearForm();
+							//$("#user_name").val("");
+							//$("#new_password").val("");
+							//$("#confirm_password").val("");
 						},
 						error: function(xhr, status, err){
                             console.log("error in message101")
 							$("#message_text").empty();
-							// var errorMsg = xhr.responseJSON.message;
-							// $("#message_text").html(errorMsg);
-						},
-						complete: function() {
-							$("#user_name").val("");
-							$("#new_password").val("");
-							$("#confirm_password").val("");
+							var errorMsg = xhr.responseJSON.message;
+							$("#message_text").html(errorMsg);
 						}
 					});
 				}				
@@ -129,17 +130,17 @@
         <h4 class="container-sm mx-auto"><b>Account Access Help </b></h4>
         
             <div class="form-row pt-3">
-                <label class="form-label pr-5"> ENTER USERNAME &nbsp;</label>
+                <label class="form-label pr-5">ENTER USERNAME &nbsp;</label>
                 <input type="text" name="user_name" id="user_name" class="form-control" style="width:40%" required="true">
             </div> 
             
             <div class="form-row pt-3">
-                <label class="form-label pr-5"> ENTER PASSWORD &nbsp;</label>
+                <label class="form-label pr-5">ENTER PASSWORD &nbsp;</label>
                 <input type="password" name="new_password" id="new_password" class="form-control" name="pwd1" style="width:40%" required="true">
             </div> 
 
             <div class="form-row pt-3">
-                <label class="form-label pr-3"> CONFIRM PASSOWORD &nbsp;</label>
+                <label class="form-label pr-3">CONFIRM PASSWORD &nbsp;</label>
                 <input type="password" name="confirm_password" id="confirm_password" class="form-control" name="pwd2" style="width:40%" required="true">
             </div>
 

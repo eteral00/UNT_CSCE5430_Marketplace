@@ -40,91 +40,54 @@
                 $("#orderHistoryContainer").empty().append("<h1>You have no Item posted for sales!</h1>");
             }
             else {
-                //$.each(orderHistory, function(idx, orderEntry) {
-                    /*
-                    var orderTotal = 0;
-                    var subTotal = 0;
-                    var taxes = 0;
-                    var shippingCost = 0;
-                    */
-                    //var itemEntryContainer = document.createElement("div");
-                    //historyEntryContainer.id="order_" + productDetails.productId;
-                    /*
-                    var orderLabelContainer = document.createElement("div");
-                    //orderLabelContainer.className= "row align-items-center";
-                    orderLabelContainer.style.display= "block";
-                    orderLabelContainer.style.verticalAlign= "top";
-                    var orderNumberContainer = document.createElement("h3");
-                    orderNumberContainer.innerHTML= "Order Number: " + "<b>" + orderEntry.orderId + "</b>";
-                    orderNumberContainer.style.display= "block";
-                    orderNumberContainer.style.verticalAlign= "top";
-                    orderLabelContainer.append(orderNumberContainer);
-                    let lnBreak = document.createElement("br");
-                    orderLabelContainer.append(lnBreak);
-                    var orderDateContainer = document.createElement("h4");
-                    orderDateContainer.innerHTML= "Order Date: " + "<b>" + orderEntry.orderDate + "</b>";
-                    orderDateContainer.style.display= "block";
 
-                    orderLabelContainer.append(orderDateContainer);
-                    historyEntryContainer.append(orderLabelContainer);
+                var postedItemListContainer = document.createElement("div");
+                postedItemListContainer.className= "prod col align-items-left";
 
-                    var orderEntryContainer = document.createElement("div");
-                    orderEntryContainer.className= "row";
-                    var orderItemListContainer = document.createElement("div");
-                    orderItemListContainer.className= "prod col align-items-left";
-                    var orderSummaryContainer = document.createElement("div");
-                    orderSummaryContainer.className= "prod col align-items-right";
-                    orderSummaryContainer.setAttribute("vertical-align","top");
-                    */
-
-                    var postedItemListContainer = document.createElement("div");
-                    postedItemListContainer.className= "prod col align-items-left";
-
-                    $.each(productListing, function(idx, productDetails) {
-                        let productContainer = document.createElement("div");
-                        productContainer.id= "item_" + productDetails.productId;
-                        
-                        let productImageContainer = document.createElement("img");
-                        productImageContainer.className= "rounded";
-                        productImageContainer.alt= "Rounded Image";
-                        productImageContainer.height= 100;
-                        productImageContainer.src= productDetails.productImageLink;
-                        productContainer.append(productImageContainer);
-
-                        let productNameContainer = document.createElement("div");
-                        productNameContainer.className= "container-sm  px-3 my-3 border bg-secondary";
-                        productNameContainer.innerHTML= "<h4>" + productDetails.productName + "</h4>";
-                        productContainer.append(productNameContainer);
-
-                        let productCategoryContainer = document.createElement("h5");
-                        productCategoryContainer.innerHTML= "CATEGORY: " + "<b>$" + productDetails.productCategory + "</b>";
-                        productContainer.append(productCategoryContainer);
-
-                        let productPriceContainer = document.createElement("h5");
-                        productPriceContainer.innerHTML= "PRICE: " + "<b>$" + productDetails.unitPrice + "</b>";
-                        productContainer.append(productPriceContainer);
-
-                        let remainingQuantityContainer = document.createElement("h5");
-                        remainingQuantityContainer.innerHTML= "QUANTITY: " + "<b>" + productDetails.remainingQuantity + "</b>";
-                        productContainer.append(remainingQuantityContainer);
-                        
-                        //
-
-                        postedItemListContainer.prepend(productContainer);
-                        let itemBreak = document.createElement("div");
-                        itemBreak.className="row";
-                        itemBreak.style.background="white";
-                        itemBreak.innerHTML="</br></br></br>";
-                        postedItemListContainer.prepend(itemBreak);
+                $.each(productListing, function(idx, productDetails) {
+                    let productContainer = document.createElement("div");
+                    productContainer.id= "item__" + productDetails.productId;
                     
-                    }); 
+                    let productImageContainer = document.createElement("img");
+                    productImageContainer.className= "rounded";
+                    productImageContainer.alt= "Rounded Image";
+                    productImageContainer.height= 100;
+                    productImageContainer.src= productDetails.productImageLink;
+                    productContainer.append(productImageContainer);
+
+                    let productNameContainer = document.createElement("div");
+                    productNameContainer.className= "container-sm  px-3 my-3 border bg-secondary";
+                    productNameContainer.innerHTML= "<h4>" + productDetails.productName + "</h4>";
+                    productContainer.append(productNameContainer);
+
+                    let productCategoryContainer = document.createElement("h5");
+                    productCategoryContainer.innerHTML= "CATEGORY: " + "<b>$" + productDetails.productCategory + "</b>";
+                    productContainer.append(productCategoryContainer);
+
+                    let productPriceContainer = document.createElement("h5");
+                    productPriceContainer.innerHTML= "PRICE: " + "<b>$" + productDetails.unitPrice + "</b>";
+                    productContainer.append(productPriceContainer);
+
+                    let remainingQuantityContainer = document.createElement("h5");
+                    remainingQuantityContainer.innerHTML= "QUANTITY: " + "<b>" + productDetails.remainingQuantity + "</b>";
+                    productContainer.append(remainingQuantityContainer);
                     
-                    
-                    $("#postedItemHistoryContainer").append(postedItemListContainer);
-                    
-                //}); // end order history $.each()
+                    //
+
+                    postedItemListContainer.prepend(productContainer);
+                    let itemBreak = document.createElement("div");
+                    itemBreak.className="row";
+                    itemBreak.style.background="white";
+                    itemBreak.innerHTML="</br></br></br>";
+                    postedItemListContainer.prepend(itemBreak);
+                
+                }); 
+                                
+                $("#postedItemHistoryContainer").append(postedItemListContainer);                    
+                
             }
         }
+
 
         $(document).ready(function() {
             var sessionUser = JSON.parse(sessionStorage.getItem("sessionUser"));
