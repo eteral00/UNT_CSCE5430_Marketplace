@@ -44,7 +44,7 @@
         }
 
         function displaySearchResult(resultList) {
-            // userList is an array of users { username, emailAddress, phoneNumber, firstName, lastName, isLocked, LockedUntilDate }
+            // resultList is an array of users { username, emailAddress, phoneNumber, firstName, lastName, isLocked, LockedUntilDate }
             $("#message_text").empty();
             
             $("#searchResultContainer").empty();
@@ -129,6 +129,7 @@
                     $("#userPhone").val(userRecord.phoneNumber);
                     $("#userLockedLabel").text(userRecord.isLocked);
                     
+                    $("#userInfoContainer").show();
                     toggleLockButtons(userRecord.isLocked);
                 };
                 selectButtonCell.append(selectButton);
@@ -155,6 +156,8 @@
 			
 			// clean input validate msg
 			$("#message_text").empty();
+            // hide user info container
+            $("#userInfoContainer").hide();
 
             // view button click event
             $("#view_user").click( function(event) {
@@ -178,7 +181,7 @@
                         method : "POST",
                         url : "/admin/manage_user/view",
                         data : {
-                            username: username,
+                            username: username
                         },
                         dataType: "json",
                         success: function(result){
@@ -310,7 +313,7 @@
                         method : "PUT",
                         url : "/admin/manage_user/lock",
                         data : {
-                            username: username,
+                            username: username
                         },
                         dataType: "json",
                         success: function(result){
@@ -357,7 +360,7 @@
                     method : "PUT",
                     url : "/admin/manage_user/unlock",
                     data : {
-                        username: username,
+                        username: username
                     },
                     dataType: "json",
                     success: function(result){
@@ -386,35 +389,39 @@
 </head>
 
 <body>
-    <div class="container-sm bg-light w-50 align-items-center pt-5 mx-auto">
-        <div style="float:right">
-            <label class="logout" for="admin_logout">
-                <button type="button" class="btn-primary" name="admin_logout" id="admin_logout" value="LOGOUT" 
-                    onclick="location.href = '../logout';">LOGOUT</button>
-            </label>
-        </div>
-
-        <h4 class="container-sm mx-auto"><b>VIEW AND MODIFY USERS </b></h4>
-        
-            <div class="form-group pt-3">
-                <label class="form-label">Enter Username: </label>
-                <input type="text" id="user_name" class="form-control" style="width:50%" required="true">
+    <div>
+        <div class="container-sm bg-light w-50 align-items-center pt-5 mx-auto">
+            <div style="float:right">
+                <label class="logout" for="admin_logout">
+                    <button type="button" class="btn-primary" name="admin_logout" id="admin_logout" value="LOGOUT" 
+                        onclick="location.href = '../logout';">LOGOUT</button>
+                </label>
             </div>
 
-            <div class="align">
-                <h3 id="message_text"></h3>
-            </div>
+            <h4 class="container-sm mx-auto"><b>VIEW AND MODIFY USERS </b></h4>
+            
+                <div class="form-group pt-3">
+                    <label class="form-label">Enter Username: </label>
+                    <input type="text" id="user_name" class="form-control" style="width:50%" required="true">
+                </div>
 
-            <div class="container-sm pl-5 pt-5 mx-auto">
-                <button type="button" name ="go_back" value="Go Back" class="btn-primary "
-                    onclick="location.href = 'admindashboard';">Go Back</button>
-                <button type="button" id="view_user" class="modify btn-secondary ">View User</button>
-                <button type="button" name="modify_user" id="modify_user" class="modify btn-secondary ">Modify User</button>
-                <button type="button" id="lock_user" class="delete btn-secondary" value="lock">Lock</button>
-                <button type="button" id="unlock_user" class="delete btn-secondary" value="unlock">Unlock</button>
+                <div class="align">
+                    <h3 id="message_text"></h3>
+                </div>
+
+                <div class="container-sm pl-5 pt-5 mx-auto">
+                    <button type="button" name ="go_back" value="Go Back" class="btn-primary "
+                        onclick="location.href = 'admindashboard';">Go Back</button>
+                    <button type="button" id="view_user" class="modify btn-secondary ">View User</button>
+                    <button type="button" name="modify_user" id="modify_user" class="modify btn-secondary ">Modify User</button>
+                    <button type="button" id="lock_user" class="delete btn-secondary" value="lock">Lock</button>
+                    <button type="button" id="unlock_user" class="delete btn-secondary" value="unlock">Unlock</button>
+                    
+                </div>
+
                 
-            </div>
-
+        </div>
+        <div class="container-sm bg-light align-items-center pt-5 mx-auto">
             <div name="userInfoContainer" id="userInfoContainer">
                 </br>
                 <table>
@@ -459,12 +466,13 @@
                         </td>
                     </tr>
                 </table>
-            </br>
+                </br>
             </div>
-            
+        
             <div name="searchResultContainer" id="searchResultContainer">
                 
             </div>
+        </div>
     </div>
     
 </bosdy>

@@ -45,7 +45,7 @@
         }
 
         function displaySearchResult(resultList) {
-            // userList is an array of orders { orderId, orderDate, buyerUsername, paymentMethodId, paymentMethodType, paymentIsLocked }
+            // resultList is an array of orders { orderId, orderDate, buyerUsername, paymentMethodId, paymentMethodType, paymentIsLocked }
             $("#message_text").empty();
             
             $("#searchResultContainer").empty();
@@ -65,9 +65,9 @@
             orderTotalHeading.innerHTML = "Order Total";
             tableHeadingRow.append(orderTotalHeading);
 
-            let buyUsernameHeading = document.createElement("th");
-            buyUsernameHeading.innerHTML = "Buyer Username";
-            tableHeadingRow.append(buyUsernameHeading);
+            let buyerUsernameHeading = document.createElement("th");
+            buyerUsernameHeading.innerHTML = "Buyer Username";
+            tableHeadingRow.append(buyerUsernameHeading);
 
             let paymentMethodTypeHeading = document.createElement("th");
             paymentMethodTypeHeading.innerHTML = "Payment Method Type";
@@ -122,8 +122,10 @@
                     $("#buyerUsernameLabel").text(orderRecord.buyerUsername);
                     $("#paymentMethodTypeLabel").text(orderRecord.paymentMethodType);
                     $("#paymentLockedLabel").text(orderRecord.paymentIsLocked);
+                    $("#paymentMethodIdLabel").text(orderRecord.paymentMethodId);
                     selectedPaymentMethodId = orderRecord.paymentMethodId;
                     
+                    $("#orderInfoContainer").show();
                     toggleLockButtons(orderRecord.paymentIsLocked);
                 };
                 selectButtonCell.append(selectButton);
@@ -132,9 +134,6 @@
                 searchResultTable.append(recordRow);
 
             });
-
-
-
             $("#searchResultContainer").append(searchResultTable);
         };
 
@@ -150,6 +149,8 @@
 			
 			// clean input validate msg
 			$("#message_text").empty();
+            // hide order info container
+            $("#orderInfoContainer").hide();
 
             // view button click event
             $("#view_payment").click( function(event) {
@@ -196,17 +197,19 @@
 
                 // clean input validate msg
                 $("#message_text").empty();
-                console.log("selected payment method id: ", selectedPaymentMethodId);
+                
                 // if error, prevent submit
                 if (!selectedPaymentMethodId){
                     event.preventDefault();
+                    $("#message_text").empty();
+                    $("#message_text").append("<p>Error: You haven't selected a payment to lock! Please select a payment to lock!</p>" );
                 } else {
                     // no error, submit PUT-request
                     $.ajax({
                         method : "PUT",
                         url : "/admin/manage_order/payment/lock",
                         data : {
-                            paymentMethodId: selectedPaymentMethodId,
+                            paymentMethodId: selectedPaymentMethodId
                         },
                         dataType: "json",
                         success: function(result){
@@ -228,17 +231,19 @@
 
                 // clean input validate msg
                 $("#message_text").empty();
-                console.log("selected payment method id: ", selectedPaymentMethodId);
+                
                 // if error, prevent submit
                 if (!selectedPaymentMethodId){
                     event.preventDefault();
+                    $("#message_text").empty();
+                    $("#message_text").append("<p>Error: You haven't selected a payment to unlock! Please select a payment to unlock!</p>" );
                 } else {
                     // no error, submit PUT-request
                     $.ajax({
                         method : "PUT",
                         url : "/admin/manage_order/payment/unlock",
                         data : {
-                            paymentMethodId: selectedPaymentMethodId,
+                            paymentMethodId: selectedPaymentMethodId
                         },
                         dataType: "json",
                         success: function(result){
@@ -263,18 +268,18 @@
 </head>
 
 <body>
-    <div class="container-sm bg-light w-50 align-items-center pt-5 mx-auto">
-        <div style="float:right">
-            <label class="logout" for="admin_logout">
-                <button type="button" class="btn-primary" name="admin_logout" id="admin_logout" value="LOGOUT" 
-                    onclick="location.href = '../logout';">LOGOUT</button>
-            </label>
-        </div>
+    <div>
+        <div class="container-sm bg-light w-50 align-items-center pt-5 mx-auto">
+            <div style="float:right">
+                <label class="logout" for="admin_logout">
+                    <button type="button" class="btn-primary" name="admin_logout" id="admin_logout" value="LOGOUT" 
+                        onclick="location.href = '../logout';">LOGOUT</button>
+                </label>
+            </div>
 
-        <h4 class="container-sm mx-auto"><b>VIEW AND MODIFY USERS </b></h4>
-        
+            <h4 class="container-sm mx-auto"><b>MANAGE ORDER & PAYMENT </b></h4> 
             <div class="form-group pt-3">
-                <label class="form-label">Enter Username: </label>
+                <label class="form-label">Enter Username to find orders for matched users: </label>
                 <input type="text" id="user_name" class="form-control" style="width:50%" required="true">
             </div>
 
@@ -291,8 +296,10 @@
                 <button type="button" id="unlock_payment" class="delete btn-secondary" value="unlock">Unlock</button>
                 
             </div>
+        </div>
 
-            <div name="userInfoContainer" id="userInfoContainer">
+            <div class="container-sm bg-light align-items-center pt-5 mx-auto">
+                <div name="orderInfoContainer" id="orderInfoContainer">
                 </br>
                 <table>
                     <tr>
@@ -321,7 +328,7 @@
                     </tr>
                     <tr>
                         <th>
-                            <label for="buyerUsernameLabel">Buyer Username</label>
+                            <label for="buyerUsernameLabel">Buyer Username:</label>
                         </th>
                         <td>
                             <label name="buyerUsernameLabel" id="buyerUsernameLabel"></label>
@@ -329,10 +336,18 @@
                     </tr>
                     <tr>
                         <th>
-                            <label for="paymentMethodTypeLabel">Payment Method Type</label>
+                            <label for="paymentMethodTypeLabel">Payment Method Type:</label>
                         </th>
                         <td>
                             <label name="paymentMethodTypeLabel" id="paymentMethodTypeLabel"></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <label for="paymentMethodIdLabel">Payment Method Id:</label>
+                        </th>
+                        <td>
+                            <label name="paymentMethodIdLabel" id="paymentMethodIdLabel"></label>
                         </td>
                     </tr>
                     <tr>
@@ -344,12 +359,13 @@
                         </td>
                     </tr>
                 </table>
-            </br>
+                </br>
             </div>
-            
+    
             <div name="searchResultContainer" id="searchResultContainer">
-                
+        
             </div>
+        </div>        
     </div>
     
 </bosdy>

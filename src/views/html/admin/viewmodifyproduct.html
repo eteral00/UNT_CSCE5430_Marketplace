@@ -11,6 +11,139 @@
 
 
     <script>
+
+        var selectedProductId;
+
+        function toggleLockButtons(isLocked) {
+            if(isLocked) {
+                $("#lock_product").hide();
+                $("#unlock_product").show();
+            } else {
+                $("#lock_product").show();
+                $("#unlock_product").hide();
+            }
+        }
+
+        function displaySearchResult(resultList) {
+            // resultList is an array of products 
+            // { productId, productName, productCategory, productDescription, productImageLink, unitPrice, initialQuantity, remainingQuantity, sellerUsername, isRemoved }
+            $("#message_text").empty();
+            
+            $("#searchResultContainer").empty();
+            let searchResultTable = document.createElement("tb");
+
+            let tableHeadingRow = document.createElement("tr");
+
+            let productIdHeading = document.createElement("th");
+            productIdHeading.innerHTML = "Product ID";
+            
+            let sellerUsernameHeading = document.createElement("th");
+            sellerUsernameHeading.innerHTML = "Seller Username";
+            
+            let productNameHeading = document.createElement("th");
+            productNameHeading.innerHTML = "Product Name";
+            
+            let productCategoryHeading = document.createElement("th");
+            productCategoryHeading.innerHTML = "Product Category";
+            
+            let isRemovedHeading = document.createElement("th");
+            isRemovedHeading.innerHTML = "Is Removed?";
+            
+            let productDescriptionHeading = document.createElement("th");
+            productDescriptionHeading.innerHTML = "Product Description";
+            
+            let unitPriceHeading = document.createElement("th");
+            unitPriceHeading.innerHTML = "Unit Price";
+            
+            let remainingQuantityHeading = document.createElement("th");
+            remainingQuantityHeading.innerHTML = "Remaining Quantity";
+
+            let selectHeading = document.createElement("th");
+            selectHeading.innerHTML = "";
+            
+
+            tableHeadingRow.append(productIdHeading);
+            tableHeadingRow.append(sellerUsernameHeading);
+            tableHeadingRow.append(productNameHeading);
+            tableHeadingRow.append(productCategoryHeading);
+            tableHeadingRow.append(productDescriptionHeading);
+            tableHeadingRow.append(unitPriceHeading);
+            tableHeadingRow.append(remainingQuantityHeading);
+            tableHeadingRow.append(isRemovedHeading);
+            tableHeadingRow.append(selectHeading);
+
+            searchResultTable.append(tableHeadingRow);
+
+            $.each(resultList, function(idx, productRecord) {
+                let recordRow = document.createElement("tr");
+                recordRow.id = "product__" + productRecord.productId;
+
+                let productIdCell = document.createElement("td");
+                productIdCell.innerHTML = productRecord.productId;
+                
+                let sellerUsernameCell = document.createElement("td");
+                sellerUsernameCell.innerHTML = productRecord.sellerUsername;
+                
+                let productNameCell = document.createElement("td");
+                productNameCell.innerHTML = productRecord.productName;
+
+                let productCategoryCell = document.createElement("td");
+                productCategoryCell.innerHTML = productRecord.productCategory;
+
+                let productDescriptionCell = document.createElement("td");
+                let productDescriptionText = document.createElement("textarea");
+                productDescriptionText.disabled = true;
+                productDescriptionText.value = productRecord.productDescription;
+                productDescriptionCell.append(productDescriptionText);
+
+                let unitPriceCell = document.createElement("td");
+                unitPriceCell.innerHTML = "$" + productRecord.unitPrice;
+
+                let remainingQuantityCell = document.createElement("td");
+                remainingQuantityCell.innerHTML = productRecord.remainingQuantity;
+
+                let isRemovedCell = document.createElement("td");
+                isRemovedCell.innerHTML = productRecord.isRemoved;
+
+                let selectButtonCell = document.createElement("td");
+                let selectButton = document.createElement("button");
+                selectButton.innerHTML = "Select"
+                selectButton.onclick = function () {
+                    
+                    $("#product_id_label").text(productRecord.productId);
+                    $("#seller_username_label").text(productRecord.sellerUsername);
+                    $("#product_removed_label").text(productRecord.isRemoved);
+                    $("#product_name_label").text(productRecord.productName);
+                    $("#product_category_label").text(productRecord.productCategory);
+                    $("#unit_price_label").text("$" + productRecord.unitPrice);
+                    $("#remaining_quantity_label").text(productRecord.remainingQuantity);
+                    $("#product_description_text").val(productRecord.productDescription);
+                    $("#product_image").attr("src", "../" + productRecord.productImageLink);
+
+                    selectedProductId = productRecord.productId;
+                    $("#productInfoContainer").show();
+                    toggleLockButtons(productRecord.isRemoved);
+                };
+                selectButtonCell.append(selectButton);
+
+                recordRow.append(productIdCell);
+                recordRow.append(sellerUsernameCell);
+                recordRow.append(productNameCell);
+                recordRow.append(productCategoryCell);
+                recordRow.append(productDescriptionCell);
+                recordRow.append(unitPriceCell);
+                recordRow.append(remainingQuantityCell);
+                recordRow.append(isRemovedCell);
+                recordRow.append(selectButtonCell);
+
+                searchResultTable.append(recordRow);
+
+            });
+
+            $("#searchResultContainer").append(searchResultTable);
+        };
+
+
          $(document).ready(function() {
 			
 			// clean URL
@@ -22,132 +155,137 @@
 			
 			// clean input validate msg
 			$("#message_text").empty();
+            // hide info container
+            $("#productInfoContainer").hide();
 
-			// validate input before submitting POST-request
-			$("#block_product").click( function(event) {
-
-				// clean input validate msg
+            // find by username button click event
+            $("#find_username").click( function() {
+                
+                // clean input validate msg
 				$("#message_text").empty();
 
-				// validate input
-				var userName = $("#user_name").val().trim();
-				var productId = $("#product_id").val().trim();
-				
-				var anyErrors = false;
-                console.log("===>"+userName,productId)
-				
-				// all fields are empty, nothing to edit
-				if ( productId === "") {
-					$("#message_text").append("<p>Error: ProductId cannot be empty!</p>" );
-					anyErrors = true;
-				} else {
-					
-					if ( productId === userName ) {
-						$("#message_text").append("<p>Error: Unknown Error!</p>" );
-						anyErrors = true;
-					}
+                let username = $("#user_name").val().trim();
 
-					// validate current password not empty
-					if ( userName === "" ) {
-						$("#message_text").append("<p>Error: Username cannot be empty!</p>" );
-						anyErrors = true;
-					}
-
-					
-				}
-
-				// if error, prevent submit
-				if (anyErrors){
-					event.preventDefault();
-				} else {
-					// no error, submit POST-request
-					$.ajax({
-						method : "PUT",
-						url : "/admin/block_product",
+                $.ajax({
+						method : "POST",
+						url : "/admin/manage_product/view/username",
 						data : {
-							userName: userName,
-							productId: productId
+							username: username,
 						},
 						dataType: "json",
 						success: function(result){
-							// alert(result.message);
-                            console.log("error in message1")
+                            console.log(result);
 							$("#message_text").empty();
-							$("#message_text").html(result.message);
+							//$("#message_text").html(result.message);
+                            displaySearchResult(result.productList);
 						},
 						error: function(xhr, status, err){
-                            console.log("error in message101")
 							$("#message_text").empty();
-							// var errorMsg = xhr.responseJSON.message;
-							// $("#message_text").html(errorMsg);
+							$("#message_text").html(xhr.responseJSON.message);
 						},
 						complete: function() {
-                            console.log("all good")
-							$("#user_name").val("");
-							$("#productId").val("");
+
 						}
 					});
-				}				
-			} );
-
-            $("#delete_product").click( function(event) {
-
-        // clean input validate msg
-        $("#message_text").empty();
-
-        // validate input
-        var userName = $("#user_name").val().trim();
-        var productId = $("#product_id").val().trim();
-
-        var anyErrors = false;
-        console.log("===>"+userName,productId)
-
-        if ( productId === "") {
-                $("#message_text").append("<p>Error: ProductId cannot be empty!</p>" );
-                anyErrors = true;
-            } else {
-
-                // validate username not empty
-                if ( userName === "" ) {
-                    $("#message_text").append("<p>Error: Username cannot be empty!</p>" );
-                    anyErrors = true;
-                }
-
-                
-            }
-
-            
-
-        // if error, prevent submit
-        if (anyErrors){
-            event.preventDefault();
-        } else {
-            // no error, submit POST-request
-            $.ajax({
-                method : "PUT",
-                url : "/admin/delete_product",
-                data : {
-                    userName: userName,
-                },
-                dataType: "json",
-                success: function(result){
-                    // alert(result.message);
-                    console.log("error in message1")
-                    $("#message_text").empty();
-                    $("#message_text").html(result.message);
-
-                    $("#user_name").val("");
-                    $("#productId").val("");
-                },
-                error: function(xhr, status, err){
-                    console.log("error in message101")
-                    $("#message_text").empty();
-                    // var errorMsg = xhr.responseJSON.message;
-                    // $("#message_text").html(errorMsg);
-                }
             });
-        }				
-        } );
+
+            // find by key term button click event
+            $("#find_key").click( function() {
+                
+                // clean input validate msg
+				$("#message_text").empty();
+
+                let searchKey = $("#search_key").val().trim();
+
+                $.ajax({
+						method : "POST",
+						url : "/admin/manage_product/view/search",
+						data : {
+							searchKey: searchKey,
+						},
+						dataType: "json",
+						success: function(result){
+                            console.log(result);
+							$("#message_text").empty();
+							//$("#message_text").html(result.message);
+                            displaySearchResult(result.productList);
+						},
+						error: function(xhr, status, err){
+							$("#message_text").empty();
+							$("#message_text").html(xhr.responseJSON.message);
+						},
+						complete: function() {
+
+						}
+					});
+            });
+
+
+            // lock button click event
+            $("#lock_product").click( function(event) {
+
+                // clean input validate msg
+                $("#message_text").empty();
+                console.log("selected product id: ", selectedProductId);
+                // if error, prevent submit
+                if (!selectedProductId){
+                    event.preventDefault();
+                    $("#message_text").empty();
+                    $("#message_text").append("<p>Error: You haven't selected a product to lock! Please select a product to lock!</p>" );
+                } else {
+                    // no error, submit PUT-request
+                    $.ajax({
+                        method : "PUT",
+                        url : "/admin/manage_product/lock",
+                        data : {
+                            productId: selectedProductId
+                        },
+                        dataType: "json",
+                        success: function(result){
+                            $("#message_text").empty();
+                            $("#message_text").html(result.message);
+                            toggleLockButtons(true);
+                        },
+                        error: function(xhr, status, err){
+                            $("#message_text").empty();
+                            $("#message_text").html(xhr.responseJSON.message);
+                        }, 
+                    });
+                }				
+                });
+
+                // unlock button click event
+                $("#unlock_product").click( function(event) {
+
+                    // clean input validate msg
+                    $("#message_text").empty();
+                    console.log("selected product id: ", selectedProductId);
+                    // if error, prevent submit
+                    if (!selectedProductId){
+                        event.preventDefault();
+                        $("#message_text").empty();
+                        $("#message_text").append("<p>Error: You haven't selected a product to unlock! Please select a product to unlock!</p>" );
+                    } else {
+                        // no error, submit PUT-request
+                        $.ajax({
+                            method : "PUT",
+                            url : "/admin/manage_product/unlock",
+                            data : {
+                                productId: selectedProductId
+                            },
+                            dataType: "json",
+                            success: function(result){
+                                $("#message_text").empty();
+                                $("#message_text").html(result.message);
+                                toggleLockButtons(false);
+                            },
+                            error: function(xhr, status, err){
+                                $("#message_text").empty();
+                                $("#message_text").html(xhr.responseJSON.message);
+                            }, 
+                        });
+                    }				
+                });
 
 		});	
     </script>
@@ -156,37 +294,138 @@
 </head>
 
 <body>
-    <div class="container-sm bg-light w-50 align-items-center pt-5 mx-auto">
-        <div style="float:right">
-            <label class="logout" for="admin_logout">
-                <button type="button" class="btn-primary" name="admin_logout" id="admin_logout" value="LOGOUT" 
-                    onclick="location.href = '../logout';">LOGOUT</button>
-            </label>
+    <div>
+        <div class="container-sm bg-light w-50 align-items-center pt-5 mx-auto">
+            <div style="float:right">
+                <label class="logout" for="admin_logout">
+                    <button type="button" class="btn-primary" name="admin_logout" id="admin_logout" value="LOGOUT" 
+                        onclick="location.href = '../logout';">LOGOUT</button>
+                </label>
+            </div>
+
+            <h4 class="container-sm mx-auto"><b>VIEW AND MODIFY PRODUCTS </b></h4>
+            
+                <div class="form-group pt-3">
+                    <label class="form-label">Enter a username to search for products posted by matched users</label>
+                    <input type="text" name="user_name" id="user_name" class="form-control" style="width:50%">
+                    <button name="find_username" id="find_username">Find</button>
+                </div>
+
+                <div class="form-group pt-3">
+                    <label class="form-label">Enter key term to search for products</label>
+                    <input type="text" name="search_key" id="search_key" class="form-control" style="width:50%">
+                    <button name="find_key" id="find_key">Find</button>
+                </div>
+
+                <div class="container-sm pl-5 pt-5 mx-auto">
+                    <button type="button" name ="go_back" value="Go Back" class="btn-primary "
+                        onclick="location.href = 'admindashboard';">Go Back</button>
+                </div> 
+
+                
         </div>
 
-        <h4 class="container-sm mx-auto"><b>VIEW AND MODIFY PRODUCTS </b></h4>
-        
-            <div class="form-group pt-3">
-                <label class="form-label">Enter Product Id</label>
-                <input type="text" id="product_id" class="form-control" style="width:50%" required="true">
-            </div>
-
-            <div class="form-group pt-3">
-                <label class="form-label">Enter Username of the product posted</label>
-                <input type="text" id="user_name" class="form-control" style="width:50%" required="true">
-            </div>
-
+        <div class="container-sm bg-light align-items-center pt-5 mx-auto">
             <div class="align">
                 <h3 id="message_text"></h3>
             </div>
-
             <div class="container-sm pl-5 pt-5 mx-auto">
-                <button type="button" name ="go_back" value="Go Back" class="btn-primary "
-                    onclick="location.href = 'admindashboard';">Go Back</button>
-                <button type="button" id="block_product" class="modify btn-secondary ">Block Product</button>
-                <button type="button" id="delete_product" class="delete btn-secondary ">Delete Product</button>   
+                <button type="button" id="lock_product" class="modify btn-secondary ">Lock Product</button>
+                <button type="button" id="unlock_product" class="delete btn-secondary ">Unlock Product</button>   
             </div> 
 
+            <div name="productInfoContainer" id="productInfoContainer">
+                </br>
+                <table>
+                    <tr>
+                        <th>
+                            <label for="product_id_label">Product ID:</label>
+                        </th>
+                        <td>
+                            <label name="product_id_label" id="product_id_label"></label>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            <label for="seller_username_label">Seller:</label>
+                        </th>
+                        <td>
+                            <label name="seller_username_label" id="seller_username_label"></label>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            <label for="product_removed_label">Product is locked/removed?</label>
+                        </th>
+                        <td>
+                            <label name="product_removed_label" id="product_removed_label"></label>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            <label for="product_name_label">Product Name:</label>
+                        </th>
+                        <td>
+                            <label name="product_name_label" id="product_name_label"></label>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            <label for="product_category_label">Product Category:</label>
+                        </th>
+                        <td>
+                            <label name="product_category_label" id="product_category_label"></label>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th>
+                            <label for="unit_price_label">Unit Price:</label>
+                        </th>
+                        <td>
+                            <label name="unit_price_label" id="unit_price_label"></label>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            <label for="remaining_quantity_label">Remaining Quantity:</label>
+                        </th>
+                        <td>
+                            <label name="remaining_quantity_label" id="remaining_quantity_label"></label>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th>
+                            <label for="product_description_text">Product Description</label>
+                        </th>
+                        <td>
+                            <textarea name="product_description_text" id="product_description_text"></textarea>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            <label for="product_image">Product Image</label>
+                        </th>
+                        <td>
+                            <img name="product_image" id="product_image" height="100" src="">
+                        </td>
+                    </tr>
+                    
+                </table>
+                </br>
+            </div>
+
+            <div name="searchResultContainer" id="searchResultContainer">
+                
+            </div>
+        </div>
     </div>
     
 </bosdy>

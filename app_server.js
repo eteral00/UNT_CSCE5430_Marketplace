@@ -2,9 +2,6 @@
 const mySQL_DbConnection = require("./config/db.config");
 
 
-
-
-
 // Load modules
 const path = require("path");
 const SHA2 = require("sha2");
@@ -723,6 +720,127 @@ app_server.post("/admin/manage_user/view", (req, res) => {
 
 
 
+// function to find product by seller username
+//
+//
+function findProductBySellerUsername(username, callback) {
+  let queryStr = "SELECT * "
+    + " FROM product "
+    + " WHERE seller_username LIKE ? ;";
+
+  let queryVar = "%" + username + "%";
+
+  mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+    if(err) {
+      console.log("Error: ", err);
+      callback([]);
+    } else { 
+      callback(result_rows);
+    }  
+  });
+};
+
+// function to find product by search key
+//
+//
+function findProductBySearchKey(searchKey, callback) {
+  let queryStr = "SELECT * "
+    + " FROM product "
+    + " WHERE product_name LIKE ? "
+    + " OR product_category LIKE ? "
+    + " OR product_description LIKE ? ;";
+
+  let term = "%" + searchKey + "%";
+  let queryVar = [ term, term, term ];
+
+  mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+    if(err) {
+      console.log("Error: ", err);
+      callback([]);
+    } else { 
+      callback(result_rows);
+    }  
+  });
+};
+
+//post admin manage product view by username
+app_server.post("/admin/manage_product/view/username", (req, res) => {
+  try {
+    console.log("POST-admin_manage_product_view_by_username hit.");
+
+    let username = req.body.username;
+    
+    findProductBySellerUsername(username, function(resultList) {
+      if (resultList.length < 1) {
+        console.log("error 400");
+        res.status(400).json({ message : "Sorry. Either the system could not find any product posted by a user with username matching '" + username + "', or it ran into some errors!" });
+      } else {
+        console.log(resultList);
+        let productList = [];
+        for (const record of resultList) {
+          let product = {};
+          product.sellerUsername = record.seller_username;
+          product.productId = record.product_id;
+          product.productName = record.product_name;
+          product.productCategory = record.product_category;
+          product.productDescription = record.product_description;
+          product.productImageLink = record.product_image_link;
+          product.unitPrice = record.unit_price;
+          product.initialQuantity = record.initial_quantity;
+          product.remainingQuantity = record.remainingquantity;
+          product.isRemoved = Boolean(record.is_removed.toJSON().data[0]);
+
+          productList.push(product);
+        };
+        res.status(200).json({ productList: productList});
+      }
+    });
+
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+//post admin manage product view by search key
+app_server.post("/admin/manage_product/view/search", (req, res) => {
+  try {
+    console.log("POST-admin_manage_product_view_by_search hit.");
+
+    let searchKey = req.body.searchKey;
+    
+    findProductBySearchKey(searchKey, function(resultList) {
+      if (resultList.length < 1) {
+        console.log("error 400");
+        res.status(400).json({ message : "Sorry. Either the system could not find any product matching the key term '" + searchKey + "', or it ran into some errors!" });
+      } else {
+        console.log(resultList);
+        let productList = [];
+        for (const record of resultList) {
+          let product = {};
+          product.sellerUsername = record.seller_username;
+          product.productId = record.product_id;
+          product.productName = record.product_name;
+          product.productCategory = record.product_category;
+          product.productDescription = record.product_description;
+          product.productImageLink = record.product_image_link;
+          product.unitPrice = record.unit_price;
+          product.initialQuantity = record.initial_quantity;
+          product.remainingQuantity = record.remainingquantity;
+          product.isRemoved = Boolean(record.is_removed.toJSON().data[0]);
+
+          productList.push(product);
+        };
+        res.status(200).json({ productList: productList});
+      }
+    });
+
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+
+
 // function to find order payment by username
 //
 // 
@@ -740,7 +858,6 @@ function findOrderPaymentByUsername(username, callback) {
     mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
       if(err) {
         console.log("Error: ", err);
-        console.log("result error:", result_rows);
         callback([]);
       } else { 
         callback(result_rows);
@@ -754,13 +871,12 @@ app_server.post("/admin/manage_order/payment/view", (req, res) => {
     console.log("POST-admin_manage_orderpayment_view hit.");
 
     var username = req.body.username;
-    console.log("username: ", username);
+    
     findOrderPaymentByUsername(username, function(resultList) {
       if (resultList.length < 1) {
         console.log("error 400");
         res.status(400).json({ message : "Sorry. Either the system could not find any payment related to a user with username matching '" + username + "', or it ran into some errors!" });
       } else {
-        console.log(resultList);
         let orderList = [];
         for (const record of resultList) {
           let order = {};
@@ -1022,7 +1138,6 @@ app_server.post("/sell_item/add", fileUpload.single("productImage"), (req, res) 
 });
 
 
-
 // functions to insert new record into address_info table
 // address-tables's fields: address_id (auto), address_street, address city, address state, address_zip
 // insert fields (4): all except address_id, which is auto incremented
@@ -1067,7 +1182,6 @@ function insertAddress(address, callback) {
     
 };
 
-
 // functions to insert new record into shipping_info table
 // shipping-tables's fields: shipping_info_id (auto), shipping_to_name, shipping_address_id, shipping_contact_phone
 // insert fields (3): all except shipping_info_id, which is auto incremented
@@ -1105,7 +1219,6 @@ function insertShipping(shippingInfo, callback) {
     });
     
 };
-
 
 // functions to insert new record into payment_method table
 // payment-tables's fields: payment_method_id (auto), payment_method_type, account_number, account_owner_name, account_security_code, account_expire_date, billing_address_id, is_locked
@@ -1235,7 +1348,6 @@ function insertOrderDetail(orderDetail) {
       queryVar.push(orderDetail.productQuantity);
     }
 
-
     // send query to DB to insert product
     mySQL_DbConnection.query(queryStr, queryVar, function (err, resultSetHeader) {             
       if(err) {
@@ -1355,110 +1467,6 @@ app_server.post("/order/place_order", (req, res) => {
 
 
 
-
-
-
-
-// PUT-admin_delete_product
-app_server.put("/admin/delete_product", (req, res) => {
-  try {
-    console.log("PUT-change_password hit");
-    
-    sessionOb = req.session;
-
-    var userName = req.body.userName;
-    var productId = req.body.productId;
-    
-    var queryStr = "SELECT username, user_password " + 
-      "FROM user " + 
-      "WHERE username = ? ;";
-
-    var queryVar = [userName];
-    
-    // SUGGESTION: better if create a procedure in mysql for updating password so that app server only needs to query once by submitting the required variables
-    // first query, verify user enter correct current password
-    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
-      if(err) {
-          console.log("Error: ", err);
-          //res.status();
-      } else {
-        
-          console.log("Changing is locked for user '" + userName + "' as !" );
-          queryVar.unshift(productId);
-
-          queryStr = "DELETE FROM product "
-           +"WHERE (`product_id` = ? ); " ;
-          // send 2nd query to change password
-          mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {
-            if(err) {
-              console.log("Error: ", err);
-              //res.status();
-            } else {
-              console.log("Successfully changed password for user '" + userName + "'!");
-              res.status(200).json({ message : "Successfully deleted product!" });
-            }
-          });
-        }          
-      
-    });
-
-  } catch (err) {
-    console.error(err.message);
-  }
-});
-
-// PUT-admin_modify_product
-app_server.put("/admin/block_product", (req, res) => {
-  try {
-    console.log("PUT-change_password hit");
-    
-    sessionOb = req.session;
-
-    var userName = req.body.userName;
-    var productId = req.body.productId;
-    
-    var queryStr = "SELECT username, user_password " + 
-      "FROM user " + 
-      "WHERE username = ? ;";
-
-    var queryVar = [productId];
-    
-    // SUGGESTION: better if create a procedure in mysql for updating password so that app server only needs to query once by submitting the required variables
-    // first query, verify user enter correct current password
-    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
-      if(err) {
-          console.log("Error: ", err);
-          //res.status();
-      } else {
-        
-          console.log("Changing is locked for user '" + userName + "' as !" +productId);
-          queryVar.unshift(1);
-
-          queryStr = "UPDATE product " + 
-            " SET `is_removed`= ?"+
-            " WHERE (`product_id` = ? );";
-
-          // send 2nd query to change password
-          mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {
-            if(err) {
-              console.log("Error: ", err);
-              //res.status();
-            } else {
-              console.log("Successfully changed password for user '" + userName + "'!");
-              res.status(200).json({ message : "Successfully blocked product!" });
-            }
-          });
-        }          
-      
-    });
-
-  } catch (err) {
-    console.error(err.message);
-  }
-});
-
-
-
 // function to get and view a user by username
 function viewUserByUsername(username, callback) {
   var queryStr = "SELECT username, email_address, phone_number, first_name, last_name, is_locked, locked_until_date " 
@@ -1497,7 +1505,6 @@ function toggleLockUser(username, toLock, callback) {
     }
   });
 };
-
 
 
 // PUT-admin_modify_user
@@ -1637,6 +1644,102 @@ app_server.put("/admin/manage_user/unlock", (req, res) => {
 });
 
 
+// function to get and view a product by product_id
+function viewProductById(productId, callback) {
+  var queryStr = "SELECT * " 
+    + " FROM `marketplace`.`product` "
+    + " WHERE product_id = ? ";
+  
+  var queryVar = productId;
+
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+      if(err) {
+        console.log("Error: ", err);
+        callback([]);
+      } else { 
+        callback(result_rows);
+      }  
+    });
+};
+
+// function to lock/unlock a product
+function toggleLockProduct(productId, toLock, callback) {
+  let queryStr = "UPDATE `marketplace`.`product` " 
+    + " SET `is_removed`= b? "
+    + " WHERE (`product_id` = ? );";
+
+  let queryVar = [productId];
+  if (toLock) {
+    queryVar.unshift('1');
+  } else {
+    queryVar.unshift('0');
+  }
+
+  mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+    if(err) {
+      console.log("Error: ", err);
+      callback(false);
+    } else {
+      callback(true);
+    }
+  });
+};
+
+// PUT admin lock product
+app_server.put("/admin/manage_product/lock", (req, res) => {
+  try {
+    console.log("PUT-admin_lock_product hit");
+    
+    let productId = req.body.productId;
+
+    viewProductById (productId, function (result_rows) {
+      if (result_rows.length < 1) {
+        // product not found
+        res.status(400).json({ message : "The requested product, ID '" + productId + "', does not exist or has been removed!" });
+      } else {
+        // product found => blocking
+        toggleLockProduct (productId, true, function(updateResult){
+          if (!updateResult) {
+            res.status(400).json({ message : "Error: The system encountered errors while trying to lock the product with ID '" + productId + "'!" });
+          } else {
+            res.status(200).json({ message : "Successfully locked the product with ID '" + productId + "'!" });
+          }
+        }); 
+      }
+    });
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+// PUT admin unlock product
+app_server.put("/admin/manage_product/unlock", (req, res) => {
+  try {
+    console.log("PUT-admin_unlock_product hit");
+    
+    let productId = req.body.productId;
+
+    viewProductById (productId, function (result_rows) {
+      if (result_rows.length < 1) {
+        // product not found
+        res.status(400).json({ message : "The requested product, ID '" + productId + "', does not exist or has been removed!" });
+      } else {
+        // product found => blocking
+        toggleLockProduct (productId, false, function(updateResult){
+          if (!updateResult) {
+            res.status(400).json({ message : "Error: The system encountered errors while trying to unlock the product with ID '" + productId + "'!" });
+          } else {
+            res.status(200).json({ message : "Successfully unlocked the product with ID '" + productId + "'!" });
+          }
+        }); 
+      }
+    });
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+
+
 // function to get and view a payment by payment_id
 function viewPaymentMethodById(paymentMethodId, callback) {
   var queryStr = "SELECT * " 
@@ -1716,7 +1819,7 @@ app_server.put("/admin/manage_order/payment/unlock", (req, res) => {
         // payment method not found
         res.status(400).json({ message : "The requested payment method, ID '" + paymentMethodId + "', does not exist or has been removed!" });
       } else {
-        // payment method found => blocking
+        // payment method found => unblocking
         toggleLockPaymentMethod (paymentMethodId, false, function(updateResult){
           if (!updateResult) {
             res.status(400).json({ message : "Error: The system encountered errors while trying to unlock payment with ID '" + paymentMethodId + "'!" });
@@ -1779,9 +1882,7 @@ app_server.put("/admin/change_pass_admin", (req, res) => {
           }
         });
       }         
-      
     });
-
   } catch (err) {
     console.error(err.message);
   }
