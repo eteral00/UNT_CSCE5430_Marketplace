@@ -668,7 +668,7 @@ app_server.get("/", (req, res) => {
 
 
 
-// function to get a user by username
+// function to find a user by username
 //
 // 
 function findUserByUsername(username, callback) {
@@ -688,9 +688,10 @@ function findUserByUsername(username, callback) {
     });
 };
 
+// post-admin_manage_user view
 app_server.post("/admin/manage_user/view", (req, res) => {
   try {
-    console.log("POST-admin_manage_user hit.");
+    console.log("POST-admin_manage_user_view hit.");
 
     var username = req.body.username;
     findUserByUsername(username, function(resultList) {
@@ -722,7 +723,65 @@ app_server.post("/admin/manage_user/view", (req, res) => {
 
 
 
+// function to find order payment by username
+//
+// 
+function findOrderPaymentByUsername(username, callback) {
+  var queryStr = "SELECT `order`.`order_id`, `order`.`order_date`, buyer_username, SUM(unit_price * product_quantity) AS order_total, `order`.`payment_method_id`, payment_method_type, payment_method.is_locked AS payment_is_locked "
+    + " FROM `order`, `order_detail`, `product`, `payment_method` "
+    + " WHERE `order`.`order_id` = `order_detail`.`order_id` "
+    + " AND `order_detail`.`product_id` = `product`.`product_id` "
+    + " AND `order`.`payment_method_id` = `payment_method`.`payment_method_id` "
+    + " AND `buyer_username` LIKE ? "
+    + " GROUP BY `order`.`order_id` ;";
+  
+  var queryVar = "%" + username + "%";
 
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+      if(err) {
+        console.log("Error: ", err);
+        console.log("result error:", result_rows);
+        callback([]);
+      } else { 
+        callback(result_rows);
+      }  
+    });
+};
+
+//post admin manage order payment view
+app_server.post("/admin/manage_order/payment/view", (req, res) => {
+  try {
+    console.log("POST-admin_manage_orderpayment_view hit.");
+
+    var username = req.body.username;
+    console.log("username: ", username);
+    findOrderPaymentByUsername(username, function(resultList) {
+      if (resultList.length < 1) {
+        console.log("error 400");
+        res.status(400).json({ message : "Sorry. Either the system could not find any payment related to a user with username matching '" + username + "', or it ran into some errors!" });
+      } else {
+        console.log(resultList);
+        let orderList = [];
+        for (const record of resultList) {
+          let order = {};
+          order.orderId = record.order_id;
+          order.orderDate = record.order_date;
+          order.orderTotal = record.order_total;
+          order.buyerUsername = record.buyer_username;
+          order.paymentMethodId = record.payment_method_id;
+          order.paymentMethodType = record.payment_method_type;
+          order.paymentIsLocked = Boolean(record.payment_is_locked.toJSON().data[0]);
+
+          orderList.push(order);
+        };
+        res.status(200).json({ orderList: orderList});
+      }
+    });
+
+  } catch (err) {
+    console.error(err.message);
+  }
+});
 
 
 // POST login
@@ -1418,6 +1477,7 @@ function viewUserByUsername(username, callback) {
     });
 };
 
+// function to lock/unlock a user
 function toggleLockUser(username, toLock, callback) {
   let queryStr = "UPDATE `marketplace`.`user` " 
     + " SET `is_locked`= b? "
@@ -1577,7 +1637,103 @@ app_server.put("/admin/manage_user/unlock", (req, res) => {
 });
 
 
-// PUT-change_password_admin
+// function to get and view a payment by payment_id
+function viewPaymentMethodById(paymentMethodId, callback) {
+  var queryStr = "SELECT * " 
+    + " FROM `marketplace`.`payment_method` "
+    + " WHERE payment_method_id = ? ";
+  
+  var queryVar = paymentMethodId;
+
+    mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+      if(err) {
+        console.log("Error: ", err);
+        callback([]);
+      } else { 
+        callback(result_rows);
+      }  
+    });
+};
+
+// function to lock/unlock a payment
+function toggleLockPaymentMethod(paymentMethodId, toLock, callback) {
+  let queryStr = "UPDATE `marketplace`.`payment_method` " 
+    + " SET `is_locked`= b? "
+    + " WHERE (`payment_method_id` = ? );";
+
+  let queryVar = [paymentMethodId];
+  if (toLock) {
+    queryVar.unshift('1');
+  } else {
+    queryVar.unshift('0');
+  }
+
+  mySQL_DbConnection.query(queryStr, queryVar, function (err, result_rows, fields) {             
+    if(err) {
+        console.log("Error: ", err);
+        callback(false);
+    } else {
+      callback(true);
+    }
+  });
+};
+
+// PUT-admin_lock_payment
+app_server.put("/admin/manage_order/payment/lock", (req, res) => {
+  try {
+    console.log("PUT-admin_lock_payment hit");
+    
+    let paymentMethodId = req.body.paymentMethodId;
+
+    viewPaymentMethodById (paymentMethodId, function (result_rows) {
+      if (result_rows.length < 1) {
+        // payment method not found
+        res.status(400).json({ message : "The requested payment method, ID '" + paymentMethodId + "', does not exist or has been removed!" });
+      } else {
+        // payment method found => blocking
+        toggleLockPaymentMethod (paymentMethodId, true, function(updateResult){
+          if (!updateResult) {
+            res.status(400).json({ message : "Error: The system encountered errors while trying to lock payment with ID '" + paymentMethodId + "'!" });
+          } else {
+            res.status(200).json({ message : "Successfully locked payment ID '" + paymentMethodId + "'!" });
+          }
+        }); 
+      }
+    });
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+// PUT-admin_unlock_payment
+app_server.put("/admin/manage_order/payment/unlock", (req, res) => {
+  try {
+    console.log("PUT-admin_unlock_payment hit");
+    
+    let paymentMethodId = req.body.paymentMethodId;
+
+    viewPaymentMethodById (paymentMethodId, function (result_rows) {
+      if (result_rows.length < 1) {
+        // payment method not found
+        res.status(400).json({ message : "The requested payment method, ID '" + paymentMethodId + "', does not exist or has been removed!" });
+      } else {
+        // payment method found => blocking
+        toggleLockPaymentMethod (paymentMethodId, false, function(updateResult){
+          if (!updateResult) {
+            res.status(400).json({ message : "Error: The system encountered errors while trying to unlock payment with ID '" + paymentMethodId + "'!" });
+          } else {
+            res.status(200).json({ message : "Successfully unlocked payment ID '" + paymentMethodId + "'!" });
+          }
+        }); 
+      }
+    });
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+
+
+// PUT-admin_change_password
 app_server.put("/admin/change_pass_admin", (req, res) => {
   try {
     console.log("PUT-change_password hit");

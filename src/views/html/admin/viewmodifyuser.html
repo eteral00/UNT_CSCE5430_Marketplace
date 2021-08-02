@@ -81,7 +81,7 @@
             tableHeadingRow.append(lockedUntilDateHeading);
 
             let selectHeading = document.createElement("th");
-            selectHeading.innerHTML = "SELECT";
+            selectHeading.innerHTML = "";
             tableHeadingRow.append(selectHeading);
 
             searchResultTable.append(tableHeadingRow);
@@ -184,9 +184,6 @@
                         success: function(result){
                             $("#message_text").empty();
                             //console.log(result);
-                            
-                            clearForm();
-                            
                             displaySearchResult(result.userList);
 
                         },
@@ -264,7 +261,7 @@
                             emailAddress : emailAddress,
                             phoneNumber : phoneNumber
                         };
-                        // no error, submit POST-request
+                        // no error, submit PUT-request
                         $.ajax({
                             method : "PUT",
                             url : "/admin/manage_user/modify",
@@ -308,7 +305,7 @@
                     event.preventDefault();
                 } else {
 
-                    // no error, submit POST-request
+                    // no error, submit PUT-request
                     $.ajax({
                         method : "PUT",
                         url : "/admin/manage_user/lock",
@@ -447,7 +444,7 @@
                     </tr>
                     <tr>
                         <th>
-                            <label for="">Phone:</label>
+                            <label for="userPhone">Phone:</label>
                         </th>
                         <td>
                             <input type="tel" name="userPhone" id="userPhone">
@@ -455,7 +452,7 @@
                     </tr>
                     <tr>
                         <th>
-                            <label for="">Is Locked?</label>
+                            <label for="userLockedLabel">Is Locked?</label>
                         </th>
                         <td>
                             <label name="userLockedLabel" id="userLockedLabel"></label>

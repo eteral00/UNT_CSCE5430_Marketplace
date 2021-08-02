@@ -3,57 +3,354 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Payment Help</title>
+    <title>Order Management: Payment Help</title>
+    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    
-    <script>
-        function clearForm() {
-			$("input").val("");
-		};
 
-        function myfunction(){
-            var x = document.getElementById("userid").value;
-            var y = document.getElementById("transactionid").value;
-            localStorage.setItem('userid1', x);
-            localStorage.setItem("transactionid1",y);   
+
+    <script>
+        var selectedPaymentMethodId;
+
+        function clearForm() {
+            $("input").val("");
+        };
+        function validateInput() {
+
+            // clean input validate msg
+            $("#message_text").empty();
+
+            // validate input
+			let username = $("#user_name").val().trim();
+            let anyErrors = false;
+
+            // validate username not empty
+            if ( username === "" ) {
+                $("#message_text").append("<p>Error: Username cannot be empty! Please enter a Username!</p>" );
+                anyErrors = true;
+            }
+
+            return anyErrors;
+        };
+        
+        function toggleLockButtons(isLocked) {
+            if(isLocked) {
+                $("#lock_payment").hide();
+                $("#unlock_payment").show();
+            } else {
+                $("#lock_payment").show();
+                $("#unlock_payment").hide();
+            }
         }
-    </script>       
+
+        function displaySearchResult(resultList) {
+            // userList is an array of orders { orderId, orderDate, buyerUsername, paymentMethodId, paymentMethodType, paymentIsLocked }
+            $("#message_text").empty();
+            
+            $("#searchResultContainer").empty();
+            let searchResultTable = document.createElement("tb");
+
+            let tableHeadingRow = document.createElement("tr");
+
+            let orderIdHeading = document.createElement("th");
+            orderIdHeading.innerHTML = "Order ID";
+            tableHeadingRow.append(orderIdHeading);
+
+            let orderDateHeading = document.createElement("th");
+            orderDateHeading.innerHTML = "Order Date";
+            tableHeadingRow.append(orderDateHeading);
+
+            let orderTotalHeading = document.createElement("th");
+            orderTotalHeading.innerHTML = "Order Total";
+            tableHeadingRow.append(orderTotalHeading);
+
+            let buyUsernameHeading = document.createElement("th");
+            buyUsernameHeading.innerHTML = "Buyer Username";
+            tableHeadingRow.append(buyUsernameHeading);
+
+            let paymentMethodTypeHeading = document.createElement("th");
+            paymentMethodTypeHeading.innerHTML = "Payment Method Type";
+            tableHeadingRow.append(paymentMethodTypeHeading);
+
+            let paymentIsLockedHeading = document.createElement("th");
+            paymentIsLockedHeading.innerHTML = "Payment Is Locked";
+            tableHeadingRow.append(paymentIsLockedHeading);
+
+            let selectHeading = document.createElement("th");
+            selectHeading.innerHTML = "";
+            tableHeadingRow.append(selectHeading);
+
+            searchResultTable.append(tableHeadingRow);
+
+            $.each(resultList, function(idx, orderRecord) {
+                let recordRow = document.createElement("tr");
+                recordRow.id = "order__" + orderRecord.orderId;
+
+                let orderIdCell = document.createElement("td");
+                orderIdCell.innerHTML = orderRecord.orderId;
+                recordRow.append(orderIdCell);
+
+                let orderDateCell = document.createElement("td");
+                orderDateCell.innerHTML = orderRecord.orderDate;
+                recordRow.append(orderDateCell);
+
+                let orderTotalCell = document.createElement("td");
+                orderTotalCell.innerHTML = "$" + orderRecord.orderTotal;
+                recordRow.append(orderTotalCell);
+
+                let buyerUsernameCell = document.createElement("td");
+                buyerUsernameCell.innerHTML = orderRecord.buyerUsername;
+                recordRow.append(buyerUsernameCell);
+                
+                let paymentMethodTypeCell = document.createElement("td");
+                paymentMethodTypeCell.innerHTML = orderRecord.paymentMethodType;
+                recordRow.append(paymentMethodTypeCell);
+
+                let paymentIsLockedCell = document.createElement("td");
+                paymentIsLockedCell.innerHTML = orderRecord.paymentIsLocked;
+                recordRow.append(paymentIsLockedCell);
+
+                let selectButtonCell = document.createElement("td");
+                let selectButton = document.createElement("button");
+                selectButton.innerHTML = "Select"
+                selectButton.onclick = function () {
+                    
+                    $("#orderIdLabel").text(orderRecord.orderId);
+                    $("#orderDateLabel").text(orderRecord.orderDate);
+                    $("#orderTotalLabel").text("$" + orderRecord.orderTotal);
+                    $("#buyerUsernameLabel").text(orderRecord.buyerUsername);
+                    $("#paymentMethodTypeLabel").text(orderRecord.paymentMethodType);
+                    $("#paymentLockedLabel").text(orderRecord.paymentIsLocked);
+                    selectedPaymentMethodId = orderRecord.paymentMethodId;
+                    
+                    toggleLockButtons(orderRecord.paymentIsLocked);
+                };
+                selectButtonCell.append(selectButton);
+                recordRow.append(selectButtonCell);
+
+                searchResultTable.append(recordRow);
+
+            });
+
+
+
+            $("#searchResultContainer").append(searchResultTable);
+        };
+
+
+        $(document).ready(function() {
+			
+			// clean URL
+			var url = window.location.toString();
+			if (url.indexOf("?") > 0) {
+				var clean_url = url.substring(0, url.indexOf("?"));
+				window.history.replaceState({}, document.title, clean_url);
+			}
+			
+			// clean input validate msg
+			$("#message_text").empty();
+
+            // view button click event
+            $("#view_payment").click( function(event) {
+
+                let username = $("#user_name").val().trim();
+
+                let anyErrors = false;
+
+                // validate username not empty
+                if ( username === "" ) {
+                    $("#message_text").append("<p>Error: Username cannot be empty! Please enter a Username!</p>" );
+                    anyErrors = true;
+                }
+                
+                // if error, prevent submit
+                if (anyErrors){
+                    event.preventDefault();
+                } else {
+                    // no error, submit POST-request
+                    $.ajax({
+                        method : "POST",
+                        url : "/admin/manage_order/payment/view",
+                        data : {
+                            username: username,
+                        },
+                        dataType: "json",
+                        success: function(result){
+                            $("#message_text").empty();
+                            //console.log(result);
+                            displaySearchResult(result.orderList);
+                        },
+                        error: function(xhr, status, err){
+                            $("#message_text").empty();
+                            var errorMsg = xhr.responseJSON.message;
+                            $("#message_text").html(errorMsg);
+                        }
+                    });
+                }				
+            });
+
+            
+            // lock button click event
+            $("#lock_payment").click( function(event) {
+
+                // clean input validate msg
+                $("#message_text").empty();
+                console.log("selected payment method id: ", selectedPaymentMethodId);
+                // if error, prevent submit
+                if (!selectedPaymentMethodId){
+                    event.preventDefault();
+                } else {
+                    // no error, submit PUT-request
+                    $.ajax({
+                        method : "PUT",
+                        url : "/admin/manage_order/payment/lock",
+                        data : {
+                            paymentMethodId: selectedPaymentMethodId,
+                        },
+                        dataType: "json",
+                        success: function(result){
+                            $("#message_text").empty();
+                            $("#message_text").html(result.message);
+                            toggleLockButtons(true);
+                        },
+                        error: function(xhr, status, err){
+                            $("#message_text").empty();
+                            var errorMsg = xhr.responseJSON.message;
+                            $("#message_text").html(errorMsg);
+                        }, 
+                    });
+                }				
+            });
+
+            // unlock button click event
+            $("#unlock_payment").click( function(event) {
+
+                // clean input validate msg
+                $("#message_text").empty();
+                console.log("selected payment method id: ", selectedPaymentMethodId);
+                // if error, prevent submit
+                if (!selectedPaymentMethodId){
+                    event.preventDefault();
+                } else {
+                    // no error, submit PUT-request
+                    $.ajax({
+                        method : "PUT",
+                        url : "/admin/manage_order/payment/unlock",
+                        data : {
+                            paymentMethodId: selectedPaymentMethodId,
+                        },
+                        dataType: "json",
+                        success: function(result){
+                            $("#message_text").empty();
+                            $("#message_text").html(result.message);
+                            toggleLockButtons(false);
+                        },
+                        error: function(xhr, status, err){
+                            $("#message_text").empty();
+                            var errorMsg = xhr.responseJSON.message;
+                            $("#message_text").html(errorMsg);
+                        }, 
+                    });
+                }				
+            });
+
+		});	
+
+        
+    </script>
 
 </head>
 
 <body>
-    <div class="container-sm pt-5">
+    <div class="container-sm bg-light w-50 align-items-center pt-5 mx-auto">
         <div style="float:right">
             <label class="logout" for="admin_logout">
                 <button type="button" class="btn-primary" name="admin_logout" id="admin_logout" value="LOGOUT" 
                     onclick="location.href = '../logout';">LOGOUT</button>
             </label>
-        </div>  
+        </div>
 
-        <h3>Payment Help</h3>
-  
+        <h4 class="container-sm mx-auto"><b>VIEW AND MODIFY USERS </b></h4>
+        
             <div class="form-group pt-3">
-                <label class="form-label ">ENTER USER ID: </label>
-                <input type="text"  class="form-control" id="userid" style="width:50%" required="true">
+                <label class="form-label">Enter Username: </label>
+                <input type="text" id="user_name" class="form-control" style="width:50%" required="true">
             </div>
-            
-            <div class="form-group pt-3">
-                <label class="form-label">ENTER TRANSACTION ID:</label>
-                <input type="text" class="form-control" id="transactionid" style="width:50%" required="true">
+
+            <div class="align">
+                <h3 id="message_text"></h3>
             </div>
-            
+
             <div class="container-sm pl-5 pt-5 mx-auto">
                 <button type="button" name ="go_back" value="Go Back" class="btn-primary "
                     onclick="location.href = 'admindashboard';">Go Back</button>
-                <button type="submit" name="view" id="view" class="next btn-secondary ">View</button>
-                <button type="button" class="cancel btn-secondary" 
-					onclick="clearForm()">Clear</button>
-            </div> 
+                <button type="button" id="view_payment" class="modify btn-secondary ">View Orders & Payments</button>
+                
+                <button type="button" id="lock_payment" class="delete btn-secondary" value="lock">Lock</button>
+                <button type="button" id="unlock_payment" class="delete btn-secondary" value="unlock">Unlock</button>
+                
+            </div>
 
+            <div name="userInfoContainer" id="userInfoContainer">
+                </br>
+                <table>
+                    <tr>
+                        <th>
+                            <label for="orderIdLabel">Order ID:</label>
+                        </th>
+                        <td>
+                            <label name="orderIdLabel" id="orderIdLabel"></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <label for="orderDateLabel">Order Date:</label>
+                        </th>
+                        <td>
+                            <label name="orderDateLabel" id="orderDateLabel"></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <label for="orderTotalLabel">Order Total:</label>
+                        </th>
+                        <td>
+                            <label name="orderTotalLabel" id="orderTotalLabel"></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <label for="buyerUsernameLabel">Buyer Username</label>
+                        </th>
+                        <td>
+                            <label name="buyerUsernameLabel" id="buyerUsernameLabel"></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <label for="paymentMethodTypeLabel">Payment Method Type</label>
+                        </th>
+                        <td>
+                            <label name="paymentMethodTypeLabel" id="paymentMethodTypeLabel"></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <label for="paymentLockedLabel">Payment Is Locked?</label>
+                        </th>
+                        <td>
+                            <label name="paymentLockedLabel" id="paymentLockedLabel"></label>
+                        </td>
+                    </tr>
+                </table>
+            </br>
+            </div>
+            
+            <div name="searchResultContainer" id="searchResultContainer">
+                
+            </div>
     </div>
-
-</body>
-
+    
+</bosdy>
 </html>
