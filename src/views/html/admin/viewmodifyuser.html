@@ -319,13 +319,15 @@
                         success: function(result){
                             $("#message_text").empty();
                             $("#message_text").html(result.message);
-
-                            toggleLockButtons(true);
                         },
                         error: function(xhr, status, err){
                             $("#message_text").empty();
                             var errorMsg = xhr.responseJSON.message;
                             $("#message_text").html(errorMsg);
+                        }, 
+                        complete : function() {
+                            $("#lock_user").show();
+                            $("#unlock_user").show();
                         }
                     });
                 }				

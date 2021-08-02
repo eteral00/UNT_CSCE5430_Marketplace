@@ -1563,9 +1563,9 @@ app_server.put("/admin/manage_user/unlock", (req, res) => {
         // user found => blocking
         toggleLockUser(username, false, function(updateResult){
           if (!updateResult) {
-            res.status(400).json({ message : "Error: The system encountered errors while trying to lock user '" + username + "'!" });
+            res.status(400).json({ message : "Error: The system encountered errors while trying to unlock user '" + username + "'!" });
           } else {
-            res.status(200).json({ message : "Successfully locked user '" + username + "'!" });
+            res.status(200).json({ message : "Successfully unlocked user '" + username + "'!" });
           }
         }); 
         
