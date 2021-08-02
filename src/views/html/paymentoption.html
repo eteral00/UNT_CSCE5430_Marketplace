@@ -33,7 +33,7 @@
             
 
             $("#payment_type").change( function() {
-                var paymentType = $(this).val().toLowerCase();
+                let paymentType = $(this).val().toLowerCase();
                 if (paymentType === "card") {
                     $("#payment_ccv_label").show();
                     $("#payment_ccv").show();
@@ -112,7 +112,8 @@
                         var paymentInfo = { paymentType : paymentType, ownerName : ownerName, accountNumber : paymentNumber, accountCode : paymentSecureCode, expireDate : paymentExpire };
                         sessionUser.paymentInfo = paymentInfo;
                         sessionStorage.setItem ("sessionUser", JSON.stringify(sessionUser) );
-
+                        
+                        //console.log (paymentInfo);
                         clearForm();
                         
                         // send POST-req to server

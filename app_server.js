@@ -1215,7 +1215,7 @@ app_server.post("/order/place_order", (req, res) => {
       addressZip : addressZip 
     };
     
-    var paymentType = req.body.paymentInfo.paymentType;
+    var paymentMethodType = req.body.paymentInfo.paymentType;
     var accountNumber = req.body.paymentInfo.accountNumber;
     var accountOwnerName = req.body.paymentInfo.ownerName;
     var accountSecurityCode = req.body.paymentInfo.accountCode;
@@ -1229,7 +1229,7 @@ app_server.post("/order/place_order", (req, res) => {
     
     insertAddress(newAddress, function(insertedAddressId) {
       newPaymentMethod = { 
-        paymentType : paymentType, 
+        paymentMethodType : paymentMethodType, 
         accountNumber : accountNumber, 
         accountOwnerName : accountOwnerName, 
         accountSecurityCode : accountSecurityCode, 
